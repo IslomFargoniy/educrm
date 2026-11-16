@@ -15,6 +15,7 @@
   | Keldi | Ha |
   | Sababsiz kelmadi | Ha |
   | Sababli kelmadi | **Yo'q** (12 talik hisobga ham kirmaydi) |
+- **Narx o'zgarishi**: guruh narxi o'zgartirilsa, yangi narx **keyingi oyning 1-sanasidan** qo'llanadi. Joriy oy eski narxda yakunlanadi. Narxlar tarixi saqlanadi.
 - **Bo'linish**: kurs narxi doim 12 ga qoldiqsiz bo'linadi, shuning uchun yaxlitlash kerak emas. Summalar butun so'mda saqlanadi. Guruh narxi va chegirmadan keyingi narx kiritilganda 12 ga bo'linishi validatsiya qilinadi.
 
 ### 1.2 O'quvchi balansi (har guruh uchun alohida)
@@ -22,11 +23,12 @@
 - Dars o'tilganda dars narxi balansdan **yechiladi**. Balansda pul bo'lmasa, balans **minusga** tushadi (qarz).
 - To'lov qabul qilinganda u shu guruh balansiga tushadi.
 - **Balansni ko'chirish**: bir guruhdagi ortiqcha (musbat) pulni o'quvchining boshqa guruhiga o'tkazish mumkin. Bu ikkinchi guruh uchun to'lov kabi ishlaydi va o'sha guruhdagi qarzni yopadi.
+- **Qarz bilan chiqib ketish**: qarz tizimda saqlanadi va qarzdorlar ro'yxatida turadi. O'quvchi qaytib kelsa yoki to'lasa, qarz odatdagidek yopiladi va o'qituvchiga ulush yoziladi. Admin xohlasa qarzni sabab yozib **hisobdan chiqaradi**: balans nolga tushadi, o'qituvchiga ulush yozilmaydi, bu amal tarixda ko'rinadi.
 - **Chegirma**: har bir `enrollment` uchun foiz yoki oylik summa ko'rinishida. Dars narxi = (oylik narx − chegirma) / 12.
 
 ### 1.3 O'qituvchi ulushi
 - Har guruhda **standart foiz** bor (masalan 40%). Guruhdagi istalgan o'quvchi uchun **alohida foiz** belgilash mumkin (masalan 70%); belgilanmasa, guruh foizi olinadi.
-- Ulush **darsni haqiqatda o'tgan** o'qituvchiga yoziladi. Asosiy o'qituvchi kelmay, o'rniga boshqasi dars o'tsa, o'sha dars ulushi **o'rinbosarga** yoziladi.
+- Ulush **darsni haqiqatda o'tgan** o'qituvchiga yoziladi. Asosiy o'qituvchi kelmay, o'rniga boshqasi dars o'tsa, o'sha dars ulushi **o'rinbosarga** yoziladi. O'rinbosar asosiy o'qituvchi bilan **bir xil foizni** oladi: o'quvchiga alohida foiz belgilangan bo'lsa o'sha, aks holda guruh foizi.
 - **O'qituvchi balansi faqat o'quvchi puli bilan qoplangan darslardan oshadi:**
   - O'quvchi balansida pul bor → dars o'tilganda darhol ulush yoziladi.
   - Balans minusda → dars qarzga yoziladi, o'qituvchiga **hech narsa yozilmaydi**.
@@ -43,7 +45,7 @@
   - **Pulni qaytarish**: o'quvchi ketsa, balansidagi ortiqcha pul qaytariladi.
   - **Kassalar orasida o'tkazma**: masalan naqd puldan bankka.
 - Hech bir kassa qoldig'i minusga tushmaydi.
-- **Bo'sh foyda** = kassalar jami − o'qituvchilar balanslari jami − o'quvchilarning oldindan to'lagan (hali ishlatilmagan) pullari. Foyda yechish oynasida shu raqam ko'rsatiladi (§8, 2-savol).
+- **Bo'sh foyda** = kassalar jami − o'qituvchilar balanslari jami − o'quvchilarning oldindan to'lagan (hali ishlatilmagan) pullari. Foyda yechish oynasida shu raqam ko'rsatiladi. Superadmin yoki admin bo'sh foydadan ortiq summa kiritsa, **ogohlantirish** chiqadi ("bu pul o'qituvchilar va o'quvchilarga tegishli"), lekin tasdiqlasa yechishga ruxsat beriladi. Bu holat tarixda belgi bilan saqlanadi.
 
 ### 1.5 Balans tarixi
 Uch joyda bo'ladi: **kassa**, **o'qituvchi**, **o'quvchi**. Hammasida bir xil ustunlar ishlatiladi:
@@ -172,6 +174,7 @@ Barcha pul summalari `bigint`, butun so'mda.
 | `users` | + phone, status; spatie jadvallari (roles, permissions…) |
 | `students` | full_name, phone, parent_phone, birth_date, user_id (login uchun, ixtiyoriy), branch_id, status, note |
 | `groups` | branch_id, name, subject, teacher_id, monthly_price, teacher_percent, days (dush/chor/jum), start_time, room, start_date, end_date, status |
+| `group_prices` | group_id, monthly_price, effective_from (oy boshi), created_by |
 | `enrollments` | student_id, group_id, joined_at, left_at, status, teacher_percent (null → guruhniki), discount_type, discount_value, **balance** (kesh) |
 | `lessons` | group_id, date, teacher_id (haqiqatda o'tgan), is_substitute, status (rejada / o'tildi / bekor qilindi), topic |
 | `attendances` | lesson_id, enrollment_id, status (keldi / sababsiz / sababli), note, marked_by |
@@ -188,7 +191,7 @@ Barcha pul summalari `bigint`, butun so'mda.
 - Har bir pul harakati bitta `transaction` va bir nechta `ledger_entries` qatoridan iborat. **Balans tarixi aynan shu qatorlardan olinadi.**
 - Kesh qilingan `balance` ustunlari bir xil DB tranzaksiyasi ichida `lockForUpdate` bilan yangilanadi. `balance_after` tarixda saqlanadi.
 - **O'chirish yo'q**: xato yozuv teskari (storno) tranzaksiya bilan bekor qilinadi. Tarixda ikkala yozuv ham ko'rinadi.
-- Tranzaksiya turlari: `student_payment`, `lesson_charge`, `charge_reversal`, `teacher_earning`, `teacher_payout`, `expense`, `owner_withdrawal`, `cashbox_transfer`, `balance_transfer`, `refund`, `adjustment`.
+- Tranzaksiya turlari: `student_payment`, `lesson_charge`, `charge_reversal`, `teacher_earning`, `teacher_payout`, `expense`, `owner_withdrawal`, `cashbox_transfer`, `balance_transfer`, `refund`, `debt_writeoff`, `opening_balance`, `adjustment`.
 
 ## 5. Asosiy jarayonlar (servislar)
 
@@ -228,14 +231,15 @@ Barcha pul summalari `bigint`, butun so'mda.
 | 5 | Balans tarixlari va hisobotlar | Kassa, o'qituvchi va o'quvchi tarixi, filtr, eksport, dashboard |
 | 6 | Shaxsiy kabinetlar | O'qituvchi va o'quvchi portallari |
 | 7 | Xabarnomalar | SMS (masalan Eskiz.uz) va Telegram bot: to'lov qabul qilindi, qarz eslatmasi (rejalashtirilgan), dars qoldirildi; navbat (queue) orqali |
-| 8 | Deploy | Deploy skripti, queue worker va scheduler (cron), zaxira nusxa |
+| 8 | Excel import | Shablon fayl, o'quvchilar, guruhlar, enrollment va boshlang'ich balanslar (qarz yoki oldindan to'lov `opening_balance` sifatida). Yuklashdan oldin tekshiruv va xatolar ro'yxati ko'rsatiladi, tasdiqlangandan keyin saqlanadi |
+| 9 | Deploy | Deploy skripti, queue worker va scheduler (cron), zaxira nusxa |
 
 Har bosqich alohida PR sifatida, testlar bilan topshiriladi. Hisob-kitob (3–4 bosqich) eng muhim qism: unda har bir chekka holat uchun test yoziladi.
 
-## 8. Ochiq savollar
+## 8. Qabul qilingan qarorlar
 
-1. **O'rinbosar foizi**: o'rinbosar o'quvchi yoki guruh foizini oladimi, yoki o'zining alohida foizi bo'ladimi? (Rejada: o'sha o'quvchining foizi.)
-2. **Foyda yechish chegarasi**: admin faqat "bo'sh foyda" doirasida yecha oladimi, yoki ogohlantirish bilan kassadagi hamma pulni ham? (Rejada: ogohlantirish bilan ruxsat.)
-3. **Guruh narxi o'zgarsa**: yangi narx keyingi oydan qo'llanadimi yoki darhol?
-4. **Oy o'rtasida guruhdan chiqish**: chiqqan o'quvchining qolgan qarzi tizimda qoladimi, uni yozib qo'yish (hisobdan chiqarish) imkoni kerakmi?
-5. **Mavjud ma'lumot**: eski tizimdan (Excel va h.k.) o'quvchi va balanslarni import qilish kerakmi?
+1. **O'rinbosar foizi**: o'rinbosar o'sha o'quvchining (yoki guruhning) foizini oladi (§1.3).
+2. **Foyda yechish**: bo'sh foydadan ortig'ini yechish ogohlantirish va tasdiq bilan mumkin (§1.4).
+3. **Narx o'zgarishi**: yangi narx keyingi oydan qo'llanadi (§1.1).
+4. **Qarz bilan chiqib ketish**: qarz saqlanadi, admin uni hisobdan chiqarishi mumkin (§1.2).
+5. **Import**: eski ma'lumotlar Excel'dan yuklanadi (§7, 8-bosqich).
