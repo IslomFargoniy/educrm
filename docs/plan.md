@@ -62,6 +62,7 @@
   - O'quvchi keyinroq pul to'lasa → pul **eng eski qoplanmagan darslardan boshlab** (FIFO) taqsimlanadi, har bir yopilgan dars ulushi **o'sha darsni o'tgan** o'qituvchiga yoziladi.
   - Qisman to'lovda ulush ham qisman bo'ladi.
 - O'qituvchi **faqat foiz** oladi: qo'lda bonus yoki jarima yozish yo'q.
+- **Foiz faqat butun son** (0–100), kasr foiz kiritib bo'lmaydi. Agar ulush baribir butun so'mga chiqmasa (masalan 41 650 × 33%), u pastga yaxlitlanadi va qoldiq markazda qoladi.
 - O'qituvchi balans tarixida har bir kirim aniq ko'rinishi kerak: **o'quvchi, guruh, dars sanasi, dars summasi, foiz, ulush, to'lov sanasi** va "o'rinbosar sifatida" belgisi.
 
 ### 1.5 Kassa
@@ -290,10 +291,13 @@ Barcha pul summalari `bigint`, butun so'mda.
 | 5 | Balans tarixlari va hisobotlar | Kassa, o'qituvchi va o'quvchi tarixi, filtr, eksport, dashboard |
 | 6 | Lidlar | Lidlar ro'yxati, holatlar, izohlar, sinovga yozish, manbalar hisoboti |
 | 7 | Shaxsiy kabinetlar | O'qituvchi, ota-ona va o'quvchi portallari |
-| 8 | Xabarnomalar | SMS (provayder keyin tanlanadi; drayver orqali ulanadigan qilib yoziladi) va Telegram bot, navbat (queue) orqali: to'lov qabul qilindi; qarz eslatmasi — balans minusga tushgan kuni, har oy boshida va qarz yopilmaguncha har hafta; dars qoldirildi |
+| 8 | Xabarnomalar va Telegram | Telegram bot: ota-ona telefon raqamini ulashib bog'lanadi, xabarlar oladi va botdan farzandining balansi va davomatini so'raydi. **Telegram Mini App** — o'qituvchi barcha ishlarini (davomat, o'z guruhlari, balansi va tarixi) shu yerda ham qila oladi. SMS (provayder keyin tanlanadi; drayver orqali ulanadigan qilib yoziladi). Hammasi navbat (queue) orqali: to'lov qabul qilindi; qarz eslatmasi — balans minusga tushgan kuni, har oy boshida va qarz yopilmaguncha har hafta; dars qoldirildi |
 | 9 | Excel import | Shablon fayl, o'quvchilar, guruhlar, enrollment va boshlang'ich balanslar (qarz yoki oldindan to'lov `opening_balance` sifatida). Yuklashdan oldin tekshiruv va xatolar ro'yxati ko'rsatiladi, tasdiqlangandan keyin saqlanadi |
-| 10 | Deploy | Deploy skripti, queue worker va scheduler (cron), zaxira nusxa |
+| 10 | Deploy | Deploy skripti, queue worker va scheduler (cron), zaxira nusxa — FastPanel zaxira rejasi orqali |
 | 11 | Click / Payme integratsiyasi | Ota-ona kabinetidan yoki havola orqali to'lov; to'lov avtomatik tegishli kassa va o'quvchi balansiga tushadi (merchant shartnomasi kerak) |
+| 12 | API va Android ilova | Laravel Sanctum asosidagi REST API (`/api/v1`), so'ng **Kotlin**da Android ilova — **admin / menejer** va **o'qituvchi** uchun. Sayt tayyor bo'lgach boshlanadi |
+
+**Mijoz ilovalari**: barcha rollar uchun veb-sayt; u **PWA** sifatida telefonga ilova kabi o'rnatiladi (0-bosqichda manifest va ikonkalar). O'qituvchi uchun qo'shimcha Telegram Mini App (8-bosqich), admin/menejer va o'qituvchi uchun Android ilova (12-bosqich). Shu sababli biznes mantiq boshidanoq controller'larda emas, **Action/Service klasslarda** yoziladi: veb (Inertia), Telegram Mini App va API bir xil kodni chaqiradi, hisob-kitob qoidalari takrorlanmaydi.
 
 Har bosqich alohida PR sifatida, testlar bilan topshiriladi. Hisob-kitob (3–4 bosqich) eng muhim qism: unda har bir chekka holat uchun test yoziladi.
 
@@ -342,6 +346,10 @@ Har bosqich alohida PR sifatida, testlar bilan topshiriladi. Hisob-kitob (3–4 
 | O'qituvchi ko'rishi | Telefon, qarz, to'lovlar — har biri alohida ruxsat (§3) |
 | Ko'p filial | O'quvchining bitta profili, istalgan filialda o'qiydi (§3) |
 | Shartnoma / hujjatlar | Kerak emas, faqat chek |
+| Foiz | Faqat butun son; kasr ulush pastga yaxlitlanadi (§1.4) |
+| Mobil | Sayt + PWA hamma uchun; o'qituvchi uchun Telegram Mini App; admin/menejer va o'qituvchi uchun Kotlin Android ilova sayt tayyor bo'lgach (§7) |
+| Telegram bot | Ota-ona: xabarlar + balans va davomatni so'rash (8-bosqich) |
+| Zaxira nusxa | FastPanel zaxira rejasi (10-bosqich) |
 | SMS xizmati | Keyin tanlanadi (8-bosqich) |
 | Import | Excel'dan (9-bosqich) |
 | Brend | Mensa logosi va ranglari, butun dizayn shunga moslanadi (§9) |
