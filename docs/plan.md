@@ -15,7 +15,7 @@
   | Keldi | Ha |
   | Sababsiz kelmadi | Ha |
   | Sababli kelmadi | **Yo'q** (12 talik hisobga ham kirmaydi) |
-- **Yaxlitlash**: summalar butun so'mda saqlanadi. Narx 12 ga bo'linmasa, oyning 12-darsi qoldiqni oladi (masalan 550 000 → 11 × 45 833 + 45 837), shunda oy jami aniq oylik narxga teng bo'ladi.
+- **Bo'linish**: kurs narxi doim 12 ga qoldiqsiz bo'linadi, shuning uchun yaxlitlash kerak emas. Summalar butun so'mda saqlanadi. Guruh narxi va chegirmadan keyingi narx kiritilganda 12 ga bo'linishi validatsiya qilinadi.
 
 ### 1.2 O'quvchi balansi (har guruh uchun alohida)
 - Har bir **o'quvchi + guruh** juftligi (`enrollment`) alohida balansga ega.
@@ -141,7 +141,7 @@ Barcha pul summalari `bigint`, butun so'mda.
 | 0 | Poydevor | spatie/laravel-permission, rollar va ruxsatlar seederi, filiallar, foydalanuvchilarni boshqarish, Money helper, Ledger servisi va testlari |
 | 1 | O'quvchi va guruhlar | CRUD, enrollment, foiz va chegirma, dars jadvali generatori |
 | 2 | Darslar va davomat | Davomat sahifasi, o'rinbosar, darsni bekor qilish |
-| 3 | Hisob-kitob yadrosi | 12 dars cheklovi, sababli holat, yaxlitlash, qoplash (FIFO), o'qituvchi ulushi; **to'liq Pest testlari** (§2 namunasi test sifatida) |
+| 3 | Hisob-kitob yadrosi | 12 dars cheklovi, sababli holat, qoplash (FIFO), o'qituvchi ulushi; **to'liq Pest testlari** (§2 namunasi test sifatida) |
 | 4 | Kassa | Kassalar, to'lov qabul qilish, xarajat, oylik berish, foyda yechish, o'tkazma, qaytarish, balans ko'chirish, storno |
 | 5 | Balans tarixlari va hisobotlar | Kassa, o'qituvchi va o'quvchi tarixi, filtr, eksport, dashboard |
 | 6 | Shaxsiy kabinetlar | O'qituvchi va o'quvchi portallari |
