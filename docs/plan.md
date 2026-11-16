@@ -49,7 +49,8 @@
   - Shu oy uchun cheklov **ikki guruh birgalikda** hisoblanadi. Masalan, ikkala guruhda N = 12 bo'lsa va eski guruhda 5 dars hisoblangan bo'lsa, yangisida shu oy ko'pi bilan 7 ta hisoblanadi.
   - N har xil bo'lsa, oyning ishlatilgan ulushi bo'yicha hisoblanadi: yangi guruhdagi chegara = N_yangi × (1 − eski guruhda hisoblangan darslar / N_eski), pastga yaxlitlanadi.
 - **Qarz bilan chiqib ketish**: qarz tizimda saqlanadi va qarzdorlar ro'yxatida turadi. O'quvchi qaytib kelsa yoki to'lasa, qarz odatdagidek yopiladi va o'qituvchiga ulush yoziladi. Admin xohlasa qarzni sabab yozib **hisobdan chiqaradi**: balans nolga tushadi, o'qituvchiga ulush yozilmaydi, bu amal tarixda ko'rinadi.
-- **Chegirma**: har bir `enrollment` uchun foiz yoki oylik summa ko'rinishida. Dars narxi = (oylik narx − chegirma) / N.
+- **Chegirma**: har bir `enrollment` uchun foiz yoki oylik summa ko'rinishida. Dars narxi = (oylik narx − chegirma) / N. Bir necha oyga oldindan to'lov uchun alohida chegirma yo'q: oldindan to'lov oddiy to'lov kabi balansga tushadi.
+- **Qarzdorga cheklov yo'q**: qarzdor darsga kelaveradi, u faqat qarzdorlar ro'yxatida va eslatmalarda ko'rinadi.
 
 ### 1.4 O'qituvchi ulushi
 - Har guruhda **standart foiz** bor (masalan 40%). Guruhdagi istalgan o'quvchi uchun **alohida foiz** belgilash mumkin (masalan 70%); belgilanmasa, guruh foizi olinadi.
@@ -72,7 +73,7 @@
   - **O'qituvchi oyligi**: o'qituvchi istalgan payt kassaga keladi, kassir summani kiritib beradi. Summa **o'qituvchi balansidan oshmaydi**.
   - **Xarajat**: kategoriya bilan (reklama, ijara, banner, remont, farrosh oyligi va h.k.; kategoriyalar admin tomonidan boshqariladi). Kassir kiritgan xarajat **darhol** kassadan chiqadi, tasdiq talab qilinmaydi; admin uni tarixda ko'radi.
   - **Foyda yechish**: superadmin yoki admin qoldiqni "foyda" deb belgilab yechib oladi.
-  - **Pulni qaytarish**: o'quvchi ketsa, balansidagi ortiqcha pul qaytariladi.
+  - **Pulni qaytarish**: o'quvchi ketsa, balansidagi ishlatilmagan pul **to'liq** qaytariladi (ushlab qolish yo'q).
   - **Kassalar orasida o'tkazma**: masalan naqd puldan bankka.
 - Hech bir kassa qoldig'i minusga tushmaydi.
 - **Bo'sh foyda** = kassalar jami − o'qituvchilar balanslari jami − o'quvchilarning oldindan to'lagan (hali ishlatilmagan) pullari. Foyda yechish oynasida shu raqam ko'rsatiladi. Bo'sh foydadan ortiq summa kiritilsa, **ogohlantirish** chiqadi ("bu pul o'qituvchilar va o'quvchilarga tegishli"), lekin tasdiqlansa yechishga ruxsat beriladi. Bu holat tarixda belgi bilan saqlanadi.
@@ -195,12 +196,14 @@ Noyabrda Ali uchun yechilgan darslar soni 12 ga yetgach, qolgan darslar bepul bo
 | **parent** (ota-ona) | **Barcha farzandlari**: guruhlari, balansi, to'lovlari, davomati — bitta loginda |
 | **student** | O'z guruhlari, balansi, to'lovlari, davomati |
 
+- **Davomat usuli**: o'qituvchi ro'yxatdan qo'lda belgilaydi (QR yoki karta yo'q).
+- **O'qituvchi nimani ko'radi**: har biri alohida ruxsat, admin rol yoki o'qituvchi bo'yicha yoqib-o'chiradi: o'quvchi va ota-ona telefonlari (`students.view_phone`), qarzdorligi (`students.view_debt`), to'lovlari va balansi (`students.view_payments`). Hammasi o'chirilsa, o'qituvchi faqat ism va davomatni ko'radi.
 - **Davomat huquqi**: o'qituvchi davomatni faqat **dars kuni** belgilaydi va o'zgartiradi. Keyingi kunlarda faqat `attendance.edit_past` ruxsati bor xodim (admin, menejer) o'zgartira oladi. Har bir o'zgarish kim va qachon qilgani bilan saqlanadi.
 - **Login**: hamma (xodim, o'qituvchi, ota-ona, o'quvchi) **telefon raqam + parol** bilan kiradi (Fortify `username` = phone, +998 formatida, unikal). Email ixtiyoriy. Parolni admin beradi, unutilgan parolni boshida **admin tiklaydi**. SMS xizmati hali tanlanmagan; u ulangach, parolni SMS kod orqali tiklash qo'shiladi.
 - Ruxsatlar sahifa va amal bo'yicha: `students.view`, `students.create`, `students.update`, `leads.*`, `groups.*`, `rooms.*`, `holidays.manage`, `attendance.mark`, `attendance.edit_past`, `payments.create`, `payments.reverse_today`, `payments.reverse`, `expenses.*`, `payouts.create`, `cashboxes.view`, `cashboxes.transfer`, `profit.withdraw`, `refunds.create`, `debts.writeoff`, `reports.view`, `users.manage`, `roles.manage`, `settings.manage` va h.k.
 - Superadmin panelida rollarga ruxsatlarni belgilash sahifasi bo'ladi.
 - Ruxsatlar backend'da (Policy + `can` middleware) va frontend'da (menyu/tugmalarni yashirish) tekshiriladi. Ruxsatlar ro'yxati Inertia shared props orqali uzatiladi.
-- **Filial doirasi**: admin, menejer va o'qituvchi faqat o'ziga biriktirilgan filial(lar) ma'lumotlarini ko'radi. Superadmin hamma filialni ko'radi: yuqori panelda filial tanlagich bo'ladi ("Barcha filiallar" yoki bitta filial).
+- **Filial doirasi**: admin, menejer va o'qituvchi faqat o'ziga biriktirilgan filial(lar) ma'lumotlarini ko'radi. O'quvchining **bitta profili** bor va u turli filiallardagi guruhlarda o'qishi mumkin: har filial xodimi uni ko'radi, lekin faqat o'z filiali guruhlari, balanslari va to'lovlarini. To'lov guruh qaysi filialda bo'lsa, o'sha filial kassasiga tushadi. Superadmin hamma filialni ko'radi: yuqori panelda filial tanlagich bo'ladi ("Barcha filiallar" yoki bitta filial).
 - Superadmin `Gate::before` orqali barcha ruxsatlarga ega bo'ladi. Uning rolini faqat boshqa superadmin bera oladi, tizimdagi oxirgi superadminni o'chirib bo'lmaydi.
 
 ## 4. Ma'lumotlar modeli
@@ -214,7 +217,7 @@ Barcha pul summalari `bigint`, butun so'mda.
 | `users` | + phone (unikal), locale, status; spatie jadvallari (roles, permissions…) |
 | `rooms` | branch_id, name, capacity |
 | `holidays` | date, branch_id (null → barcha filiallar), name |
-| `students` | full_name, phone, birth_date, user_id (o'quvchi logini, ixtiyoriy), branch_id, lead_id, status, note |
+| `students` | full_name, phone, birth_date, user_id (o'quvchi logini, ixtiyoriy), lead_id, status, note — filialga bog'lanmaydi, filial guruh orqali aniqlanadi |
 | `guardian_student` | user_id (ota-ona), student_id, relation (ota / ona / boshqa) |
 | `leads` | branch_id, full_name, phone, source, interested_course, status, assigned_to, next_contact_at, student_id, note |
 | `lead_notes` | lead_id, user_id, text, created_at |
@@ -287,7 +290,7 @@ Barcha pul summalari `bigint`, butun so'mda.
 | 5 | Balans tarixlari va hisobotlar | Kassa, o'qituvchi va o'quvchi tarixi, filtr, eksport, dashboard |
 | 6 | Lidlar | Lidlar ro'yxati, holatlar, izohlar, sinovga yozish, manbalar hisoboti |
 | 7 | Shaxsiy kabinetlar | O'qituvchi, ota-ona va o'quvchi portallari |
-| 8 | Xabarnomalar | SMS (provayder keyin tanlanadi; drayver orqali ulanadigan qilib yoziladi) va Telegram bot: to'lov qabul qilindi, qarz eslatmasi (rejalashtirilgan), dars qoldirildi; navbat (queue) orqali |
+| 8 | Xabarnomalar | SMS (provayder keyin tanlanadi; drayver orqali ulanadigan qilib yoziladi) va Telegram bot, navbat (queue) orqali: to'lov qabul qilindi; qarz eslatmasi — balans minusga tushgan kuni, har oy boshida va qarz yopilmaguncha har hafta; dars qoldirildi |
 | 9 | Excel import | Shablon fayl, o'quvchilar, guruhlar, enrollment va boshlang'ich balanslar (qarz yoki oldindan to'lov `opening_balance` sifatida). Yuklashdan oldin tekshiruv va xatolar ro'yxati ko'rsatiladi, tasdiqlangandan keyin saqlanadi |
 | 10 | Deploy | Deploy skripti, queue worker va scheduler (cron), zaxira nusxa |
 | 11 | Click / Payme integratsiyasi | Ota-ona kabinetidan yoki havola orqali to'lov; to'lov avtomatik tegishli kassa va o'quvchi balansiga tushadi (merchant shartnomasi kerak) |
@@ -331,6 +334,14 @@ Har bosqich alohida PR sifatida, testlar bilan topshiriladi. Hisob-kitob (3–4 
 | Login | Telefon + parol (§3) |
 | Til | O'zbekcha, ruscha, inglizcha |
 | Baholar / uy vazifasi | Yo'q |
+| Pulni qaytarish | To'liq, ushlab qolishsiz (§1.5) |
+| Oldindan to'lov chegirmasi | Yo'q (§1.3) |
+| Qarzdorga cheklov | Yo'q, faqat ro'yxat va eslatma (§1.3) |
+| Qarz eslatmasi | Minusga tushganda, har oy boshida, har hafta (8-bosqich) |
+| Davomat usuli | O'qituvchi qo'lda (§3) |
+| O'qituvchi ko'rishi | Telefon, qarz, to'lovlar — har biri alohida ruxsat (§3) |
+| Ko'p filial | O'quvchining bitta profili, istalgan filialda o'qiydi (§3) |
+| Shartnoma / hujjatlar | Kerak emas, faqat chek |
 | SMS xizmati | Keyin tanlanadi (8-bosqich) |
 | Import | Excel'dan (9-bosqich) |
 | Brend | Mensa logosi va ranglari, butun dizayn shunga moslanadi (§9) |
