@@ -6,6 +6,7 @@ use App\Enums\AttendanceStatus;
 use App\Enums\ChargeStatus;
 use App\Enums\EnrollmentStatus;
 use App\Enums\TransactionType;
+use App\Events\DebtStarted;
 use App\Models\Attendance;
 use App\Models\Enrollment;
 use App\Models\Lesson;
@@ -216,6 +217,7 @@ class BillingService
     private function debit(LessonCharge $charge, AttendanceStatus $attendanceStatus, int $lessonsPerMonth): void
     {
         $enrollment = $charge->enrollment->loadMissing('group', 'student');
+        $balanceBefore = $enrollment->fresh()->balance;
 
         $this->ledger->record(TransactionType::LessonCharge, $charge->amount, [[$enrollment, -$charge->amount]], [
             'branch_id' => $enrollment->group->branch_id,
@@ -228,6 +230,10 @@ class BillingService
         ]);
 
         $this->coverage->cover($enrollment);
+
+        if ($balanceBefore >= 0 && $enrollment->fresh()->balance < 0) {
+            DB::afterCommit(fn () => DebtStarted::dispatch($enrollment->fresh()));
+        }
     }
 
     /**

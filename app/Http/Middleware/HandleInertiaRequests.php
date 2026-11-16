@@ -2,6 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Branch;
+use App\Models\User;
+use App\Support\CurrentBranch;
+use App\Support\Permissions;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -35,12 +39,25 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        /** @var User|null $user */
+        $user = $request->user();
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            'locale' => app()->getLocale(),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user?->only(['id', 'name', 'phone', 'email', 'locale', 'two_factor_enabled', 'created_at', 'updated_at']),
+                'roles' => fn () => $user?->getRoleNames()->all() ?? [],
+                'permissions' => fn () => $user === null ? [] : ($user->isSuperadmin()
+                    ? Permissions::all()
+                    : $user->getAllPermissions()->pluck('name')->all()),
             ],
+            'branches' => fn () => $user === null ? [] : Branch::query()
+                ->whereIn('id', $user->accessibleBranchIds())
+                ->orderBy('name')
+                ->get(['id', 'name']),
+            'currentBranchId' => fn () => $user === null ? null : app(CurrentBranch::class)->id(),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

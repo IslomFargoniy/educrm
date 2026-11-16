@@ -35,4 +35,16 @@ return [
         ],
     ],
 
+    'telegram' => [
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+        'webhook_secret' => env('TELEGRAM_WEBHOOK_SECRET'),
+    ],
+
+    'sms' => [
+        'driver' => env('SMS_DRIVER', 'log'),
+        'eskiz_email' => env('ESKIZ_EMAIL'),
+        'eskiz_password' => env('ESKIZ_PASSWORD'),
+        'eskiz_from' => env('ESKIZ_FROM', '4546'),
+    ],
+
 ];

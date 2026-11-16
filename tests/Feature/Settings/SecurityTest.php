@@ -23,7 +23,7 @@ test('security page is displayed', function () {
         ->get(route('security.edit'))
         ->assertInertia(fn (Assert $page) => $page
             ->component('settings/security')
-            ->where('canManagePasskeys', true)
+            ->where('canManagePasskeys', false)
             ->where('passkeys', [])
             ->where('canManageTwoFactor', true)
             ->where('twoFactorEnabled', false),
