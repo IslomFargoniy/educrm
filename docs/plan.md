@@ -1,0 +1,159 @@
+# mensalc.uz — O'quv markaz boshqaruv tizimi: reja
+
+> Holat: reja (kod yozilmagan). Stack: Laravel 13, Inertia v3 + React, Wayfinder, Fortify, Pest, MySQL.
+
+## 1. Asosiy biznes qoidalar
+
+### 1.1 O'quvchi to'lovi (kalendar oy, 12 dars cheklovi)
+- Har guruhning **oylik narxi** bor (masalan 600 000 so'm). **1 dars narxi = oylik narx / 12**.
+- To'lov **kalendar oy** bo'yicha hisoblanadi: bir oyda bitta o'quvchidan bitta guruh uchun **ko'pi bilan 12 ta dars** pul olinadi. Oyda 13–14 dars bo'lsa, 13- va 14-darslar bepul.
+- O'quvchi oy o'rtasidan kelsa, faqat o'tilgan darslar hisoblanadi. Masalan, oyning 5-sanasidan kelib 12 ta darsga qatnashsa, to'liq to'laydi; 8 ta dars qolgan bo'lsa, 8/12 narxini to'laydi.
+- Davomat oyda nechta dars bo'lsa, shuncha kun uchun qilinadi (cheklov faqat pulga tegishli).
+- Davomat holatlari:
+  | Holat | Pul yechiladimi |
+  |---|---|
+  | Keldi | Ha |
+  | Sababsiz kelmadi | Ha |
+  | Sababli kelmadi | **Yo'q** (12 talik hisobga ham kirmaydi) |
+- **Yaxlitlash**: summalar butun so'mda saqlanadi. Narx 12 ga bo'linmasa, oyning 12-darsi qoldiqni oladi (masalan 550 000 → 11 × 45 833 + 45 837), shunda oy jami aniq oylik narxga teng bo'ladi.
+
+### 1.2 O'quvchi balansi (har guruh uchun alohida)
+- Har bir **o'quvchi + guruh** juftligi (`enrollment`) alohida balansga ega.
+- Dars o'tilganda dars narxi balansdan **yechiladi**. Balansda pul bo'lmasa, balans **minusga** tushadi (qarz).
+- To'lov qabul qilinganda u shu guruh balansiga tushadi.
+- **Balansni ko'chirish**: bir guruhdagi ortiqcha (musbat) pulni o'quvchining boshqa guruhiga o'tkazish mumkin. Bu ikkinchi guruh uchun to'lov kabi ishlaydi va o'sha guruhdagi qarzni yopadi.
+- **Chegirma**: har bir `enrollment` uchun foiz yoki oylik summa ko'rinishida. Dars narxi = (oylik narx − chegirma) / 12.
+
+### 1.3 O'qituvchi ulushi
+- Har guruhda **standart foiz** bor (masalan 40%). Guruhdagi istalgan o'quvchi uchun **alohida foiz** belgilash mumkin (masalan 70%); belgilanmasa, guruh foizi olinadi.
+- Ulush **darsni haqiqatda o'tgan** o'qituvchiga yoziladi. Asosiy o'qituvchi kelmay, o'rniga boshqasi dars o'tsa, o'sha dars ulushi **o'rinbosarga** yoziladi.
+- **O'qituvchi balansi faqat o'quvchi puli bilan qoplangan darslardan oshadi:**
+  - O'quvchi balansida pul bor → dars o'tilganda darhol ulush yoziladi.
+  - Balans minusda → dars qarzga yoziladi, o'qituvchiga **hech narsa yozilmaydi**.
+  - O'quvchi keyinroq pul to'lasa → pul **eng eski qoplanmagan darslardan boshlab** (FIFO) taqsimlanadi, har bir yopilgan dars ulushi **o'sha darsni o'tgan** o'qituvchiga yoziladi.
+  - Qisman to'lovda ulush ham qisman bo'ladi.
+- O'qituvchi balans tarixida har bir kirim aniq ko'rinishi kerak: **o'quvchi, guruh, dars sanasi, dars summasi, foiz, ulush, to'lov sanasi** va "o'rinbosar sifatida" belgisi.
+
+### 1.4 Kassa
+- **Har to'lov usuliga alohida kassa** (naqd, karta, Click, Payme, bank o'tkazmasi), **har filial uchun** alohida. Har kassaning o'z qoldig'i bor.
+- Kassadan chiqimlar:
+  - **O'qituvchi oyligi**: o'qituvchi istalgan payt, faqat **balansidagi summa doirasida** oladi.
+  - **Xarajat**: kategoriya bilan (reklama, ijara, banner, remont, farrosh oyligi va h.k.; kategoriyalar admin tomonidan boshqariladi).
+  - **Foyda yechish**: admin qoldiqni "foyda" deb belgilab yechib oladi.
+  - **Pulni qaytarish**: o'quvchi ketsa, balansidagi ortiqcha pul qaytariladi.
+  - **Kassalar orasida o'tkazma**: masalan naqd puldan bankka.
+- Hech bir kassa qoldig'i minusga tushmaydi.
+- **Bo'sh foyda** = kassalar jami − o'qituvchilar balanslari jami − o'quvchilarning oldindan to'lagan (hali ishlatilmagan) pullari. Foyda yechish oynasida shu raqam ko'rsatiladi (§8, 2-savol).
+
+### 1.5 Balans tarixi
+Uch joyda: **kassa**, **foydalanuvchi (o'qituvchi)**, **o'quvchi** (har guruh bo'yicha va umumiy). Har bir qator: sana, amal turi, izoh (kim, nima uchun), **+ / −** summa, **amaldan keyingi qoldiq**, kim kiritgan. Sana va tur bo'yicha filtr, Excel eksport.
+> ms.autoprime.uz login talab qilgani uchun uni ko'ra olmadim. Tarix yuqoridagi odatiy jadval ko'rinishida rejalashtirilgan; farqi bo'lsa, skrinshot yuboring.
+
+## 2. Ishlash namunasi
+
+Guruh: oylik narx 600 000, dars narxi 50 000, guruh foizi 40%. O'quvchi Ali uchun alohida foiz 70%.
+
+| Sana | Hodisa | Ali balansi | O'qituvchi A | O'qituvchi B |
+|---|---|---|---|---|
+| 01.11 | Ali 100 000 to'ladi (naqd kassa +100 000) | +100 000 | 0 | 0 |
+| 03.11 | Dars (A), Ali keldi → −50 000, qoplangan | +50 000 | +35 000 | 0 |
+| 05.11 | Dars (B o'rinbosar), Ali keldi → qoplangan | 0 | 35 000 | +35 000 |
+| 07.11 | Dars (A), sababsiz kelmadi → qarz | −50 000 | 35 000 | 35 000 |
+| 10.11 | Dars (A), sababli kelmadi → yechilmaydi | −50 000 | 35 000 | 35 000 |
+| 12.11 | Ali 600 000 to'ladi → avval 07.11 qarzi yopiladi | +550 000 | **+35 000** (07.11 dars uchun) | 35 000 |
+| 15.11 | A kassadan 70 000 oldi | 550 000 | 0 | 35 000 |
+
+Noyabrda Ali uchun yechilgan darslar soni 12 ga yetgach, qolgan darslar bepul bo'ladi.
+
+## 3. Rollar va ruxsatlar (spatie/laravel-permission)
+
+| Rol | Asosiy imkoniyatlar |
+|---|---|
+| **admin** | Hamma narsa: filiallar, foydalanuvchilar, rollar, foiz va narxlar, foyda yechish, barcha hisobotlar |
+| **manager** (kassir) | O'quvchi, guruh, to'lov qabul qilish, xarajat, o'qituvchiga oylik berish, qaytarish; o'z filiali doirasida. Foyda yecha olmaydi |
+| **teacher** | O'z guruhlari, davomat, o'z balansi va tarixi |
+| **student** | O'z guruhlari, balansi, to'lovlari, davomati (ota-ona ham shu login bilan) |
+
+- Ruxsatlar sahifa va amal bo'yicha: `students.view`, `students.create`, `students.update`, `groups.*`, `attendance.mark`, `payments.create`, `payments.reverse`, `expenses.*`, `payouts.create`, `cashboxes.view`, `cashboxes.transfer`, `profit.withdraw`, `refunds.create`, `reports.view`, `users.manage`, `roles.manage`, `settings.manage` va h.k.
+- Admin panelda rollarga ruxsatlarni belgilash sahifasi bo'ladi.
+- Ruxsatlar backend'da (Policy + `can` middleware) va frontend'da (menyu/tugmalarni yashirish) tekshiriladi. Ruxsatlar ro'yxati Inertia shared props orqali uzatiladi.
+- **Filial doirasi**: menejer va o'qituvchi faqat o'ziga biriktirilgan filial ma'lumotlarini ko'radi.
+
+## 4. Ma'lumotlar modeli
+
+Barcha pul summalari `bigint`, butun so'mda.
+
+| Jadval | Asosiy ustunlar |
+|---|---|
+| `branches` | name, address, phone |
+| `branch_user` | branch_id, user_id |
+| `users` | + phone, status; spatie jadvallari (roles, permissions…) |
+| `students` | full_name, phone, parent_phone, birth_date, user_id (login uchun, ixtiyoriy), branch_id, status, note |
+| `groups` | branch_id, name, subject, teacher_id, monthly_price, teacher_percent, days (dush/chor/jum), start_time, room, start_date, end_date, status |
+| `enrollments` | student_id, group_id, joined_at, left_at, status, teacher_percent (null → guruhniki), discount_type, discount_value, **balance** (kesh) |
+| `lessons` | group_id, date, teacher_id (haqiqatda o'tgan), is_substitute, status (rejada / o'tildi / bekor qilindi), topic |
+| `attendances` | lesson_id, enrollment_id, status (keldi / sababsiz / sababli), note, marked_by |
+| `lesson_charges` | enrollment_id, lesson_id, attendance_id, month (YYYY-MM), seq_in_month (1–12), amount, covered_amount, teacher_id, teacher_percent, reversed_at |
+| `charge_coverages` | lesson_charge_id, source (payment / transfer), source_id, amount, teacher_amount, teacher_id, covered_at |
+| `payments` | enrollment_id, cashbox_id, amount, paid_at, received_by, note, reversed_at |
+| `cashboxes` | branch_id, name, method (naqd / karta / click / payme / bank), **balance** (kesh), is_active |
+| `expense_categories` | name, is_active |
+| `transactions` | type, occurred_at, created_by, note, reverses_id, meta (json) |
+| `ledger_entries` | transaction_id, account_type (cashbox / teacher / enrollment / expense / owner), account_id, amount (±), balance_after |
+| `notification_logs` | channel (sms / telegram), recipient, template, payload, status, error |
+
+### Buxgalteriya yondashuvi (ledger)
+- Har bir pul harakati bitta `transaction` va bir nechta `ledger_entries` qatoridan iborat. **Balans tarixi aynan shu qatorlardan olinadi.**
+- Kesh qilingan `balance` ustunlari bir xil DB tranzaksiyasi ichida `lockForUpdate` bilan yangilanadi. `balance_after` tarixda saqlanadi.
+- **O'chirish yo'q**: xato yozuv teskari (storno) tranzaksiya bilan bekor qilinadi. Tarixda ikkala yozuv ham ko'rinadi.
+- Tranzaksiya turlari: `student_payment`, `lesson_charge`, `charge_reversal`, `teacher_earning`, `teacher_payout`, `expense`, `owner_withdrawal`, `cashbox_transfer`, `balance_transfer`, `refund`, `adjustment`.
+
+## 5. Asosiy jarayonlar (servislar)
+
+1. **Dars jadvali**: guruh kunlari va vaqtidan oylik `lessons` avtomatik yaratiladi (rejalashtirilgan job). Qo'shimcha darsni qo'lda qo'shish yoki darsni bekor qilish mumkin. Bekor qilingan dars uchun pul yechilmaydi.
+2. **O'rinbosar**: darsda `teacher_id` boshqa o'qituvchiga almashtiriladi (`is_substitute = true`).
+3. **Davomat saqlash → `BillingService::chargeLesson`**:
+   - Har o'quvchi uchun: holat "sababli" bo'lsa o'tkazib yuboriladi. Shu oyda yechilgan darslar soni 12 dan kam bo'lsa → `lesson_charge` yaratiladi, aks holda bepul.
+   - Balansdagi bo'sh pul darhol qoplashga ishlatiladi (`CoverageService`), qoplangan qism uchun o'qituvchi ulushi yoziladi.
+4. **Davomatni o'zgartirish**: eski `lesson_charge` va unga bog'liq ulush teskari yozuv bilan bekor qilinadi, keyin qayta hisoblanadi. O'qituvchi pulni allaqachon olgan bo'lsa, uning balansi minusga tushishi mumkin; bu tarixda ko'rinadi.
+5. **To'lov qabul qilish → `PaymentService`**: kassa +, `enrollment` balansi +, so'ng `CoverageService` eng eski qoplanmagan darslarni FIFO tartibida yopadi va o'qituvchi ulushlarini yozadi.
+6. **Balans ko'chirish**: A guruhning bo'sh (musbat) puli → B guruhga, keyin B da qoplash ishga tushadi.
+7. **O'qituvchi oyligi**: summa ≤ o'qituvchi balansi va ≤ kassa qoldig'i.
+8. **Xarajat / foyda yechish / qaytarish / kassalararo o'tkazma**: kassa qoldig'i yetarliligi tekshiriladi.
+9. **Parallel amallar**: barcha pul amallari `DB::transaction` ichida, kerakli qatorlar qulflangan holda bajariladi. Bir xil to'lov ikki marta yozilmasligi uchun idempotency kaliti ishlatiladi.
+
+## 6. Sahifalar
+
+- **Dashboard**: bugungi tushum, kassalar qoldig'i, qarzdorlar soni va summasi, bo'sh foyda, oylik grafik.
+- **O'quvchilar**: ro'yxat (filtr: guruh, qarzdor, holat) → profil: guruhlar, har guruh balansi, to'lov qabul qilish, balans ko'chirish, chegirma, qaytarish, tarix, davomat.
+- **Guruhlar**: ro'yxat → guruh: o'quvchilar va ularning foizlari, jadval, darslar, davomat jurnali (oylik jadval ko'rinishida), o'rinbosar tayinlash.
+- **Davomat**: o'qituvchi uchun bugungi darslar → bir bosishda belgilash.
+- **O'qituvchilar**: ro'yxat → profil: balans, batafsil tarix, oylik berish, guruhlari.
+- **Kassa**: kassalar va qoldiqlari → kassa tarixi; xarajat, foyda yechish, o'tkazma.
+- **Hisobotlar**: davr bo'yicha kirim/chiqim, xarajatlar kategoriya bo'yicha, o'qituvchilar ulushi, qarzdorlar, guruh rentabelligi.
+- **Sozlamalar**: filiallar, foydalanuvchilar, rollar va ruxsatlar, xarajat kategoriyalari, kassalar, SMS/Telegram.
+- **Shaxsiy kabinetlar**: o'qituvchi va o'quvchi uchun cheklangan ko'rinish.
+
+## 7. Bosqichlar
+
+| # | Bosqich | Natija |
+|---|---|---|
+| 0 | Poydevor | spatie/laravel-permission, rollar va ruxsatlar seederi, filiallar, foydalanuvchilarni boshqarish, Money helper, Ledger servisi va testlari |
+| 1 | O'quvchi va guruhlar | CRUD, enrollment, foiz va chegirma, dars jadvali generatori |
+| 2 | Darslar va davomat | Davomat sahifasi, o'rinbosar, darsni bekor qilish |
+| 3 | Hisob-kitob yadrosi | 12 dars cheklovi, sababli holat, yaxlitlash, qoplash (FIFO), o'qituvchi ulushi; **to'liq Pest testlari** (§2 namunasi test sifatida) |
+| 4 | Kassa | Kassalar, to'lov qabul qilish, xarajat, oylik berish, foyda yechish, o'tkazma, qaytarish, balans ko'chirish, storno |
+| 5 | Balans tarixlari va hisobotlar | Kassa, o'qituvchi va o'quvchi tarixi, filtr, eksport, dashboard |
+| 6 | Shaxsiy kabinetlar | O'qituvchi va o'quvchi portallari |
+| 7 | Xabarnomalar | SMS (masalan Eskiz.uz) va Telegram bot: to'lov qabul qilindi, qarz eslatmasi (rejalashtirilgan), dars qoldirildi; navbat (queue) orqali |
+| 8 | Deploy | Deploy skripti, queue worker va scheduler (cron), zaxira nusxa |
+
+Har bosqich alohida PR sifatida, testlar bilan topshiriladi. Hisob-kitob (3–4 bosqich) eng muhim qism: unda har bir chekka holat uchun test yoziladi.
+
+## 8. Ochiq savollar
+
+1. **O'rinbosar foizi**: o'rinbosar o'quvchi yoki guruh foizini oladimi, yoki o'zining alohida foizi bo'ladimi? (Rejada: o'sha o'quvchining foizi.)
+2. **Foyda yechish chegarasi**: admin faqat "bo'sh foyda" doirasida yecha oladimi, yoki ogohlantirish bilan kassadagi hamma pulni ham? (Rejada: ogohlantirish bilan ruxsat.)
+3. **Guruh narxi o'zgarsa**: yangi narx keyingi oydan qo'llanadimi yoki darhol?
+4. **Oy o'rtasida guruhdan chiqish**: chiqqan o'quvchining qolgan qarzi tizimda qoladimi, uni yozib qo'yish (hisobdan chiqarish) imkoni kerakmi?
+5. **Mavjud ma'lumot**: eski tizimdan (Excel va h.k.) o'quvchi va balanslarni import qilish kerakmi?
