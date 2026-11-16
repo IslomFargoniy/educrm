@@ -5,10 +5,12 @@ namespace App\Services;
 use App\Enums\AttendanceStatus;
 use App\Enums\ChargeStatus;
 use App\Enums\EnrollmentStatus;
+use App\Enums\LeadStatus;
 use App\Enums\TransactionType;
 use App\Events\DebtStarted;
 use App\Models\Attendance;
 use App\Models\Enrollment;
+use App\Models\Lead;
 use App\Models\Lesson;
 use App\Models\LessonCharge;
 use Illuminate\Support\Carbon;
@@ -145,6 +147,9 @@ class BillingService
         DB::transaction(function () use ($enrollment, $continues) {
             $pending = $enrollment->charges()->where('status', ChargeStatus::PendingTrial)
                 ->with('lesson', 'enrollment')->orderBy('lesson_date')->get();
+
+            Lead::query()->where('student_id', $enrollment->student_id)->where('status', LeadStatus::Trial)
+                ->update(['status' => $continues ? LeadStatus::Converted : LeadStatus::Rejected]);
 
             if (! $continues) {
                 $pending->each->update(['status' => ChargeStatus::Cancelled]);

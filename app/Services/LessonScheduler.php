@@ -7,8 +7,8 @@ use App\Models\Group;
 use App\Models\Holiday;
 use App\Models\Lesson;
 use Carbon\CarbonInterface;
+use Carbon\CarbonPeriod;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\CarbonPeriod;
 
 /**
  * Creates planned lessons from the group schedule and keeps them in sync.
@@ -20,7 +20,7 @@ class LessonScheduler
      */
     public function generate(Group $group, CarbonInterface $from, CarbonInterface $to): int
     {
-        if ($group->status !== 'active') {
+        if (($group->status ?? 'active') !== 'active') {
             return 0;
         }
 

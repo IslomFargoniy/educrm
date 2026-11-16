@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ChargeStatus;
+use App\Enums\LeadStatus;
 use App\Enums\Role;
 use App\Models\Cashbox;
 use App\Models\Enrollment;
 use App\Models\Group;
+use App\Models\Lead;
 use App\Models\Student;
 use App\Models\User;
 use App\Services\BillingService;
@@ -100,7 +102,11 @@ class StudentController extends Controller
             }
 
             if (! empty($validated['lead_id'])) {
-                $student->lead?->update(['status' => 'converted', 'student_id' => $student->id]);
+                $isTrial = ! empty($validated['group_id']) && (int) ($validated['trial_lessons'] ?? 0) > 0;
+                Lead::query()->whereKey($validated['lead_id'])->update([
+                    'status' => $isTrial ? LeadStatus::Trial : LeadStatus::Converted,
+                    'student_id' => $student->id,
+                ]);
             }
 
             return $student;
