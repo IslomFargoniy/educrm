@@ -16,7 +16,7 @@
   | Keldi | Ha |
   | Sababsiz kelmadi | Ha |
   | Sababli kelmadi | **Yo'q** (12 talik hisobga ham kirmaydi) |
-- **Sinov darsi**: yangi o'quvchi guruhga "sinov" holatida qo'shiladi. Sinov darslari soni sozlanadi (standart: 1).
+- **Sinov darsi**: yangi o'quvchi guruhga "sinov" holatida qo'shiladi. Sinov darslari soni **har o'quvchi uchun** guruhga qo'shilayotganda kiritiladi.
   - Davomat odatdagidek belgilanadi, dars narxi esa **kutilayotgan** sifatida yoziladi: balansdan yechilmaydi va o'qituvchiga ulush yozilmaydi.
   - O'quvchi **davom ettirsa**, sinov darslari oddiy darsga aylanadi: balansdan yechiladi va o'sha oyning 12 talik hisobiga kiradi. O'qituvchi ulushi odatdagi qoidaga ko'ra, pul bilan qoplanganda yoziladi.
   - **Davom ettirmasa**, sinov darslari bekor qilinadi: pul olinmaydi, o'qituvchiga ulush yo'q.
@@ -40,12 +40,14 @@
   - Balans minusda → dars qarzga yoziladi, o'qituvchiga **hech narsa yozilmaydi**.
   - O'quvchi keyinroq pul to'lasa → pul **eng eski qoplanmagan darslardan boshlab** (FIFO) taqsimlanadi, har bir yopilgan dars ulushi **o'sha darsni o'tgan** o'qituvchiga yoziladi.
   - Qisman to'lovda ulush ham qisman bo'ladi.
+- O'qituvchi **faqat foiz** oladi: qo'lda bonus yoki jarima yozish yo'q.
 - O'qituvchi balans tarixida har bir kirim aniq ko'rinishi kerak: **o'quvchi, guruh, dars sanasi, dars summasi, foiz, ulush, to'lov sanasi** va "o'rinbosar sifatida" belgisi.
 
 ### 1.4 Kassa
 - **Har to'lov usuliga alohida kassa** (naqd, karta, Click, Payme, bank o'tkazmasi), **har filial uchun** alohida. Har kassaning o'z qoldig'i bor.
 - Kassadan chiqimlar:
-  - **O'qituvchi oyligi**: o'qituvchi istalgan payt, faqat **balansidagi summa doirasida** oladi.
+  - **Chek**: to'lov qabul qilingach chop etiladigan chek chiqariladi: termal printer (58/80 mm) va A4 formatida. Chekda markaz, filial, o'quvchi, guruh, oy, summa, to'lov usuli, kassir va to'lovdan keyingi balans bo'ladi. Chekni keyin qayta chop etish mumkin.
+- **O'qituvchi oyligi**: o'qituvchi istalgan payt, faqat **balansidagi summa doirasida** oladi.
   - **Xarajat**: kategoriya bilan (reklama, ijara, banner, remont, farrosh oyligi va h.k.; kategoriyalar admin tomonidan boshqariladi).
   - **Foyda yechish**: admin qoldiqni "foyda" deb belgilab yechib oladi.
   - **Pulni qaytarish**: o'quvchi ketsa, balansidagi ortiqcha pul qaytariladi.
@@ -164,7 +166,7 @@ Noyabrda Ali uchun yechilgan darslar soni 12 ga yetgach, qolgan darslar bepul bo
 | **student** | O'z guruhlari, balansi, to'lovlari, davomati (ota-ona ham shu login bilan) |
 
 - **Davomat huquqi**: o'qituvchi davomatni faqat **dars kuni** belgilaydi va o'zgartiradi. Keyingi kunlarda faqat `attendance.edit_past` ruxsati bor xodim (admin, menejer) o'zgartira oladi. Har bir o'zgarish kim va qachon qilgani bilan saqlanadi.
-- **Login**: hamma (xodim, o'qituvchi, o'quvchi) **telefon raqam + parol** bilan kiradi (Fortify `username` = phone, +998 formatida, unikal). Email ixtiyoriy. Parolni admin beradi, unutilgan parol SMS kod orqali tiklanadi.
+- **Login**: hamma (xodim, o'qituvchi, o'quvchi) **telefon raqam + parol** bilan kiradi (Fortify `username` = phone, +998 formatida, unikal). Email ixtiyoriy. Parolni admin beradi, unutilgan parolni boshida **admin tiklaydi**. SMS xizmati hali tanlanmagan; u ulangach, parolni SMS kod orqali tiklash qo'shiladi.
 - Ruxsatlar sahifa va amal bo'yicha: `students.view`, `students.create`, `students.update`, `groups.*`, `attendance.mark`, `attendance.edit_past`, `payments.create`, `payments.reverse`, `expenses.*`, `payouts.create`, `cashboxes.view`, `cashboxes.transfer`, `profit.withdraw`, `refunds.create`, `reports.view`, `users.manage`, `roles.manage`, `settings.manage` va h.k.
 - Superadmin panelida rollarga ruxsatlarni belgilash sahifasi bo'ladi.
 - Ruxsatlar backend'da (Policy + `can` middleware) va frontend'da (menyu/tugmalarni yashirish) tekshiriladi. Ruxsatlar ro'yxati Inertia shared props orqali uzatiladi.
@@ -239,10 +241,10 @@ Barcha pul summalari `bigint`, butun so'mda.
 | 1 | O'quvchi va guruhlar | CRUD, enrollment, foiz va chegirma, dars jadvali generatori |
 | 2 | Darslar va davomat | Davomat sahifasi (dars kuni qoidasi), o'rinbosar, darsni bekor qilish, sinov darsi, muzlatish |
 | 3 | Hisob-kitob yadrosi | 12 dars cheklovi, sababli holat, qoplash (FIFO), o'qituvchi ulushi; **to'liq Pest testlari** (§2 namunasi test sifatida) |
-| 4 | Kassa | Kassalar, to'lov qabul qilish, xarajat, oylik berish, foyda yechish, o'tkazma, qaytarish, balans ko'chirish, storno |
+| 4 | Kassa | Kassalar, to'lov qabul qilish va chek chop etish, xarajat, oylik berish, foyda yechish, o'tkazma, qaytarish, balans ko'chirish, storno |
 | 5 | Balans tarixlari va hisobotlar | Kassa, o'qituvchi va o'quvchi tarixi, filtr, eksport, dashboard |
 | 6 | Shaxsiy kabinetlar | O'qituvchi va o'quvchi portallari |
-| 7 | Xabarnomalar | SMS (masalan Eskiz.uz) va Telegram bot: to'lov qabul qilindi, qarz eslatmasi (rejalashtirilgan), dars qoldirildi; navbat (queue) orqali |
+| 7 | Xabarnomalar | SMS (provayder keyin tanlanadi; drayver orqali ulanadigan qilib yoziladi) va Telegram bot: to'lov qabul qilindi, qarz eslatmasi (rejalashtirilgan), dars qoldirildi; navbat (queue) orqali |
 | 8 | Excel import | Shablon fayl, o'quvchilar, guruhlar, enrollment va boshlang'ich balanslar (qarz yoki oldindan to'lov `opening_balance` sifatida). Yuklashdan oldin tekshiruv va xatolar ro'yxati ko'rsatiladi, tasdiqlangandan keyin saqlanadi |
 | 9 | Deploy | Deploy skripti, queue worker va scheduler (cron), zaxira nusxa |
 
