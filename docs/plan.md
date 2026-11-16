@@ -46,8 +46,88 @@
 - **Bo'sh foyda** = kassalar jami − o'qituvchilar balanslari jami − o'quvchilarning oldindan to'lagan (hali ishlatilmagan) pullari. Foyda yechish oynasida shu raqam ko'rsatiladi (§8, 2-savol).
 
 ### 1.5 Balans tarixi
-Uch joyda: **kassa**, **foydalanuvchi (o'qituvchi)**, **o'quvchi** (har guruh bo'yicha va umumiy). Har bir qator: sana, amal turi, izoh (kim, nima uchun), **+ / −** summa, **amaldan keyingi qoldiq**, kim kiritgan. Sana va tur bo'yicha filtr, Excel eksport.
-> ms.autoprime.uz login talab qilgani uchun uni ko'ra olmadim. Tarix yuqoridagi odatiy jadval ko'rinishida rejalashtirilgan; farqi bo'lsa, skrinshot yuboring.
+Uch joyda bo'ladi: **kassa**, **o'qituvchi**, **o'quvchi**. Hammasida bir xil ustunlar ishlatiladi:
+
+**Sana · Amal · Tafsilot · Kirim (+) · Chiqim (−) · Qoldiq**
+
+- Kirim va chiqim alohida ustunda yoziladi (bitta ± ustun emas), shunda pul qayerga ketgani darhol ko'rinadi.
+- **Qoldiq** — shu amaldan keyingi balans.
+- Jadval tepasida tanlangan davr uchun xulosa turadi: davr boshidagi qoldiq, jami kirim, jami chiqim, davr oxiridagi qoldiq.
+- Sana, amal turi va guruh bo'yicha filtr, Excel eksport.
+- Qatorni bosganda batafsil oyna ochiladi: kim kiritgan, qaysi kassa, izoh, bog'liq yozuvlar.
+
+Quyidagi namunalar §2 dagi misolga mos keladi.
+
+#### Kassa tarixi — "Naqd kassa (Chilonzor filiali)", noyabr 2026
+
+| Xulosa | Summa |
+|---|---|
+| 01.11 dagi qoldiq | 1 000 000 |
+| Jami kirim | 600 000 |
+| Jami chiqim | 1 020 000 |
+| 30.11 dagi qoldiq | 580 000 |
+
+| Sana | Amal | Tafsilot | Kirim | Chiqim | Qoldiq |
+|---|---|---|---|---|---|
+| 01.11 | O'quvchi to'lovi | Ali Valiyev — Ingliz-1 | 100 000 | | 1 100 000 |
+| 04.11 | Xarajat | Reklama — Instagram | | 300 000 | 800 000 |
+| 08.11 | Kassadan kassaga | Click kassadan o'tkazildi | 500 000 | | 1 300 000 |
+| 15.11 | O'qituvchi oyligi | Aziz Karimov | | 70 000 | 1 230 000 |
+| 20.11 | Pul qaytarish | Vali Toshev — Matematika-2 | | 150 000 | 1 080 000 |
+| 30.11 | Foyda yechildi | Admin | | 500 000 | 580 000 |
+
+Kassa tarixida faqat shu kassadan haqiqatda kirgan va chiqqan pul ko'rinadi. Masalan, Ali 12.11 da Click orqali to'lagan bo'lsa, u to'lov "Click kassa" tarixida chiqadi.
+
+#### O'qituvchi tarixi — "Aziz Karimov", noyabr 2026
+
+| Xulosa | Summa |
+|---|---|
+| 01.11 dagi qoldiq | 0 |
+| Jami ishlagan | 70 000 |
+| Jami olgan | 70 000 |
+| 30.11 dagi qoldiq | 0 |
+| **Kutilmoqda** (o'quvchilar hali to'lamagan) | 0 |
+
+| Sana | Amal | Tafsilot | Kirim | Chiqim | Qoldiq |
+|---|---|---|---|---|---|
+| 03.11 | Dars ulushi | Ingliz-1, 03.11 darsi — 1 o'quvchi | 35 000 | | 35 000 |
+| 12.11 | Qarz yopildi | Ali Valiyev to'ladi → Ingliz-1, 07.11 darsi uchun | 35 000 | | 70 000 |
+| 15.11 | Oylik oldi | Naqd kassa (Chilonzor) | | 70 000 | 0 |
+
+- **Dars ulushi** qatori bitta darsni bitta qatorda ko'rsatadi, nechta o'quvchi bo'lsa ham. Qatorni bosganda har o'quvchi alohida chiqadi:
+
+  | O'quvchi | Dars narxi | Foiz | Ulush |
+  |---|---|---|---|
+  | Ali Valiyev | 50 000 | 70% | 35 000 |
+
+- **Qarz yopildi** qatori o'quvchi eski qarzini to'laganda paydo bo'ladi. Unda kim to'lagani va qaysi dars uchun ekani yoziladi.
+- O'rinbosar sifatida o'tilgan dars "Dars ulushi (o'rinbosar)" deb yoziladi. Masalan, boshqa o'qituvchining tarixida: *05.11 — Dars ulushi (o'rinbosar) — Ingliz-1, 05.11 darsi, Aziz Karimov o'rniga — +35 000*.
+- **Kutilmoqda** bloki tarixdan alohida turadi. Unda o'tilgan, lekin o'quvchi hali pul to'lamagan darslar ro'yxati bo'ladi. Bu pul balansga qo'shilmagan, faqat ma'lumot uchun ko'rsatiladi. Masalan, 07.11 dan 12.11 gacha unda *"Ali Valiyev — Ingliz-1, 07.11 darsi — 35 000"* turgan.
+
+#### O'quvchi tarixi — "Ali Valiyev · Ingliz-1", noyabr 2026
+
+Har guruh alohida sahifa (tab) bo'ladi. Tepasida guruh balansi va oy hisoblagichi turadi: **Noyabr: 3 / 12 dars hisoblandi**.
+
+| Xulosa | Summa |
+|---|---|
+| 01.11 dagi qoldiq | 0 |
+| Jami to'langan | 700 000 |
+| Jami darslar uchun | 150 000 |
+| Hozirgi qoldiq | **+550 000** (oldindan to'langan) |
+
+| Sana | Amal | Tafsilot | Kirim | Chiqim | Qoldiq |
+|---|---|---|---|---|---|
+| 01.11 | To'lov | Naqd | 100 000 | | 100 000 |
+| 03.11 | Dars | Keldi · noyabrdagi 1-dars | | 50 000 | 50 000 |
+| 05.11 | Dars | Keldi · 2-dars | | 50 000 | 0 |
+| 07.11 | Dars | Sababsiz kelmadi · 3-dars | | 50 000 | **−50 000** |
+| 10.11 | Dars | Sababli kelmadi · hisoblanmadi | | — | −50 000 |
+| 12.11 | To'lov | Click | 600 000 | | 550 000 |
+
+- Qoldiq minus bo'lsa qizil rangda "qarz", plus bo'lsa yashil rangda ko'rsatiladi.
+- Oyda 12 ta dars hisoblangandan keyingi darslar ham ko'rinadi, lekin chiqim o'rniga "bepul (12 dan oshdi)" deb yoziladi.
+- Balans ko'chirish ikki guruhda ham ko'rinadi: *"Matematika-2 ga ko'chirildi"* (chiqim) va *"Ingliz-1 dan ko'chirildi"* (kirim).
+- Profilning yuqori qismida barcha guruhlar balansi yonma-yon ko'rsatiladi.
 
 ## 2. Ishlash namunasi
 
@@ -69,15 +149,17 @@ Noyabrda Ali uchun yechilgan darslar soni 12 ga yetgach, qolgan darslar bepul bo
 
 | Rol | Asosiy imkoniyatlar |
 |---|---|
-| **admin** | Hamma narsa: filiallar, foydalanuvchilar, rollar, foiz va narxlar, foyda yechish, barcha hisobotlar |
+| **superadmin** | Butun tizim: **barcha filiallar**, filial yaratish va o'chirish, filial adminlarini tayinlash, rollar va ruxsatlar, barcha filiallar bo'yicha umumiy hisobotlar, istalgan filial kassasidan foyda yechish |
+| **admin** | **O'z filiali** doirasida hamma narsa: foydalanuvchilar, foiz va narxlar, kassalar, foyda yechish, hisobotlar |
 | **manager** (kassir) | O'quvchi, guruh, to'lov qabul qilish, xarajat, o'qituvchiga oylik berish, qaytarish; o'z filiali doirasida. Foyda yecha olmaydi |
 | **teacher** | O'z guruhlari, davomat, o'z balansi va tarixi |
 | **student** | O'z guruhlari, balansi, to'lovlari, davomati (ota-ona ham shu login bilan) |
 
 - Ruxsatlar sahifa va amal bo'yicha: `students.view`, `students.create`, `students.update`, `groups.*`, `attendance.mark`, `payments.create`, `payments.reverse`, `expenses.*`, `payouts.create`, `cashboxes.view`, `cashboxes.transfer`, `profit.withdraw`, `refunds.create`, `reports.view`, `users.manage`, `roles.manage`, `settings.manage` va h.k.
-- Admin panelda rollarga ruxsatlarni belgilash sahifasi bo'ladi.
+- Superadmin panelida rollarga ruxsatlarni belgilash sahifasi bo'ladi.
 - Ruxsatlar backend'da (Policy + `can` middleware) va frontend'da (menyu/tugmalarni yashirish) tekshiriladi. Ruxsatlar ro'yxati Inertia shared props orqali uzatiladi.
-- **Filial doirasi**: menejer va o'qituvchi faqat o'ziga biriktirilgan filial ma'lumotlarini ko'radi.
+- **Filial doirasi**: admin, menejer va o'qituvchi faqat o'ziga biriktirilgan filial(lar) ma'lumotlarini ko'radi. Superadmin hamma filialni ko'radi: yuqori panelda filial tanlagich bo'ladi ("Barcha filiallar" yoki bitta filial).
+- Superadmin `Gate::before` orqali barcha ruxsatlarga ega bo'ladi. Uning rolini faqat boshqa superadmin bera oladi, tizimdagi oxirgi superadminni o'chirib bo'lmaydi.
 
 ## 4. Ma'lumotlar modeli
 
