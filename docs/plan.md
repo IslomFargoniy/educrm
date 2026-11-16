@@ -28,7 +28,7 @@
   - **Davom ettirmasa**, sinov darslari bekor qilinadi: pul olinmaydi, o'qituvchiga ulush yo'q.
 - **Muzlatish**: o'quvchini guruhda ma'lum muddatga (masalan 2 hafta) muzlatish mumkin. Bu davrda darslar hisoblanmaydi va o'quvchi davomat ro'yxatida ko'rinmaydi. Muddat tugagach u avtomatik faollashadi. Muzlatishlar tarixi saqlanadi.
 - **Narx o'zgarishi**: guruh narxi (yoki N) o'zgartirilsa, yangi qiymat **keyingi oyning 1-sanasidan** qo'llanadi. Joriy oy eski narxda yakunlanadi. Narxlar tarixi saqlanadi.
-- **Bo'linish**: oylik narx doim N ga qoldiqsiz bo'linadi, shuning uchun yaxlitlash kerak emas. Summalar butun so'mda saqlanadi. Guruh narxi va chegirmadan keyingi narx kiritilganda N ga bo'linishi tekshiriladi. Natijasi bo'linmaydigan chegirma **qabul qilinmaydi** (masalan N = 12 va 600 000 uchun 10% → 540 000 bo'ladi, 7% → 558 000 bo'lmaydi).
+- **Bo'linish**: oylik narx doim N ga qoldiqsiz bo'linadi, shuning uchun yaxlitlash kerak emas. Summalar butun so'mda saqlanadi. Guruh narxi va chegirmadan keyingi narx kiritilganda N ga bo'linishi tekshiriladi. Natijasi bo'linmaydigan chegirma **qabul qilinmaydi** (masalan N = 12 va 600 000 uchun 60 000 so'm chegirma → 540 000 bo'ladi, 5 000 so'm chegirma → 595 000 bo'lmaydi).
 
 ### 1.2 Darslar jadvali
 - Guruh kunlari, boshlanish va tugash vaqti, xonasi bo'yicha har oy darslar avtomatik yaratiladi.

@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Enums\Role;
+use App\Models\Branch;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -26,6 +28,7 @@ class UserFactory extends Factory
     {
         return [
             'name' => fake()->name(),
+            'phone' => '+9989'.fake()->unique()->numerify('########'),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
@@ -44,6 +47,20 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    /**
+     * Give the user a role (and optionally attach branches).
+     *
+     * @param  list<Branch>  $branches
+     */
+    public function withRole(Role $role, array $branches = []): static
+    {
+        return $this->afterCreating(function (User $user) use ($role, $branches) {
+            \Spatie\Permission\Models\Role::findOrCreate($role->value, 'web');
+            $user->assignRole($role->value);
+            $user->branches()->attach(collect($branches)->pluck('id'));
+        });
     }
 
     /**
