@@ -2,7 +2,7 @@
 
 > Holat: reja (kod yozilmagan). Stack: Laravel 13, Inertia v3 + React, Wayfinder, Fortify, Pest, MySQL.
 > Interfeys tillari: o'zbekcha (lotin, asosiy), ruscha, inglizcha. Foydalanuvchi tilni o'zi tanlaydi va tanlov profilda saqlanadi.
-> Brend: logo va ranglarni markaz yuboradi; ungacha neytral dizayn ishlatiladi.
+> Brend: **Mensa Learning Center** — butun tizim va dizayn logoga moslanadi (§9).
 
 ## 1. Asosiy biznes qoidalar
 
@@ -279,7 +279,7 @@ Barcha pul summalari `bigint`, butun so'mda.
 
 | # | Bosqich | Natija |
 |---|---|---|
-| 0 | Poydevor | Telefon orqali login, uch tilli interfeys (uz / ru / en), spatie/laravel-permission, rollar va ruxsatlar seederi, filiallar, xonalar, foydalanuvchilarni boshqarish, Money helper, Ledger servisi va testlari |
+| 0 | Poydevor | Brend va dizayn tizimi (§9), telefon orqali login, uch tilli interfeys (uz / ru / en), spatie/laravel-permission, rollar va ruxsatlar seederi, filiallar, xonalar, foydalanuvchilarni boshqarish, Money helper, Ledger servisi va testlari |
 | 1 | O'quvchi va guruhlar | CRUD, ota-onalar, enrollment, narx va N tarixi, foiz va chegirma, dars jadvali generatori, bayram kalendari, jadval to'qnashuvi |
 | 2 | Darslar va davomat | Davomat sahifasi (dars kuni qoidasi, o'zgarishlar tarixi), o'rinbosar, darsni bekor qilish va qo'shimcha dars, sinov darsi, muzlatish |
 | 3 | Hisob-kitob yadrosi | N dars cheklovi, sababli holat, guruh almashtirishda umumiy cheklov, qoplash (FIFO), o'qituvchi ulushi; **to'liq Pest testlari** (§2 namunasi test sifatida) |
@@ -333,4 +333,42 @@ Har bosqich alohida PR sifatida, testlar bilan topshiriladi. Hisob-kitob (3–4 
 | Baholar / uy vazifasi | Yo'q |
 | SMS xizmati | Keyin tanlanadi (8-bosqich) |
 | Import | Excel'dan (9-bosqich) |
-| Brend | Logo va ranglarni markaz yuboradi |
+| Brend | Mensa logosi va ranglari, butun dizayn shunga moslanadi (§9) |
+
+## 9. Brend va dizayn
+
+Butun tizim **Mensa Learning Center** logosiga moslanadi.
+
+### 9.1 Ranglar
+Logodan olingan (taxminiy qiymatlar; aniq HEX kodlari asl fayldan olinadi):
+
+| Token | Rang | Qayerda ishlatiladi |
+|---|---|---|
+| `primary` | To'q ko'k (navy), ~`#0B0F7E` | Asosiy tugmalar, faol menyu, sarlavhalar, login sahifasi foni, sidebar |
+| `accent` | To'q sariq (orange), ~`#F7941D` | Diqqat talab qiladigan joylar: asosiy amal tugmasi ("To'lov qabul qilish"), belgi va badge'lar, grafikdagi ajratilgan qiymat. Kam va o'rinli ishlatiladi |
+| `background` / `foreground` | Oq / to'q ko'k-kulrang | Sahifa foni va matn |
+| `success` / `danger` | Yashil / qizil | Faqat pul holati uchun: musbat balans, qarz (§1.6) |
+
+- Ranglar Tailwind v4 va shadcn/ui CSS o'zgaruvchilari (`--primary`, `--accent` …) orqali bir joyda belgilanadi, komponentlar ichiga to'g'ridan-to'g'ri rang yozilmaydi.
+- **Qorong'i rejim** ham bo'ladi: fon to'q navy, primary yorqinroq ko'k, accent o'sha orange.
+- Rang kontrasti WCAG AA darajasida tekshiriladi (ayniqsa orange fon ustidagi matn).
+
+### 9.2 Logo ishlatilishi
+| Joy | Variant |
+|---|---|
+| Login, parolni tiklash sahifalari | To'liq logo (belgi + "Mensa" + "Learning center"), navy fonda oq |
+| Sidebar (ochiq) | Belgi + "Mensa" yozuvi |
+| Sidebar (yig'ilgan), favicon, mobil ikonka (PWA) | Faqat belgi (kitob/qalqon + orange romb) |
+| Chek (termal printer) | Oq-qora, soddalashtirilgan belgi + "Mensa Learning Center" |
+| Chek (A4), hisobotlar eksporti (PDF/Excel) | To'liq rangli logo |
+| SMS / Telegram xabarlar | Imzo: "Mensa Learning Center" |
+
+### 9.3 Shrift va uslub
+- Logodagi yozuvga yaqin, qalin geometrik sans-serif shrift; **lotin va kirill** harflarini qo'llab-quvvatlashi shart (ruscha interfeys uchun). Variantlar: Manrope, Onest, Inter — logo bilan solishtirib tanlanadi.
+- Burchaklar biroz yumaloq, soyalar yengil; kartalar oq fonda, sarlavha qismi navy.
+- Ilova nomi hamma joyda: **Mensa** (to'liq: Mensa Learning Center); `APP_NAME` ham shunga o'zgartiriladi.
+- Hozirgi starter-kit sahifasi (welcome) Mensa uchun oddiy bosh sahifa yoki to'g'ridan-to'g'ri login sahifasi bilan almashtiriladi.
+
+### 9.4 Kerakli fayllar
+- Logoning asl fayli: **SVG** (yoki yuqori sifatli PNG, shaffof fon bilan) — to'liq va faqat belgi variantlari.
+- Aniq rang kodlari (HEX), agar brendbukda bo'lsa.
