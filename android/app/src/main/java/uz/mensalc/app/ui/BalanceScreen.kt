@@ -77,7 +77,7 @@ fun ProfileScreen(user: UserProfile, onLogout: () -> Unit) {
         Text(user.phone.orEmpty(), color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text("${stringResource(R.string.role)}: ${user.roles.joinToString()}")
         if (user.branches.isNotEmpty()) Text("${stringResource(R.string.branches)}: ${user.branches.joinToString { it.name }}")
-        OutlinedButton({ uri.openUri("https://mensalc.uz") }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.open_web)) }
+        OutlinedButton({ uri.openUri("https://crm.mensalc.uz") }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.open_web)) }
         Button(onLogout, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.logout)) }
     }
 }
