@@ -107,15 +107,18 @@ class StudentImporter
     }
 
     /**
-     * Save rows without errors. Returns the number of imported students.
+     * Save rows without errors. Returns the number of imported students and the parent accounts
+     * created on the way with their passwords: nobody else ever sees them, so the admin hands them out.
      *
      * @param  list<array<string, mixed>>  $rows
+     * @return array{count: int, parents: list<array{name: string, phone: string, password: string, children: list<string>}>}
      */
-    public function import(array $rows, int $branchId): int
+    public function import(array $rows, int $branchId): array
     {
         $count = 0;
+        $parents = [];
 
-        DB::transaction(function () use ($rows, $branchId, &$count) {
+        DB::transaction(function () use ($rows, $branchId, &$count, &$parents) {
             foreach ($rows as $row) {
                 if ($row['errors'] !== []) {
                     continue;
@@ -127,10 +130,20 @@ class StudentImporter
                 );
 
                 if ($row['parent_phone']) {
+                    $password = Str::password(8, symbols: false);
                     $parent = User::query()->firstOrCreate(
                         ['phone' => $row['parent_phone']],
-                        ['name' => $row['parent_name'] ?? $row['full_name'], 'password' => Str::password(8, symbols: false)],
+                        ['name' => $row['parent_name'] ?? $row['full_name'], 'password' => $password],
                     );
+
+                    if ($parent->wasRecentlyCreated) {
+                        $parents[$parent->id] = ['name' => $parent->name, 'phone' => $parent->phone, 'password' => $password, 'children' => []];
+                    }
+
+                    if (isset($parents[$parent->id])) {
+                        $parents[$parent->id]['children'][] = $student->full_name;
+                    }
+
                     $parent->hasRole(Role::Parent->value) || $parent->assignRole(Role::Parent->value);
                     $student->guardians()->syncWithoutDetaching([$parent->id => ['relation' => 'parent']]);
                 }
@@ -146,6 +159,6 @@ class StudentImporter
             }
         });
 
-        return $count;
+        return ['count' => $count, 'parents' => array_values($parents)];
     }
 }

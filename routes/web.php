@@ -50,6 +50,7 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('students/{student}', [StudentController::class, 'update'])->middleware('permission:students.update')->name('students.update');
     Route::post('students/{student}/guardians', [StudentController::class, 'storeGuardian'])->middleware('permission:students.update')->name('students.guardians.store');
     Route::delete('students/{student}/guardians/{guardian}', [StudentController::class, 'destroyGuardian'])->middleware('permission:students.update')->name('students.guardians.destroy');
+    Route::post('students/{student}/guardians/{guardian}/password', [StudentController::class, 'resetGuardianPassword'])->middleware('permission:students.update')->name('students.guardians.password');
 
     Route::middleware('permission:enrollments.manage')->group(function () {
         Route::post('students/{student}/enrollments', [EnrollmentController::class, 'store'])->name('enrollments.store');

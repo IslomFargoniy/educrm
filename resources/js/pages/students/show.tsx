@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeftRight, Banknote, LogOut, Pencil, Percent, Plus, Printer, Shuffle, Snowflake, Trash2, Undo2, UserPlus, XCircle } from 'lucide-react';
+import { ArrowLeftRight, Banknote, KeyRound, LogOut, Pencil, Percent, Plus, Printer, Shuffle, Snowflake, Trash2, Undo2, UserPlus, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import Field from '@/components/field';
 import FormDialog from '@/components/form-dialog';
@@ -113,6 +113,19 @@ export default function StudentShow({ student, enrollments, payments, period, gr
                             {g.name}
                             {g.phone && <span className="text-muted-foreground">{g.phone}</span>}
                             {g.telegram && <span title="Telegram" className="text-sky-600">✈</span>}
+                            {can('students.update') && (
+                                <button
+                                    type="button"
+                                    title={t('Reset password')}
+                                    className="text-muted-foreground hover:text-foreground"
+                                    onClick={() =>
+                                        confirm(t('Give :name a new password? The old one will stop working.', { name: g.name })) &&
+                                        router.post(guardianRoutes.password({ student: student.id, guardian: g.id }).url, {}, { preserveScroll: true })
+                                    }
+                                >
+                                    <KeyRound className="size-3" />
+                                </button>
+                            )}
                             {can('students.update') && (
                                 <button
                                     type="button"

@@ -223,6 +223,7 @@ class StudentController extends Controller
 
     public function storeGuardian(Request $request, Student $student): RedirectResponse
     {
+        $this->authorizeStudent($request, $student);
         $request->merge(['phone' => Phone::normalize($request->input('phone'))]);
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -238,11 +239,36 @@ class StudentController extends Controller
         return back();
     }
 
-    public function destroyGuardian(Student $student, User $guardian): RedirectResponse
+    public function destroyGuardian(Request $request, Student $student, User $guardian): RedirectResponse
     {
+        $this->authorizeStudent($request, $student);
         $student->guardians()->detach($guardian->id);
 
         return back();
+    }
+
+    /**
+     * Give a parent of this student a new password and show it once. Parents sign in by phone
+     * and have no other way to recover a lost (or never seen, e.g. Excel-imported) password.
+     */
+    public function resetGuardianPassword(Request $request, Student $student, User $guardian): RedirectResponse
+    {
+        $this->authorizeStudent($request, $student);
+        abort_unless($student->guardians()->whereKey($guardian->id)->exists(), 404);
+        // Only a portal-only account: a staff member who is also a parent is managed under Admin → Users.
+        abort_if($guardian->roles->pluck('name')->contains(fn (string $role) => $role !== Role::Parent->value && $role !== Role::Student->value), 403);
+
+        $password = Str::password(8, symbols: false);
+        $guardian->update(['password' => $password]);
+        $guardian->tokens()->delete();
+        $this->toast(__('New password for :name: :password', ['name' => $guardian->name, 'password' => $password]));
+
+        return back();
+    }
+
+    private function authorizeStudent(Request $request, Student $student): void
+    {
+        abort_unless(Student::query()->whereKey($student->id)->inBranches($request->user()->accessibleBranchIds())->exists(), 403);
     }
 
     /**

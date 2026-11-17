@@ -18,6 +18,8 @@ class ImportController extends Controller
     {
         return Inertia::render('admin/import', [
             'preview' => $request->session()->get('import_preview'),
+            // Shown once, right after the import: logins and passwords of the parents it created.
+            'result' => $request->session()->get('import_result'),
             'branchId' => app(CurrentBranch::class)->id(),
         ]);
     }
@@ -48,8 +50,9 @@ class ImportController extends Controller
         abort_if($preview === null, 422);
         $this->authorizeBranch($preview['branch_id']);
 
-        $count = $importer->import($preview['rows'], $preview['branch_id']);
-        $this->toast(__('Imported students: :count.', ['count' => $count]));
+        $result = $importer->import($preview['rows'], $preview['branch_id']);
+        $request->session()->flash('import_result', $result);
+        $this->toast(__('Imported students: :count.', ['count' => $result['count']]));
 
         return back();
     }
