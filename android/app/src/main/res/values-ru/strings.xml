@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="login_title">Вход в Mensa</string>
+    <string name="login_subtitle">Введите номер телефона и пароль</string>
+    <string name="phone">Номер телефона</string>
+    <string name="password">Пароль</string>
+    <string name="login">Войти</string>
+    <string name="logout">Выйти</string>
+    <string name="lessons">Уроки</string>
+    <string name="students">Ученики</string>
+    <string name="my_balance">Мой баланс</string>
+    <string name="profile">Профиль</string>
+    <string name="today">Сегодня</string>
+    <string name="no_lessons">В этот день уроков нет</string>
+    <string name="present">Пришёл</string>
+    <string name="absent">Не пришёл</string>
+    <string name="excused">Уважит.</string>
+    <string name="save_attendance">Сохранить посещаемость</string>
+    <string name="saved">Сохранено</string>
+    <string name="all_present">Остальные пришли</string>
+    <string name="cannot_mark">Посещаемость отмечается только в день урока</string>
+    <string name="search">Имя или телефон</string>
+    <string name="balance">Баланс</string>
+    <string name="receive_payment">Принять оплату</string>
+    <string name="amount">Сумма</string>
+    <string name="cashbox">Касса</string>
+    <string name="receive">Принять</string>
+    <string name="cancel">Отмена</string>
+    <string name="payment_done">Оплата принята. Чек %1$s</string>
+    <string name="history">История баланса</string>
+    <string name="waiting_payment">Ожидает оплаты</string>
+    <string name="can_take">Можно получить</string>
+    <string name="trial">пробный</string>
+    <string name="debtor">должник</string>
+    <string name="substitute">замена</string>
+    <string name="error_network">Нет связи с сервером</string>
+    <string name="retry">Повторить</string>
+    <string name="role">Роль</string>
+    <string name="branches">Филиалы</string>
+    <string name="open_web">Открыть сайт</string>
+    <string name="sum">сум</string>
+</resources>

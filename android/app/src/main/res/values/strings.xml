@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Mensa</string>
+    <string name="login_title">Mensa\'ga kirish</string>
+    <string name="login_subtitle">Telefon raqam va parolni kiriting</string>
+    <string name="phone">Telefon raqam</string>
+    <string name="password">Parol</string>
+    <string name="login">Kirish</string>
+    <string name="logout">Chiqish</string>
+    <string name="lessons">Darslar</string>
+    <string name="students">O\'quvchilar</string>
+    <string name="my_balance">Balansim</string>
+    <string name="profile">Profil</string>
+    <string name="today">Bugun</string>
+    <string name="no_lessons">Bu kuni dars yo\'q</string>
+    <string name="present">Keldi</string>
+    <string name="absent">Kelmadi</string>
+    <string name="excused">Sababli</string>
+    <string name="save_attendance">Davomatni saqlash</string>
+    <string name="saved">Saqlandi</string>
+    <string name="all_present">Qolganlar keldi</string>
+    <string name="cannot_mark">Davomat faqat dars kuni belgilanadi</string>
+    <string name="search">Ism yoki telefon</string>
+    <string name="balance">Balans</string>
+    <string name="receive_payment">To\'lov qabul qilish</string>
+    <string name="amount">Summa</string>
+    <string name="cashbox">Kassa</string>
+    <string name="receive">Qabul qilish</string>
+    <string name="cancel">Bekor qilish</string>
+    <string name="payment_done">To\'lov qabul qilindi. Chek %1$s</string>
+    <string name="history">Balans tarixi</string>
+    <string name="waiting_payment">To\'lov kutilmoqda</string>
+    <string name="can_take">Olish mumkin</string>
+    <string name="trial">sinov</string>
+    <string name="debtor">qarzdor</string>
+    <string name="substitute">o\'rinbosar</string>
+    <string name="error_network">Internet yoki server bilan aloqa yo\'q</string>
+    <string name="retry">Qayta urinish</string>
+    <string name="role">Rol</string>
+    <string name="branches">Filiallar</string>
+    <string name="open_web">Saytni ochish</string>
+    <string name="sum">so\'m</string>
+</resources>

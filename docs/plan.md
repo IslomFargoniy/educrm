@@ -1,6 +1,6 @@
 # mensalc.uz — O'quv markaz boshqaruv tizimi: reja
 
-> Holat: reja (kod yozilmagan). Stack: Laravel 13, Inertia v3 + React, Wayfinder, Fortify, Pest, MySQL.
+> Holat: amalga oshirilgan (veb-tizim, Telegram bot, Android ilova). Sayt: https://mensalc.uz Stack: Laravel 13, Inertia v3 + React, Wayfinder, Fortify, Pest, MySQL.
 > Interfeys tillari: o'zbekcha (lotin, asosiy), ruscha, inglizcha. Foydalanuvchi tilni o'zi tanlaydi va tanlov profilda saqlanadi.
 > Brend: **Mensa Learning Center** — butun tizim va dizayn logoga moslanadi (§9).
 

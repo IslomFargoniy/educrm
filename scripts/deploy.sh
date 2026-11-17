@@ -33,14 +33,14 @@ sudo mkdir -p ${APP_DIR}/storage/{app/public,framework/{cache/data,sessions,view
 sudo rsync -a --exclude 'index.php' --exclude 'storage' ${APP_DIR}/public/ ${DOC_ROOT}/
 sudo chown -R ${SITE_USER}:${SITE_USER} ${APP_DIR} ${DOC_ROOT}
 sudo rm -rf /tmp/mensalc-upload
-cd ${APP_DIR}
-sudo -u ${SITE_USER} php artisan down --retry=15 || true
-sudo -u ${SITE_USER} php artisan migrate --force
-sudo -u ${SITE_USER} php artisan db:seed --force
-sudo -u ${SITE_USER} php artisan optimize:clear >/dev/null
-sudo -u ${SITE_USER} php artisan optimize
-sudo -u ${SITE_USER} php artisan lessons:generate
-sudo -u ${SITE_USER} php artisan up
+artisan() { sudo -u ${SITE_USER} -H bash -c "cd ${APP_DIR} && php artisan \$*"; }
+artisan down --retry=15 || true
+artisan migrate --force
+artisan db:seed --force
+artisan optimize:clear >/dev/null
+artisan optimize
+artisan lessons:generate
+artisan up
 REMOTE
 
 echo "✓ Deployed"
