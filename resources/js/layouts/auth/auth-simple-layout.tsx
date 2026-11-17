@@ -22,7 +22,7 @@ export default function AuthSimpleLayout({ children, title, description }: AuthL
                         {t('Students, attendance and cash — in one system.')}
                     </p>
                 </div>
-                <AppLogoIcon className="absolute -right-24 -bottom-24 size-[28rem] text-white/5" />
+                <AppLogoIcon className="absolute -right-24 -bottom-24 size-[28rem] text-white opacity-[0.06]" />
             </div>
             <div className="flex flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
                 <div className="flex w-full max-w-sm justify-end">
