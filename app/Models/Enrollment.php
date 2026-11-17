@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\DiscountType;
 use App\Enums\EnrollmentStatus;
 use Carbon\CarbonInterface;
+use Database\Factories\EnrollmentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable(['student_id', 'group_id', 'joined_at', 'left_at', 'status', 'trial_lessons', 'transferred_from_id', 'teacher_percent', 'discount_type', 'discount_value'])]
 class Enrollment extends Model
 {
+    /** @use HasFactory<EnrollmentFactory> */
     use HasFactory;
 
     /**

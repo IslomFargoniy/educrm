@@ -39,7 +39,11 @@ export default function CashActions({
         ) : (
             <Field label={t('Cashbox')} error={error}>
                 <NativeSelect name="cashbox_id" required>
-                    {cashboxes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    {cashboxes.map((c) => (
+                        <option key={c.id} value={c.id}>
+                            {c.name}
+                        </option>
+                    ))}
                 </NativeSelect>
             </Field>
         );
@@ -47,33 +51,91 @@ export default function CashActions({
     return (
         <>
             {can('expenses.create') && (
-                <FormDialog title={t('Expense')} form={expenses.store.form()} trigger={<Button variant="outline"><MinusCircle />{t('Expense')}</Button>}>
+                <FormDialog
+                    title={t('Expense')}
+                    form={expenses.store.form()}
+                    trigger={
+                        <Button variant="outline">
+                            <MinusCircle />
+                            {t('Expense')}
+                        </Button>
+                    }
+                >
                     {(errors) => (
                         <>
                             {cashboxField(errors.cashbox_id)}
-                            <Field label={t('Category')} error={errors.expense_category_id}>
-                                <NativeSelect name="expense_category_id" required>
-                                    {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                            <Field
+                                label={t('Category')}
+                                error={errors.expense_category_id}
+                            >
+                                <NativeSelect
+                                    name="expense_category_id"
+                                    required
+                                >
+                                    {categories.map((c) => (
+                                        <option key={c.id} value={c.id}>
+                                            {c.name}
+                                        </option>
+                                    ))}
                                 </NativeSelect>
                             </Field>
-                            <Field label={t('Amount')} error={errors.amount}><Input name="amount" type="number" min={1} required /></Field>
-                            <Field label={t('Note')} error={errors.note}><Input name="note" placeholder={t('e.g. banner on the street')} /></Field>
+                            <Field label={t('Amount')} error={errors.amount}>
+                                <Input
+                                    name="amount"
+                                    type="number"
+                                    min={1}
+                                    required
+                                />
+                            </Field>
+                            <Field label={t('Note')} error={errors.note}>
+                                <Input
+                                    name="note"
+                                    placeholder={t('e.g. banner on the street')}
+                                />
+                            </Field>
                         </>
                     )}
                 </FormDialog>
             )}
             {can('cashboxes.transfer') && cashboxes.length > 1 && (
-                <FormDialog title={t('Move money between cashboxes')} form={cashboxTransfers.store.form()} trigger={<Button variant="outline"><ArrowLeftRight />{t('Transfer')}</Button>}>
+                <FormDialog
+                    title={t('Move money between cashboxes')}
+                    form={cashboxTransfers.store.form()}
+                    trigger={
+                        <Button variant="outline">
+                            <ArrowLeftRight />
+                            {t('Transfer')}
+                        </Button>
+                    }
+                >
                     {(errors) => (
                         <>
                             {cashboxField(errors.cashbox_id)}
-                            <Field label={t('To cashbox')} error={errors.to_cashbox_id}>
+                            <Field
+                                label={t('To cashbox')}
+                                error={errors.to_cashbox_id}
+                            >
                                 <NativeSelect name="to_cashbox_id" required>
-                                    {cashboxes.filter((c) => c.id !== fixedCashboxId).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                    {cashboxes
+                                        .filter((c) => c.id !== fixedCashboxId)
+                                        .map((c) => (
+                                            <option key={c.id} value={c.id}>
+                                                {c.name}
+                                            </option>
+                                        ))}
                                 </NativeSelect>
                             </Field>
-                            <Field label={t('Amount')} error={errors.amount}><Input name="amount" type="number" min={1} required /></Field>
-                            <Field label={t('Note')} error={errors.note}><Input name="note" /></Field>
+                            <Field label={t('Amount')} error={errors.amount}>
+                                <Input
+                                    name="amount"
+                                    type="number"
+                                    min={1}
+                                    required
+                                />
+                            </Field>
+                            <Field label={t('Note')} error={errors.note}>
+                                <Input name="note" />
+                            </Field>
                         </>
                     )}
                 </FormDialog>
@@ -81,21 +143,46 @@ export default function CashActions({
             {can('profit.withdraw') && (
                 <FormDialog
                     title={t('Withdraw profit')}
-                    description={t('Free profit: :amount (cash minus teacher money and prepaid student money).', { amount: formatMoney(freeProfit) })}
+                    description={t(
+                        'Free profit: :amount (cash minus teacher money and prepaid student money).',
+                        { amount: formatMoney(freeProfit) },
+                    )}
                     form={withdrawals.store.form()}
                     transform={(data) => ({ ...data, confirm: overFree })}
-                    trigger={<Button variant="outline"><PiggyBank />{t('Withdraw profit')}</Button>}
+                    trigger={
+                        <Button variant="outline">
+                            <PiggyBank />
+                            {t('Withdraw profit')}
+                        </Button>
+                    }
                 >
                     {(errors) => (
                         <>
                             {cashboxField(errors.cashbox_id)}
-                            <Field label={t('Amount')} error={errors.amount}><Input name="amount" type="number" min={1} defaultValue={freeProfit > 0 ? freeProfit : undefined} required /></Field>
-                            <Field label={t('Note')} error={errors.note}><Input name="note" /></Field>
+                            <Field label={t('Amount')} error={errors.amount}>
+                                <Input
+                                    name="amount"
+                                    type="number"
+                                    min={1}
+                                    defaultValue={
+                                        freeProfit > 0 ? freeProfit : undefined
+                                    }
+                                    required
+                                />
+                            </Field>
+                            <Field label={t('Note')} error={errors.note}>
+                                <Input name="note" />
+                            </Field>
                             {errors.confirm && (
                                 <div className="space-y-2 rounded-lg border border-highlight bg-highlight/10 p-3 text-sm">
                                     <p>{errors.confirm}</p>
                                     <Label className="flex items-center gap-2">
-                                        <Checkbox checked={overFree} onCheckedChange={(v) => setOverFree(v === true)} />
+                                        <Checkbox
+                                            checked={overFree}
+                                            onCheckedChange={(v) =>
+                                                setOverFree(v === true)
+                                            }
+                                        />
                                         {t('I understand, withdraw anyway')}
                                     </Label>
                                 </div>

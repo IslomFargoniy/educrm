@@ -36,34 +36,92 @@ export default function Portal({ children }: { children: Child[] }) {
         <>
             <Head title={t('My children')} />
             <div className="flex flex-col gap-5 p-4 md:p-6">
-                <PageHeader title={t('My children')} description={t('Balances, lessons and payments. Negative balance — debt.')} />
-                {children.length === 0 && <EmptyState>{t('No students are linked to your account yet.')}</EmptyState>}
+                <PageHeader
+                    title={t('My children')}
+                    description={t(
+                        'Balances, lessons and payments. Negative balance — debt.',
+                    )}
+                />
+                {children.length === 0 && (
+                    <EmptyState>
+                        {t('No students are linked to your account yet.')}
+                    </EmptyState>
+                )}
                 {children.map((child) => (
                     <section key={child.id} className="space-y-3">
-                        <h2 className="text-xl font-extrabold">{child.full_name}</h2>
+                        <h2 className="text-xl font-extrabold">
+                            {child.full_name}
+                        </h2>
                         <div className="grid gap-3 md:grid-cols-2">
                             {child.groups.map((g) => (
-                                <button key={g.id} type="button" onClick={() => setOpenGroup(openGroup === g.id ? null : g.id)} className={cn('rounded-2xl border bg-card p-4 text-left transition-colors hover:border-primary', openGroup === g.id && 'border-primary')}>
+                                <button
+                                    key={g.id}
+                                    type="button"
+                                    onClick={() =>
+                                        setOpenGroup(
+                                            openGroup === g.id ? null : g.id,
+                                        )
+                                    }
+                                    className={cn(
+                                        'rounded-2xl border bg-card p-4 text-left transition-colors hover:border-primary',
+                                        openGroup === g.id && 'border-primary',
+                                    )}
+                                >
                                     <div className="flex items-start justify-between gap-2">
                                         <div>
-                                            <div className="text-lg font-bold">{g.group}</div>
-                                            <div className="text-sm text-muted-foreground">{g.teacher} · {formatDays(g.days, locale)} {g.time}</div>
+                                            <div className="text-lg font-bold">
+                                                {g.group}
+                                            </div>
+                                            <div className="text-sm text-muted-foreground">
+                                                {g.teacher} ·{' '}
+                                                {formatDays(g.days, locale)}{' '}
+                                                {g.time}
+                                            </div>
                                         </div>
                                         <div className="text-right">
-                                            <Money value={g.balance} signed className="text-xl" />
-                                            <div className="text-xs text-muted-foreground">{g.balance < 0 ? t('debt') : t('balance')}</div>
+                                            <Money
+                                                value={g.balance}
+                                                signed
+                                                className="text-xl"
+                                            />
+                                            <div className="text-xs text-muted-foreground">
+                                                {g.balance < 0
+                                                    ? t('debt')
+                                                    : t('balance')}
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="mt-3 flex justify-between border-t pt-2 text-sm text-muted-foreground">
-                                        <span>{formatMonth(currentMonth(), locale)}: {g.billed_this_month} / {g.lessons_per_month ?? '—'} {t('lessons')}</span>
-                                        <span>{t('Monthly')}: <Money value={g.monthly_price} /></span>
+                                        <span>
+                                            {formatMonth(
+                                                currentMonth(),
+                                                locale,
+                                            )}
+                                            : {g.billed_this_month} /{' '}
+                                            {g.lessons_per_month ?? '—'}{' '}
+                                            {t('lessons')}
+                                        </span>
+                                        <span>
+                                            {t('Monthly')}:{' '}
+                                            <Money value={g.monthly_price} />
+                                        </span>
                                     </div>
                                 </button>
                             ))}
                         </div>
-                        {child.groups.filter((g) => g.id === openGroup).map((g) => (
-                            <HistoryTable key={g.id} history={g.history} context="enrollment" labels={{ income: t('Total paid'), expense: t('Total for lessons') }} />
-                        ))}
+                        {child.groups
+                            .filter((g) => g.id === openGroup)
+                            .map((g) => (
+                                <HistoryTable
+                                    key={g.id}
+                                    history={g.history}
+                                    context="enrollment"
+                                    labels={{
+                                        income: t('Total paid'),
+                                        expense: t('Total for lessons'),
+                                    }}
+                                />
+                            ))}
                     </section>
                 ))}
             </div>

@@ -16,9 +16,17 @@ export default function Money({
     return (
         <span
             className={cn(
-                'tabular-nums whitespace-nowrap',
-                signed && value !== null && value !== undefined && value < 0 && 'font-semibold text-danger',
-                signed && value !== null && value !== undefined && value > 0 && 'font-semibold text-success',
+                'whitespace-nowrap tabular-nums',
+                signed &&
+                    value !== null &&
+                    value !== undefined &&
+                    value < 0 &&
+                    'font-semibold text-danger',
+                signed &&
+                    value !== null &&
+                    value !== undefined &&
+                    value > 0 &&
+                    'font-semibold text-success',
                 className,
             )}
         >

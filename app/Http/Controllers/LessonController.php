@@ -78,7 +78,7 @@ class LessonController extends Controller
                 'balance' => $user->can('students.view_payments') ? $enrollment->balance : null,
                 'history' => $record?->audits->sortByDesc('changed_at')->map(fn ($a) => [
                     'from' => $a->old_status, 'to' => $a->new_status, 'by' => $a->user?->name, 'at' => $a->changed_at->toIso8601String(),
-                ])->values(),
+                ])->values()->all(),
             ];
         });
 
@@ -138,6 +138,7 @@ class LessonController extends Controller
                 'teacher' => $this->changeTeacher($lesson, (int) $validated['teacher_id'], $billing),
                 'cancel' => $this->cancel($lesson, $validated['cancel_reason'] ?? null, $billing),
                 'restore' => $lesson->update(['status' => LessonStatus::Planned, 'cancel_reason' => null]),
+                default => abort(422),
             };
         });
 

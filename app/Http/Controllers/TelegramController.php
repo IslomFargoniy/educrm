@@ -33,7 +33,7 @@ class TelegramController extends Controller
         }
 
         $user = User::query()->where('telegram_chat_id', $chatId)->first();
-        $locale = $user?->locale ?? 'uz';
+        $locale = $user->locale ?? 'uz';
         app()->setLocale($locale);
 
         if ($contact = data_get($message, 'contact')) {
@@ -161,17 +161,25 @@ class TelegramController extends Controller
      */
     private function verifiedInitData(string $initData): array
     {
-        parse_str($initData, $data);
+        parse_str($initData, $parsed);
+        $data = [];
+
+        foreach ($parsed as $key => $value) {
+            if (is_string($value)) {
+                $data[(string) $key] = $value;
+            }
+        }
+
         $hash = $data['hash'] ?? '';
         unset($data['hash']);
         ksort($data);
-        $check = collect($data)->map(fn ($value, $key) => "{$key}={$value}")->implode("\n");
+        $check = collect($data)->map(fn (string $value, string $key) => "{$key}={$value}")->implode("\n");
         $secret = hash_hmac('sha256', (string) config('services.telegram.bot_token'), 'WebAppData', true);
 
-        abort_unless(filled(config('services.telegram.bot_token')) && hash_equals(hash_hmac('sha256', $check, $secret), (string) $hash), 403);
+        abort_unless(filled(config('services.telegram.bot_token')) && hash_equals(hash_hmac('sha256', $check, $secret), $hash), 403);
         abort_if(isset($data['auth_date']) && (int) $data['auth_date'] < now()->subDay()->timestamp, 403);
 
-        $data['user'] = json_decode((string) ($data['user'] ?? '{}'), true);
+        $data['user'] = json_decode($data['user'] ?? '{}', true);
 
         return $data;
     }

@@ -76,6 +76,7 @@ class Ledger
             $account instanceof Cashbox => LedgerAccount::Cashbox,
             $account instanceof User => LedgerAccount::Teacher,
             $account instanceof Enrollment => LedgerAccount::Enrollment,
+            default => throw new \InvalidArgumentException('Unsupported ledger account '.$account::class),
         };
     }
 }

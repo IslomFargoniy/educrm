@@ -60,7 +60,7 @@ class GroupController extends Controller
         $validated = $this->validateGroup($request, true);
         $this->authorizeBranch((int) $validated['branch_id']);
         $this->assertDivisible((int) $validated['monthly_price'], (int) $validated['lessons_per_month']);
-        $warnings = $this->conflicts->forGroup($validated);
+        $warnings = $this->conflicts->forGroup($this->scheduleOf($validated));
 
         $group = DB::transaction(function () use ($validated, $request) {
             $group = Group::query()->create(collect($validated)->except(['monthly_price', 'lessons_per_month'])->all());
@@ -155,7 +155,7 @@ class GroupController extends Controller
             unset($validated['teacher_percent']);
         }
 
-        $warnings = $this->conflicts->forGroup([...$group->only(['branch_id']), ...$validated], $group->id);
+        $warnings = $this->conflicts->forGroup($this->scheduleOf([...$validated, 'branch_id' => $group->branch_id]), $group->id);
         $scheduleChanged = $group->fill($validated)->isDirty(['days', 'start_time', 'end_time', 'room_id', 'teacher_id', 'start_date', 'end_date', 'status']);
         $group->save();
 
@@ -256,6 +256,24 @@ class GroupController extends Controller
                 'lessons_per_month' => ['required', 'integer', 'min:1', 'max:60'],
             ] : []),
         ]) + ['status' => 'active'];
+    }
+
+    /**
+     * Schedule fields used for the room and teacher conflict check.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array{branch_id: int, days: list<int>, start_time: string, end_time: string, room_id: int|null, teacher_id: int|null}
+     */
+    private function scheduleOf(array $data): array
+    {
+        return [
+            'branch_id' => (int) $data['branch_id'],
+            'days' => array_values(array_map('intval', (array) $data['days'])),
+            'start_time' => (string) $data['start_time'],
+            'end_time' => (string) $data['end_time'],
+            'room_id' => isset($data['room_id']) ? (int) $data['room_id'] : null,
+            'teacher_id' => isset($data['teacher_id']) ? (int) $data['teacher_id'] : null,
+        ];
     }
 
     private function assertDivisible(int $price, int $lessons): void

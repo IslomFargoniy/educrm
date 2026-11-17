@@ -3,15 +3,20 @@
 namespace App\Models;
 
 use Carbon\CarbonInterface;
+use Database\Factories\GroupFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property-read int|null $students_count
+ */
 #[Fillable(['branch_id', 'name', 'subject', 'teacher_id', 'room_id', 'teacher_percent', 'days', 'start_time', 'end_time', 'start_date', 'end_date', 'status'])]
 class Group extends Model
 {
+    /** @use HasFactory<GroupFactory> */
     use HasFactory;
 
     /**

@@ -22,7 +22,9 @@ export default function Field({
         <div className={cn('grid gap-1.5', className)}>
             {label && <Label htmlFor={htmlFor}>{label}</Label>}
             {children}
-            {hint && !error && <p className="text-xs text-muted-foreground">{hint}</p>}
+            {hint && !error && (
+                <p className="text-xs text-muted-foreground">{hint}</p>
+            )}
             <InputError message={error} />
         </div>
     );

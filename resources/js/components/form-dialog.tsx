@@ -15,7 +15,10 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import { useT } from '@/lib/i18n';
 
-type FormAction = { action: string; method: 'get' | 'post' | 'put' | 'patch' | 'delete' };
+type FormAction = {
+    action: string;
+    method: 'get' | 'post' | 'put' | 'patch' | 'delete';
+};
 
 /**
  * A dialog with an Inertia form; closes itself after a successful submit.
@@ -50,7 +53,9 @@ export default function FormDialog({
             <DialogContent className={wide ? 'sm:max-w-2xl' : 'sm:max-w-md'}>
                 <DialogHeader>
                     <DialogTitle>{title}</DialogTitle>
-                    {description && <DialogDescription>{description}</DialogDescription>}
+                    {description && (
+                        <DialogDescription>{description}</DialogDescription>
+                    )}
                 </DialogHeader>
                 <Form
                     {...form}
@@ -63,10 +68,20 @@ export default function FormDialog({
                         <>
                             {children(errors)}
                             <DialogFooter>
-                                <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    onClick={() => setOpen(false)}
+                                >
                                     {t('Cancel')}
                                 </Button>
-                                <Button type="submit" variant={destructive ? 'destructive' : 'default'} disabled={processing}>
+                                <Button
+                                    type="submit"
+                                    variant={
+                                        destructive ? 'destructive' : 'default'
+                                    }
+                                    disabled={processing}
+                                >
                                     {processing && <Spinner />}
                                     {submitLabel ?? t('Save')}
                                 </Button>

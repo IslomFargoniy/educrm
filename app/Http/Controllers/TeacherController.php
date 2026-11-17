@@ -70,7 +70,7 @@ class TeacherController extends Controller
             'amount' => ['required', 'integer', 'min:1'],
             'note' => ['nullable', 'string', 'max:255'],
         ]);
-        $cashbox = Cashbox::query()->findOrFail($validated['cashbox_id']);
+        $cashbox = Cashbox::query()->findOrFail($request->integer('cashbox_id'));
         $this->authorizeBranch($cashbox->branch_id);
 
         $finance->payTeacher($teacher, $cashbox, (int) $validated['amount'], $validated['note'] ?? null);

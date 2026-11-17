@@ -3,7 +3,11 @@ import { LocaleSwitcher } from '@/components/header-switchers';
 import { useT } from '@/lib/i18n';
 import type { AuthLayoutProps } from '@/types';
 
-export default function AuthSimpleLayout({ children, title, description }: AuthLayoutProps) {
+export default function AuthSimpleLayout({
+    children,
+    title,
+    description,
+}: AuthLayoutProps) {
     const t = useT();
 
     return (
@@ -12,8 +16,12 @@ export default function AuthSimpleLayout({ children, title, description }: AuthL
                 <div className="flex items-center gap-3">
                     <AppLogoIcon className="size-10 text-white" />
                     <div className="leading-tight">
-                        <div className="text-2xl font-extrabold tracking-tight">Mensa</div>
-                        <div className="text-sm text-white/80">Learning center</div>
+                        <div className="text-2xl font-extrabold tracking-tight">
+                            Mensa
+                        </div>
+                        <div className="text-sm text-white/80">
+                            Learning center
+                        </div>
                     </div>
                 </div>
                 <div className="relative z-10 max-w-md">
@@ -35,8 +43,12 @@ export default function AuthSimpleLayout({ children, title, description }: AuthL
                                 <AppLogoIcon className="size-10 text-white" />
                             </div>
                             <div className="space-y-1 text-center lg:text-left">
-                                <h1 className="text-2xl font-extrabold tracking-tight">{t(title ?? '')}</h1>
-                                <p className="text-sm text-muted-foreground">{t(description ?? '')}</p>
+                                <h1 className="text-2xl font-extrabold tracking-tight">
+                                    {t(title ?? '')}
+                                </h1>
+                                <p className="text-sm text-muted-foreground">
+                                    {t(description ?? '')}
+                                </p>
                             </div>
                         </div>
                         {children}

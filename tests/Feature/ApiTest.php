@@ -3,6 +3,7 @@
 use App\Enums\Role;
 use App\Models\Cashbox;
 use App\Models\Enrollment;
+use App\Models\Lead;
 use App\Models\Lesson;
 use App\Models\User;
 use Database\Seeders\DemoSeeder;
@@ -51,5 +52,5 @@ it('serves public courses and turns website sign-ups into leads', function () {
 
     $this->postJson(route('api.public.leads'), ['full_name' => 'Test Mijoz', 'phone' => '90 555 44 33', 'course' => 'English'])->assertCreated();
 
-    expect(\App\Models\Lead::query()->where('phone', '+998905554433')->first()->source->value)->toBe('website');
+    expect(Lead::query()->where('phone', '+998905554433')->first()->source->value)->toBe('website');
 });

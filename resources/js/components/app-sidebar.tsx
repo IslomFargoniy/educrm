@@ -48,25 +48,85 @@ export function AppSidebar() {
     const isTeacher = hasRole('teacher');
 
     const main: NavItem[] = [
-        can('dashboard.view') && { title: t('Dashboard'), href: dashboard(), icon: LayoutGrid },
-        (can('attendance.mark') || can('lessons.manage')) && { title: t('Lessons & attendance'), href: attendance.index(), icon: ClipboardCheck },
-        can('students.view') && { title: t('Students'), href: students.index(), icon: GraduationCap },
-        (can('groups.view') || isTeacher) && { title: t('Groups'), href: groups.index(), icon: BookOpen },
-        can('groups.view') && { title: t('Schedule'), href: schedule(), icon: CalendarDays },
-        can('leads.view') && { title: t('Leads'), href: leads.index(), icon: UserPlus },
-        can('teachers.view') && { title: t('Teachers'), href: teachers.index(), icon: Users },
-        can('cashboxes.view') && { title: t('Cashboxes'), href: cashboxes.index(), icon: Wallet },
-        can('reports.view') && { title: t('Reports'), href: reports(), icon: BarChart3 },
+        can('dashboard.view') && {
+            title: t('Dashboard'),
+            href: dashboard(),
+            icon: LayoutGrid,
+        },
+        (can('attendance.mark') || can('lessons.manage')) && {
+            title: t('Lessons & attendance'),
+            href: attendance.index(),
+            icon: ClipboardCheck,
+        },
+        can('students.view') && {
+            title: t('Students'),
+            href: students.index(),
+            icon: GraduationCap,
+        },
+        (can('groups.view') || isTeacher) && {
+            title: t('Groups'),
+            href: groups.index(),
+            icon: BookOpen,
+        },
+        can('groups.view') && {
+            title: t('Schedule'),
+            href: schedule(),
+            icon: CalendarDays,
+        },
+        can('leads.view') && {
+            title: t('Leads'),
+            href: leads.index(),
+            icon: UserPlus,
+        },
+        can('teachers.view') && {
+            title: t('Teachers'),
+            href: teachers.index(),
+            icon: Users,
+        },
+        can('cashboxes.view') && {
+            title: t('Cashboxes'),
+            href: cashboxes.index(),
+            icon: Wallet,
+        },
+        can('reports.view') && {
+            title: t('Reports'),
+            href: reports(),
+            icon: BarChart3,
+        },
         isPortalUser && { title: t('My children'), href: portal(), icon: Home },
     ].filter(Boolean) as NavItem[];
 
     const settings: NavItem[] = [
-        can('rooms.manage') && { title: t('Branches & rooms'), href: admin.branches.index(), icon: Building2 },
-        can('users.manage') && { title: t('Users'), href: admin.users.index(), icon: UserCog },
-        can('roles.manage') && { title: t('Roles & permissions'), href: admin.roles.index(), icon: ShieldCheck },
-        can('holidays.manage') && { title: t('Holidays'), href: admin.holidays.index(), icon: CalendarOff },
-        can('settings.manage') && { title: t('Expense categories'), href: admin.expenseCategories.index(), icon: Tags },
-        can('import.run') && { title: t('Excel import'), href: admin.import.index(), icon: FileSpreadsheet },
+        can('rooms.manage') && {
+            title: t('Branches & rooms'),
+            href: admin.branches.index(),
+            icon: Building2,
+        },
+        can('users.manage') && {
+            title: t('Users'),
+            href: admin.users.index(),
+            icon: UserCog,
+        },
+        can('roles.manage') && {
+            title: t('Roles & permissions'),
+            href: admin.roles.index(),
+            icon: ShieldCheck,
+        },
+        can('holidays.manage') && {
+            title: t('Holidays'),
+            href: admin.holidays.index(),
+            icon: CalendarOff,
+        },
+        can('settings.manage') && {
+            title: t('Expense categories'),
+            href: admin.expenseCategories.index(),
+            icon: Tags,
+        },
+        can('import.run') && {
+            title: t('Excel import'),
+            href: admin.import.index(),
+            icon: FileSpreadsheet,
+        },
     ].filter(Boolean) as NavItem[];
 
     return (
@@ -74,7 +134,11 @@ export function AppSidebar() {
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild className="hover:bg-transparent">
+                        <SidebarMenuButton
+                            size="lg"
+                            asChild
+                            className="hover:bg-transparent"
+                        >
                             <Link href={home()}>
                                 <AppLogo />
                             </Link>
@@ -85,7 +149,9 @@ export function AppSidebar() {
 
             <SidebarContent>
                 <NavMain items={main} label={t('Menu')} />
-                {settings.length > 0 && <NavMain items={settings} label={t('Settings')} />}
+                {settings.length > 0 && (
+                    <NavMain items={settings} label={t('Settings')} />
+                )}
             </SidebarContent>
 
             <SidebarFooter>

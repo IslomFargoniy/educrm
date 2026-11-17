@@ -21,9 +21,17 @@ export function BranchSwitcher() {
                 aria-label={t('Branch')}
                 className="h-8 w-auto max-w-44"
                 value={currentBranchId ?? 'all'}
-                onChange={(e) => router.post(branch.switch().url, { branch_id: e.target.value }, { preserveScroll: true })}
+                onChange={(e) =>
+                    router.post(
+                        branch.switch().url,
+                        { branch_id: e.target.value },
+                        { preserveScroll: true },
+                    )
+                }
             >
-                {isSuperadmin && <option value="all">{t('All branches')}</option>}
+                {isSuperadmin && (
+                    <option value="all">{t('All branches')}</option>
+                )}
                 {branches.map((item) => (
                     <option key={item.id} value={item.id}>
                         {item.name}
@@ -44,7 +52,13 @@ export function LocaleSwitcher({ className }: { className?: string }) {
                 aria-label="Language"
                 className="h-8 w-auto"
                 value={current}
-                onChange={(e) => router.post(locale.update().url, { locale: e.target.value }, { preserveScroll: true })}
+                onChange={(e) =>
+                    router.post(
+                        locale.update().url,
+                        { locale: e.target.value },
+                        { preserveScroll: true },
+                    )
+                }
             >
                 <option value="uz">O'zbekcha</option>
                 <option value="ru">Русский</option>

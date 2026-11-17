@@ -26,7 +26,7 @@ class EnrollmentController extends Controller
             'trial_lessons' => ['nullable', 'integer', 'min:0', 'max:30'],
             ...$this->termRules(),
         ]);
-        $group = Group::query()->findOrFail($validated['group_id']);
+        $group = Group::query()->findOrFail($request->integer('group_id'));
         $this->authorizeBranch($group->branch_id);
 
         $this->enrollments->enroll($student, $group, Carbon::parse($validated['joined_at']), [
@@ -52,7 +52,7 @@ class EnrollmentController extends Controller
     {
         $this->authorizeEnrollment($enrollment);
         $validated = $request->validate(['group_id' => ['required', 'exists:groups,id'], 'date' => ['required', 'date']]);
-        $group = Group::query()->findOrFail($validated['group_id']);
+        $group = Group::query()->findOrFail($request->integer('group_id'));
         $this->authorizeBranch($group->branch_id);
 
         $this->enrollments->transfer($enrollment, $group, Carbon::parse($validated['date']));
@@ -112,7 +112,7 @@ class EnrollmentController extends Controller
             'note' => ['nullable', 'string', 'max:255'],
             'idempotency_key' => ['nullable', 'string', 'max:64'],
         ]);
-        $cashbox = Cashbox::query()->findOrFail($validated['cashbox_id']);
+        $cashbox = Cashbox::query()->findOrFail($request->integer('cashbox_id'));
 
         $payment = $this->finance->receivePayment($enrollment, $cashbox, (int) $validated['amount'], $validated['note'] ?? null, null, $validated['idempotency_key'] ?? null);
         $this->toast(__('Payment received. Receipt :no.', ['no' => $payment->receipt_no]));
@@ -128,7 +128,7 @@ class EnrollmentController extends Controller
             'amount' => ['required', 'integer', 'min:1'],
             'note' => ['nullable', 'string', 'max:255'],
         ]);
-        $this->finance->refund($enrollment, Cashbox::query()->findOrFail($validated['cashbox_id']), (int) $validated['amount'], $validated['note'] ?? null);
+        $this->finance->refund($enrollment, Cashbox::query()->findOrFail($request->integer('cashbox_id')), (int) $validated['amount'], $validated['note'] ?? null);
         $this->toast(__('Money returned.'));
 
         return back();
@@ -141,7 +141,7 @@ class EnrollmentController extends Controller
             'to_enrollment_id' => ['required', 'exists:enrollments,id'],
             'amount' => ['required', 'integer', 'min:1'],
         ]);
-        $target = Enrollment::query()->findOrFail($validated['to_enrollment_id']);
+        $target = Enrollment::query()->findOrFail($request->integer('to_enrollment_id'));
         $this->authorizeEnrollment($target);
         $this->finance->transferBalance($enrollment, $target, (int) $validated['amount']);
         $this->toast(__('Balance moved.'));

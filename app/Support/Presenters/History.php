@@ -33,7 +33,7 @@ final class History
             ->get();
 
         $opening = self::openingBalance($type, $id, $from);
-        $rows = $entries->map(fn (LedgerEntry $entry) => self::row($entry))->all();
+        $rows = array_values($entries->map(fn (LedgerEntry $entry) => self::row($entry))->all());
 
         if ($type === LedgerAccount::Teacher) {
             $rows = self::groupLessonShares($rows);
@@ -97,7 +97,7 @@ final class History
         }
         unset($row);
 
-        return self::summary($opening, $rows);
+        return self::summary($opening, array_values($rows));
     }
 
     /**
@@ -123,7 +123,7 @@ final class History
                 'is_substitute' => $charge->is_substitute,
             ]);
 
-        return ['total' => (int) $items->sum('amount'), 'items' => $items->all()];
+        return ['total' => (int) $items->sum('amount'), 'items' => array_values($items->all())];
     }
 
     /**

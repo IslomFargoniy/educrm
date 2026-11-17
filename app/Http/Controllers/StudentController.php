@@ -20,6 +20,7 @@ use App\Support\Presenters\History;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -85,7 +86,7 @@ class StudentController extends Controller
         $guardianPassword = null;
         $student = DB::transaction(function () use ($validated, $enrollments, &$guardianPassword) {
             $student = Student::query()->create([
-                ...collect($validated)->only(['full_name', 'phone', 'birth_date', 'note', 'lead_id'])->all(),
+                ...Arr::only($validated, ['full_name', 'phone', 'birth_date', 'note', 'lead_id']),
                 'branch_id' => app(CurrentBranch::class)->forCreate(),
             ]);
 
@@ -94,7 +95,7 @@ class StudentController extends Controller
             }
 
             if (! empty($validated['group_id'])) {
-                $group = Group::query()->findOrFail($validated['group_id']);
+                $group = Group::query()->findOrFail((int) $validated['group_id']);
                 $this->authorizeBranch($group->branch_id);
                 $enrollments->enroll($student, $group, Carbon::parse($validated['joined_at'] ?? today()), [
                     'trial_lessons' => (int) ($validated['trial_lessons'] ?? 0),
@@ -136,7 +137,7 @@ class StudentController extends Controller
             ->get()
             ->map(function (Enrollment $enrollment) use ($coverage, $billing, $month, $from, $to) {
                 $price = $enrollment->group->priceFor(today());
-                $lessonsPerMonth = $price?->lessons_per_month ?? 0;
+                $lessonsPerMonth = $price->lessons_per_month ?? 0;
 
                 return [
                     'id' => $enrollment->id,
@@ -187,7 +188,7 @@ class StudentController extends Controller
                 'phone' => $request->user()->can('students.view_phone') ? $student->phone : null,
                 'birth_date' => $student->birth_date?->toDateString(),
                 'guardians' => $student->guardians->map(fn (User $g) => [
-                    'id' => $g->id, 'name' => $g->name, 'relation' => $g->pivot->relation,
+                    'id' => $g->id, 'name' => $g->name, 'relation' => data_get($g, 'pivot.relation'),
                     'phone' => $request->user()->can('students.view_phone') ? $g->phone : null,
                     'telegram' => $g->telegram_chat_id !== null,
                 ]),

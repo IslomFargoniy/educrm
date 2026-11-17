@@ -11,7 +11,11 @@ const dictionaries: Record<Locale, Record<string, string>> = { uz, ru, en };
 /**
  * Translate an English source string; ":name" placeholders are replaced from params.
  */
-export function translate(locale: Locale, key: string, params?: Params): string {
+export function translate(
+    locale: Locale,
+    key: string,
+    params?: Params,
+): string {
     let text = dictionaries[locale]?.[key] ?? key;
 
     if (params) {

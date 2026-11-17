@@ -61,7 +61,7 @@ class CashboxController extends Controller
             'note' => ['nullable', 'string', 'max:255'],
         ]);
         $cashbox = $this->cashbox($validated['cashbox_id']);
-        $this->finance->expense($cashbox, ExpenseCategory::query()->findOrFail($validated['expense_category_id']), (int) $validated['amount'], $validated['note'] ?? null);
+        $this->finance->expense($cashbox, ExpenseCategory::query()->findOrFail($request->integer('expense_category_id')), (int) $validated['amount'], $validated['note'] ?? null);
         $this->toast(__('Expense saved.'));
 
         return back();

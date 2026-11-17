@@ -81,10 +81,10 @@ class User extends Authenticatable implements PasskeyUser
     public function accessibleBranchIds(): array
     {
         if ($this->isSuperadmin()) {
-            return Branch::query()->pluck('id')->all();
+            return array_values(Branch::query()->pluck('id')->map(fn ($id): int => (int) $id)->all());
         }
 
-        return $this->branches()->pluck('branches.id')->all();
+        return array_values($this->branches()->pluck('branches.id')->map(fn ($id): int => (int) $id)->all());
     }
 
     /**

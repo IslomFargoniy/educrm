@@ -19,11 +19,19 @@ export default function StatCard({
         <div
             className={cn(
                 'rounded-xl border bg-card p-4',
-                tone === 'primary' && 'border-primary bg-primary text-primary-foreground',
+                tone === 'primary' &&
+                    'border-primary bg-primary text-primary-foreground',
             )}
         >
             <div className="flex items-center justify-between gap-2">
-                <span className={cn('text-xs font-semibold uppercase', tone === 'primary' ? 'text-primary-foreground/80' : 'text-muted-foreground')}>
+                <span
+                    className={cn(
+                        'text-xs font-semibold uppercase',
+                        tone === 'primary'
+                            ? 'text-primary-foreground/80'
+                            : 'text-muted-foreground',
+                    )}
+                >
                     {label}
                 </span>
                 {Icon && (
@@ -48,7 +56,14 @@ export default function StatCard({
                 {value}
             </div>
             {hint && (
-                <div className={cn('mt-1 text-xs', tone === 'primary' ? 'text-primary-foreground/80' : 'text-muted-foreground')}>
+                <div
+                    className={cn(
+                        'mt-1 text-xs',
+                        tone === 'primary'
+                            ? 'text-primary-foreground/80'
+                            : 'text-muted-foreground',
+                    )}
+                >
                     {hint}
                 </div>
             )}

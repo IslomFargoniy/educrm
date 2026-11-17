@@ -5,15 +5,12 @@ namespace App\Models;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable(['date', 'branch_id', 'name'])]
 class Holiday extends Model
 {
-    use HasFactory;
-
     /**
      * @return array<string, string>
      */

@@ -16,7 +16,11 @@ export default function Login({ status }: { status?: string }) {
         <>
             <Head title={t('Log in')} />
 
-            <Form {...store.form()} resetOnSuccess={['password']} className="flex flex-col gap-6">
+            <Form
+                {...store.form()}
+                resetOnSuccess={['password']}
+                className="flex flex-col gap-6"
+            >
                 {({ processing, errors }) => (
                     <div className="grid gap-5">
                         <div className="grid gap-2">
@@ -49,23 +53,40 @@ export default function Login({ status }: { status?: string }) {
                         </div>
 
                         <div className="flex items-center space-x-3">
-                            <Checkbox id="remember" name="remember" tabIndex={3} />
+                            <Checkbox
+                                id="remember"
+                                name="remember"
+                                tabIndex={3}
+                            />
                             <Label htmlFor="remember">{t('Remember me')}</Label>
                         </div>
 
-                        <Button type="submit" className="mt-2 w-full" size="lg" tabIndex={4} disabled={processing} data-test="login-button">
+                        <Button
+                            type="submit"
+                            className="mt-2 w-full"
+                            size="lg"
+                            tabIndex={4}
+                            disabled={processing}
+                            data-test="login-button"
+                        >
                             {processing && <Spinner />}
                             {t('Log in')}
                         </Button>
 
                         <p className="text-center text-xs text-muted-foreground">
-                            {t('Forgot your password? Ask the administrator to reset it.')}
+                            {t(
+                                'Forgot your password? Ask the administrator to reset it.',
+                            )}
                         </p>
                     </div>
                 )}
             </Form>
 
-            {status && <div className="text-center text-sm font-medium text-success">{status}</div>}
+            {status && (
+                <div className="text-center text-sm font-medium text-success">
+                    {status}
+                </div>
+            )}
         </>
     );
 }

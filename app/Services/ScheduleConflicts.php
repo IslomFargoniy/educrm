@@ -26,8 +26,8 @@ class ScheduleConflicts
             ->where('start_time', '<', $schedule['end_time'])
             ->where('end_time', '>', $schedule['start_time'])
             ->where(function ($q) use ($schedule) {
-                $q->when($schedule['room_id'] ?? null, fn ($r) => $r->orWhere('room_id', $schedule['room_id']))
-                    ->when($schedule['teacher_id'] ?? null, fn ($r) => $r->orWhere('teacher_id', $schedule['teacher_id']));
+                $q->when($schedule['room_id'] ?? null, fn ($r, $roomId) => $r->orWhere('room_id', $roomId))
+                    ->when($schedule['teacher_id'] ?? null, fn ($r, $teacherId) => $r->orWhere('teacher_id', $teacherId));
             })
             ->with('room', 'teacher')
             ->get();
@@ -72,10 +72,10 @@ class ScheduleConflicts
             ->with('group')
             ->get();
 
-        return $others->map(fn (Lesson $other) => __('Time overlaps with group :group (:from–:to).', [
+        return array_values($others->map(fn (Lesson $other): string => __('Time overlaps with group :group (:from–:to).', [
             'group' => $other->group->name,
             'from' => substr($other->start_time, 0, 5),
             'to' => substr($other->end_time, 0, 5),
-        ]))->all();
+        ]))->all());
     }
 }

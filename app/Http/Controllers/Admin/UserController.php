@@ -28,14 +28,14 @@ class UserController extends Controller
         $actor = $request->user();
         $branchIds = $actor->accessibleBranchIds();
 
-        $users = User::role(array_map(fn (Role $r) => $r->value, Role::staff()))
+        $users = User::query()->role(array_map(fn (Role $r) => $r->value, Role::staff()))
             ->when(! $actor->isSuperadmin(), fn ($q) => $q->whereHas('branches', fn ($b) => $b->whereIn('branches.id', $branchIds)))
             ->with('roles:id,name', 'branches:id,name', 'permissions:id,name')
             ->orderBy('name')
             ->get()
             ->map(fn (User $user) => [
                 ...$user->only(['id', 'name', 'phone', 'email', 'is_active', 'balance']),
-                'role' => $user->roles->first()?->name,
+                'role' => $user->getRoleNames()->first(),
                 'branch_ids' => $user->branches->pluck('id'),
                 'branches' => $user->branches->pluck('name'),
                 'personal_permissions' => $user->permissions->pluck('name')->intersect(self::PERSONAL_PERMISSIONS)->values(),

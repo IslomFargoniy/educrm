@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\LessonStatus;
+use Database\Factories\LessonFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable(['group_id', 'date', 'start_time', 'end_time', 'room_id', 'teacher_id', 'is_substitute', 'is_makeup', 'status', 'cancel_reason'])]
 class Lesson extends Model
 {
+    /** @use HasFactory<LessonFactory> */
     use HasFactory;
 
     /**

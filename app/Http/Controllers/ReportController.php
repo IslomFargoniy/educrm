@@ -30,11 +30,11 @@ class ReportController extends Controller
             ->whereNull('reversed_at');
 
         $totals = $transactions()->selectRaw('type, SUM(amount) as total, COUNT(*) as count')->groupBy('type')->get()
-            ->mapWithKeys(fn ($row) => [$row->type->value => ['total' => (int) $row->total, 'count' => (int) $row->count]]);
+            ->mapWithKeys(fn ($row) => [$row->type->value => ['total' => (int) $row->getAttribute('total'), 'count' => (int) $row->getAttribute('count')]]);
 
         $expenses = $transactions()->where('type', TransactionType::Expense)
             ->with('expenseCategory:id,name')->get()
-            ->groupBy(fn (Transaction $t) => $t->expenseCategory?->name ?? '—')
+            ->groupBy(fn (Transaction $t) => $t->expenseCategory->name ?? '—')
             ->map(fn ($items, $name) => ['category' => $name, 'total' => (int) $items->sum('amount')])
             ->sortByDesc('total')->values();
 
@@ -90,7 +90,7 @@ class ReportController extends Controller
 
         if ($request->query('export') === 'debtors') {
             return XlsxExport::download('qarzdorlar.xlsx', ['Student', 'Phone', 'Group', 'Debt'],
-                $debtors->map(fn ($d) => [$d['student'], $d['phone'], $d['group'], $d['debt']])->all());
+                array_values($debtors->map(fn ($d) => [$d['student'], $d['phone'], $d['group'], $d['debt']])->all()));
         }
 
         return Inertia::render('reports', [

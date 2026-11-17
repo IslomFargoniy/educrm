@@ -162,7 +162,7 @@ class BillingService
 
             foreach ($pending as $charge) {
                 $price = $enrollment->group->priceFor($charge->lesson_date);
-                $lessonsPerMonth = $price?->lessons_per_month ?? 0;
+                $lessonsPerMonth = $price->lessons_per_month ?? 0;
                 $charge->update(['status' => ChargeStatus::Cancelled]);
 
                 if ($lessonsPerMonth === 0 || ! $this->hasCapacity($enrollment, $charge->month, $lessonsPerMonth)) {
@@ -171,7 +171,7 @@ class BillingService
 
                 $charge->update(['status' => ChargeStatus::Active]);
                 $attendanceStatus = $charge->attendance_id !== null
-                    ? Attendance::query()->find($charge->attendance_id)?->status ?? AttendanceStatus::Present
+                    ? Attendance::query()->find($charge->attendance_id)->status ?? AttendanceStatus::Present
                     : AttendanceStatus::Present;
                 $this->debit($charge, $attendanceStatus, $lessonsPerMonth);
             }
@@ -202,7 +202,7 @@ class BillingService
 
         while ($previous !== null && $guard++ < 10) {
             $previousPrice = $previous->group->priceFor(Carbon::parse($month.'-01'));
-            $previousLessons = $previousPrice?->lessons_per_month ?? 0;
+            $previousLessons = $previousPrice->lessons_per_month ?? 0;
 
             if ($previousLessons > 0) {
                 $usedShare += $this->billedLessonsInMonth($previous, $month) / $previousLessons;

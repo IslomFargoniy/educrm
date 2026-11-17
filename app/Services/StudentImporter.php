@@ -43,7 +43,11 @@ class StudentImporter
                     continue;
                 }
 
-                $cells = array_map(fn ($value) => $value instanceof \DateTimeInterface ? $value->format('Y-m-d') : trim((string) $value), $row->toArray());
+                $cells = array_map(fn ($value) => match (true) {
+                    $value instanceof \DateTimeInterface => $value->format('Y-m-d'),
+                    is_scalar($value) => trim((string) $value),
+                    default => '',
+                }, $row->toArray());
 
                 if (implode('', $cells) === '') {
                     continue;
@@ -110,7 +114,7 @@ class StudentImporter
      * Save rows without errors. Returns the number of imported students and the parent accounts
      * created on the way with their passwords: nobody else ever sees them, so the admin hands them out.
      *
-     * @param  list<array<string, mixed>>  $rows
+     * @param  list<array{line: int, full_name: string, phone: ?string, parent_name: ?string, parent_phone: ?string, group: string, group_id: ?int, joined_at: ?string, balance: int, errors: list<string>}>  $rows
      * @return array{count: int, parents: list<array{name: string, phone: string, password: string, children: list<string>}>}
      */
     public function import(array $rows, int $branchId): array

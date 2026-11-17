@@ -21,11 +21,20 @@ const tones: Record<string, string> = {
     archived: 'bg-muted text-muted-foreground',
 };
 
-export default function StatusBadge({ status, className }: { status: string; className?: string }) {
+export default function StatusBadge({
+    status,
+    className,
+}: {
+    status: string;
+    className?: string;
+}) {
     const t = useT();
 
     return (
-        <Badge variant="secondary" className={cn('border-0 font-semibold', tones[status], className)}>
+        <Badge
+            variant="secondary"
+            className={cn('border-0 font-semibold', tones[status], className)}
+        >
             {t(`status.${status}`)}
         </Badge>
     );

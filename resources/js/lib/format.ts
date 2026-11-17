@@ -10,7 +10,12 @@ export function formatMoney(value: number | null | undefined): string {
 
     const sign = value < 0 ? '−' : '';
 
-    return sign + Math.abs(Math.round(value)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    return (
+        sign +
+        Math.abs(Math.round(value))
+            .toString()
+            .replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+    );
 }
 
 /**
@@ -37,9 +42,48 @@ export function formatDateTime(value: string | null | undefined): string {
 }
 
 const months: Record<Locale, string[]> = {
-    uz: ['Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'Iyun', 'Iyul', 'Avgust', 'Sentabr', 'Oktabr', 'Noyabr', 'Dekabr'],
-    ru: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
-    en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+    uz: [
+        'Yanvar',
+        'Fevral',
+        'Mart',
+        'Aprel',
+        'May',
+        'Iyun',
+        'Iyul',
+        'Avgust',
+        'Sentabr',
+        'Oktabr',
+        'Noyabr',
+        'Dekabr',
+    ],
+    ru: [
+        'Январь',
+        'Февраль',
+        'Март',
+        'Апрель',
+        'Май',
+        'Июнь',
+        'Июль',
+        'Август',
+        'Сентябрь',
+        'Октябрь',
+        'Ноябрь',
+        'Декабрь',
+    ],
+    en: [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+    ],
 };
 
 /**
@@ -65,7 +109,10 @@ export function weekdayName(day: number, locale: Locale): string {
 }
 
 export function formatDays(days: number[], locale: Locale): string {
-    return [...days].sort().map((day) => weekdayName(day, locale)).join(', ');
+    return [...days]
+        .sort((a, b) => a - b)
+        .map((day) => weekdayName(day, locale))
+        .join(', ');
 }
 
 export function today(): string {

@@ -54,7 +54,7 @@ class EnrollmentService
     {
         $enrollment->fill([
             'discount_type' => $terms['discount_type'] ?? null,
-            'discount_value' => $terms['discount_type'] ? ($terms['discount_value'] ?? 0) : 0,
+            'discount_value' => ($terms['discount_type'] ?? null) ? ($terms['discount_value'] ?? 0) : 0,
             'teacher_percent' => $terms['teacher_percent'] ?? null,
         ]);
         $this->assertDiscountDivisible($enrollment, today());

@@ -1,310 +1,887 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="uz">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Mensa Learning Center — o'quv markazi</title>
-    <meta name="description" content="Mensa Learning Center: kurslar, bepul sinov darsi, adolatli to'lov va ota-onalar uchun onlayn kabinet.">
-    <meta name="theme-color" content="#0b0f7e">
-    <meta property="og:title" content="Mensa Learning Center">
-    <meta property="og:description" content="Kurslar, bepul sinov darsi va ota-onalar uchun onlayn kabinet.">
-    <meta property="og:image" content="/apple-touch-icon.png">
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-    <link rel="icon" href="/favicon.ico" sizes="any">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --navy: #0b0f7e;
-            --navy-2: #1d2296;
-            --orange: #f7941d;
-            --bg: #ffffff;
-            --surface: #f4f5fa;
-            --text: #11163a;
-            --muted: #5c627c;
-            --border: #e4e6f0;
-            --success: #12805c;
-            --danger: #d92d20;
-        }
-        @media (prefers-color-scheme: dark) {
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Mensa Learning Center — o'quv markazi</title>
+        <meta
+            name="description"
+            content="Mensa Learning Center: kurslar, bepul sinov darsi, adolatli to'lov va ota-onalar uchun onlayn kabinet."
+        />
+        <meta name="theme-color" content="#0b0f7e" />
+        <meta property="og:title" content="Mensa Learning Center" />
+        <meta
+            property="og:description"
+            content="Kurslar, bepul sinov darsi va ota-onalar uchun onlayn kabinet."
+        />
+        <meta property="og:image" content="/apple-touch-icon.png" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+            rel="stylesheet"
+        />
+        <style>
             :root {
-                --bg: #090c2c;
-                --surface: #0f1338;
-                --text: #eceeff;
-                --muted: #a2a7cf;
-                --border: #232857;
-                --success: #47cd89;
-                --danger: #f97066;
+                --navy: #0b0f7e;
+                --navy-2: #1d2296;
+                --orange: #f7941d;
+                --bg: #ffffff;
+                --surface: #f4f5fa;
+                --text: #11163a;
+                --muted: #5c627c;
+                --border: #e4e6f0;
+                --success: #12805c;
+                --danger: #d92d20;
             }
-        }
-        * { box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body { margin: 0; font-family: 'Manrope', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; }
-        a { color: inherit; }
-        .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
-        header.top { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--navy) 94%, transparent); backdrop-filter: blur(10px); color: #fff; }
-        .top .wrap { display: flex; align-items: center; justify-content: space-between; height: 68px; gap: 16px; }
-        .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-        .brand b { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
-        .brand small { display: block; font-size: 11px; opacity: .75; margin-top: -4px; }
-        nav.links { display: flex; gap: 22px; font-weight: 600; font-size: 14px; }
-        nav.links a { text-decoration: none; opacity: .85; }
-        nav.links a:hover { opacity: 1; color: var(--orange); }
-        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 20px; border-radius: 12px; font-weight: 700; text-decoration: none; border: 0; cursor: pointer; font: inherit; font-weight: 700; }
-        .btn-orange { background: var(--orange); color: #1f1300; }
-        .btn-orange:hover { filter: brightness(1.06); }
-        .btn-ghost { border: 1.5px solid rgba(255,255,255,.45); color: #fff; background: transparent; }
-        .btn-ghost:hover { border-color: #fff; }
-        .hero { background: var(--navy); color: #fff; overflow: hidden; position: relative; }
-        .hero .wrap { display: grid; grid-template-columns: 1.15fr .85fr; gap: 40px; align-items: center; padding-top: 72px; padding-bottom: 88px; }
-        .tag { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--orange); }
-        .tag::before { content: ''; width: 10px; height: 10px; background: var(--orange); transform: rotate(45deg); }
-        h1 { font-size: clamp(34px, 5vw, 56px); line-height: 1.08; margin: 16px 0 18px; letter-spacing: -0.03em; font-weight: 800; }
-        .hero p.lead { font-size: 18px; opacity: .85; max-width: 560px; margin: 0 0 28px; }
-        .hero .actions { display: flex; flex-wrap: wrap; gap: 12px; }
-        .hero-art { display: flex; justify-content: center; }
-        .hero-art svg { width: min(360px, 80%); height: auto; filter: drop-shadow(0 30px 60px rgba(0,0,0,.35)); }
-        section { padding: 80px 0; }
-        section.alt { background: var(--surface); }
-        h2 { font-size: clamp(26px, 3.4vw, 38px); letter-spacing: -0.02em; margin: 0 0 10px; font-weight: 800; }
-        .sub { color: var(--muted); margin: 0 0 36px; max-width: 640px; }
-        .grid { display: grid; gap: 16px; }
-        .grid-3 { grid-template-columns: repeat(3, 1fr); }
-        .grid-2 { grid-template-columns: repeat(2, 1fr); }
-        .card { background: var(--bg); border: 1px solid var(--border); border-radius: 18px; padding: 24px; }
-        section.alt .card { background: var(--bg); }
-        .card h3 { margin: 14px 0 6px; font-size: 19px; }
-        .card p { margin: 0; color: var(--muted); }
-        .icon { width: 44px; height: 44px; border-radius: 12px; background: color-mix(in srgb, var(--navy) 10%, transparent); color: var(--navy); display: grid; place-items: center; }
-        @media (prefers-color-scheme: dark) { .icon { background: #1a1f4f; color: #b3b7ff; } }
-        .icon svg { width: 22px; height: 22px; }
-        .course { display: flex; flex-direction: column; gap: 6px; }
-        .course .price { font-size: 22px; font-weight: 800; color: var(--navy); }
-        @media (prefers-color-scheme: dark) { .course .price { color: #b3b7ff; } }
-        .course .meta { font-size: 13px; color: var(--muted); }
-        .steps { counter-reset: step; }
-        .steps .card { position: relative; padding-top: 56px; }
-        .steps .card::before { counter-increment: step; content: counter(step); position: absolute; top: 20px; left: 24px; width: 28px; height: 28px; border-radius: 8px; background: var(--orange); color: #1f1300; font-weight: 800; display: grid; place-items: center; }
-        .signup { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
-        form.box { background: var(--bg); border: 1px solid var(--border); border-radius: 20px; padding: 24px; display: grid; gap: 14px; }
-        label { font-size: 13px; font-weight: 700; display: grid; gap: 6px; }
-        input, select, textarea { font: inherit; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
-        input:focus, select:focus, textarea:focus { outline: 3px solid color-mix(in srgb, var(--navy) 25%, transparent); border-color: var(--navy); }
-        .hp { position: absolute; left: -9999px; }
-        .msg { font-weight: 700; margin: 0; }
-        .msg.ok { color: var(--success); }
-        .msg.err { color: var(--danger); }
-        .contact { display: grid; gap: 12px; }
-        .contact .card { display: grid; gap: 4px; }
-        .contact b { font-size: 17px; }
-        .empty { color: var(--muted); border: 1px dashed var(--border); border-radius: 16px; padding: 24px; text-align: center; }
-        footer { background: var(--navy); color: rgba(255,255,255,.8); padding: 36px 0; font-size: 14px; }
-        footer .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
-        @media (max-width: 880px) {
-            nav.links { display: none; }
-            .hero .wrap, .signup { grid-template-columns: 1fr; }
-            .hero-art { display: none; }
-            .grid-3, .grid-2 { grid-template-columns: 1fr; }
-            section { padding: 56px 0; }
-        }
-    </style>
-</head>
-<body>
-<header class="top">
-    <div class="wrap">
-        <a class="brand" href="#">
-            <svg width="36" height="36" viewBox="0 0 64 64" aria-hidden="true"><polygon points="8,16 28.5,23 28.5,58.5 8,47" fill="#fff"/><polygon points="56,16 35.5,23 35.5,58.5 56,47" fill="#fff"/><polygon points="30.5,24 33.5,24 33.5,59.5 32,61 30.5,59.5" fill="#fff"/><polygon points="32,5 41.5,11.5 32,18 22.5,11.5" fill="#F7941D"/></svg>
-            <span><b>Mensa</b><small>Learning center</small></span>
-        </a>
-        <nav class="links">
-            <a href="#nega">Nega Mensa</a>
-            <a href="#kurslar">Kurslar</a>
-            <a href="#qanday">Qanday ishlaydi</a>
-            <a href="#aloqa">Aloqa</a>
-        </nav>
-        <a class="btn btn-ghost" href="https://crm.mensalc.uz/login">Kabinetga kirish</a>
-    </div>
-</header>
-
-<main>
-    <section class="hero">
-        <div class="wrap">
-            <div>
-                <span class="tag">O'quv markazi</span>
-                <h1>Bilim — aniq reja va shaffof natija bilan</h1>
-                <p class="lead">Mensa Learning Center'da har bir dars, davomat va to'lov ota-onaga ko'rinib turadi. Birinchi sinov darsiga keling — davom etmasangiz, to'lamaysiz.</p>
-                <div class="actions">
-                    <a class="btn btn-orange" href="#yozilish">Sinov darsiga yozilish</a>
-                    <a class="btn btn-ghost" href="https://crm.mensalc.uz/login">Ota-onalar kabineti</a>
-                </div>
+            @media (prefers-color-scheme: dark) {
+                :root {
+                    --bg: #090c2c;
+                    --surface: #0f1338;
+                    --text: #eceeff;
+                    --muted: #a2a7cf;
+                    --border: #232857;
+                    --success: #47cd89;
+                    --danger: #f97066;
+                }
+            }
+            * {
+                box-sizing: border-box;
+            }
+            html {
+                scroll-behavior: smooth;
+            }
+            body {
+                margin: 0;
+                font-family: 'Manrope', system-ui, sans-serif;
+                background: var(--bg);
+                color: var(--text);
+                line-height: 1.55;
+            }
+            a {
+                color: inherit;
+            }
+            .wrap {
+                max-width: 1120px;
+                margin: 0 auto;
+                padding: 0 20px;
+            }
+            header.top {
+                position: sticky;
+                top: 0;
+                z-index: 10;
+                background: color-mix(in srgb, var(--navy) 94%, transparent);
+                backdrop-filter: blur(10px);
+                color: #fff;
+            }
+            .top .wrap {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                height: 68px;
+                gap: 16px;
+            }
+            .brand {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                text-decoration: none;
+            }
+            .brand b {
+                font-size: 22px;
+                font-weight: 800;
+                letter-spacing: -0.02em;
+            }
+            .brand small {
+                display: block;
+                font-size: 11px;
+                opacity: 0.75;
+                margin-top: -4px;
+            }
+            nav.links {
+                display: flex;
+                gap: 22px;
+                font-weight: 600;
+                font-size: 14px;
+            }
+            nav.links a {
+                text-decoration: none;
+                opacity: 0.85;
+            }
+            nav.links a:hover {
+                opacity: 1;
+                color: var(--orange);
+            }
+            .btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                padding: 12px 20px;
+                border-radius: 12px;
+                font-weight: 700;
+                text-decoration: none;
+                border: 0;
+                cursor: pointer;
+                font: inherit;
+                font-weight: 700;
+            }
+            .btn-orange {
+                background: var(--orange);
+                color: #1f1300;
+            }
+            .btn-orange:hover {
+                filter: brightness(1.06);
+            }
+            .btn-ghost {
+                border: 1.5px solid rgba(255, 255, 255, 0.45);
+                color: #fff;
+                background: transparent;
+            }
+            .btn-ghost:hover {
+                border-color: #fff;
+            }
+            .hero {
+                background: var(--navy);
+                color: #fff;
+                overflow: hidden;
+                position: relative;
+            }
+            .hero .wrap {
+                display: grid;
+                grid-template-columns: 1.15fr 0.85fr;
+                gap: 40px;
+                align-items: center;
+                padding-top: 72px;
+                padding-bottom: 88px;
+            }
+            .tag {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 13px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                color: var(--orange);
+            }
+            .tag::before {
+                content: '';
+                width: 10px;
+                height: 10px;
+                background: var(--orange);
+                transform: rotate(45deg);
+            }
+            h1 {
+                font-size: clamp(34px, 5vw, 56px);
+                line-height: 1.08;
+                margin: 16px 0 18px;
+                letter-spacing: -0.03em;
+                font-weight: 800;
+            }
+            .hero p.lead {
+                font-size: 18px;
+                opacity: 0.85;
+                max-width: 560px;
+                margin: 0 0 28px;
+            }
+            .hero .actions {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+            .hero-art {
+                display: flex;
+                justify-content: center;
+            }
+            .hero-art svg {
+                width: min(360px, 80%);
+                height: auto;
+                filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.35));
+            }
+            section {
+                padding: 80px 0;
+            }
+            section.alt {
+                background: var(--surface);
+            }
+            h2 {
+                font-size: clamp(26px, 3.4vw, 38px);
+                letter-spacing: -0.02em;
+                margin: 0 0 10px;
+                font-weight: 800;
+            }
+            .sub {
+                color: var(--muted);
+                margin: 0 0 36px;
+                max-width: 640px;
+            }
+            .grid {
+                display: grid;
+                gap: 16px;
+            }
+            .grid-3 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .grid-2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .card {
+                background: var(--bg);
+                border: 1px solid var(--border);
+                border-radius: 18px;
+                padding: 24px;
+            }
+            section.alt .card {
+                background: var(--bg);
+            }
+            .card h3 {
+                margin: 14px 0 6px;
+                font-size: 19px;
+            }
+            .card p {
+                margin: 0;
+                color: var(--muted);
+            }
+            .icon {
+                width: 44px;
+                height: 44px;
+                border-radius: 12px;
+                background: color-mix(in srgb, var(--navy) 10%, transparent);
+                color: var(--navy);
+                display: grid;
+                place-items: center;
+            }
+            @media (prefers-color-scheme: dark) {
+                .icon {
+                    background: #1a1f4f;
+                    color: #b3b7ff;
+                }
+            }
+            .icon svg {
+                width: 22px;
+                height: 22px;
+            }
+            .course {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+            .course .price {
+                font-size: 22px;
+                font-weight: 800;
+                color: var(--navy);
+            }
+            @media (prefers-color-scheme: dark) {
+                .course .price {
+                    color: #b3b7ff;
+                }
+            }
+            .course .meta {
+                font-size: 13px;
+                color: var(--muted);
+            }
+            .steps {
+                counter-reset: step;
+            }
+            .steps .card {
+                position: relative;
+                padding-top: 56px;
+            }
+            .steps .card::before {
+                counter-increment: step;
+                content: counter(step);
+                position: absolute;
+                top: 20px;
+                left: 24px;
+                width: 28px;
+                height: 28px;
+                border-radius: 8px;
+                background: var(--orange);
+                color: #1f1300;
+                font-weight: 800;
+                display: grid;
+                place-items: center;
+            }
+            .signup {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 32px;
+                align-items: start;
+            }
+            form.box {
+                background: var(--bg);
+                border: 1px solid var(--border);
+                border-radius: 20px;
+                padding: 24px;
+                display: grid;
+                gap: 14px;
+            }
+            label {
+                font-size: 13px;
+                font-weight: 700;
+                display: grid;
+                gap: 6px;
+            }
+            input,
+            select,
+            textarea {
+                font: inherit;
+                padding: 12px 14px;
+                border-radius: 12px;
+                border: 1px solid var(--border);
+                background: var(--bg);
+                color: var(--text);
+            }
+            input:focus,
+            select:focus,
+            textarea:focus {
+                outline: 3px solid
+                    color-mix(in srgb, var(--navy) 25%, transparent);
+                border-color: var(--navy);
+            }
+            .hp {
+                position: absolute;
+                left: -9999px;
+            }
+            .msg {
+                font-weight: 700;
+                margin: 0;
+            }
+            .msg.ok {
+                color: var(--success);
+            }
+            .msg.err {
+                color: var(--danger);
+            }
+            .contact {
+                display: grid;
+                gap: 12px;
+            }
+            .contact .card {
+                display: grid;
+                gap: 4px;
+            }
+            .contact b {
+                font-size: 17px;
+            }
+            .empty {
+                color: var(--muted);
+                border: 1px dashed var(--border);
+                border-radius: 16px;
+                padding: 24px;
+                text-align: center;
+            }
+            footer {
+                background: var(--navy);
+                color: rgba(255, 255, 255, 0.8);
+                padding: 36px 0;
+                font-size: 14px;
+            }
+            footer .wrap {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: space-between;
+                gap: 16px;
+            }
+            @media (max-width: 880px) {
+                nav.links {
+                    display: none;
+                }
+                .hero .wrap,
+                .signup {
+                    grid-template-columns: 1fr;
+                }
+                .hero-art {
+                    display: none;
+                }
+                .grid-3,
+                .grid-2 {
+                    grid-template-columns: 1fr;
+                }
+                section {
+                    padding: 56px 0;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <header class="top">
+            <div class="wrap">
+                <a class="brand" href="#">
+                    <svg
+                        width="36"
+                        height="36"
+                        viewBox="0 0 64 64"
+                        aria-hidden="true"
+                    >
+                        <polygon
+                            points="8,16 28.5,23 28.5,58.5 8,47"
+                            fill="#fff"
+                        />
+                        <polygon
+                            points="56,16 35.5,23 35.5,58.5 56,47"
+                            fill="#fff"
+                        />
+                        <polygon
+                            points="30.5,24 33.5,24 33.5,59.5 32,61 30.5,59.5"
+                            fill="#fff"
+                        />
+                        <polygon
+                            points="32,5 41.5,11.5 32,18 22.5,11.5"
+                            fill="#F7941D"
+                        />
+                    </svg>
+                    <span><b>Mensa</b><small>Learning center</small></span>
+                </a>
+                <nav class="links">
+                    <a href="#nega">Nega Mensa</a>
+                    <a href="#kurslar">Kurslar</a>
+                    <a href="#qanday">Qanday ishlaydi</a>
+                    <a href="#aloqa">Aloqa</a>
+                </nav>
+                <a class="btn btn-ghost" href="https://crm.mensalc.uz/login"
+                    >Kabinetga kirish</a
+                >
             </div>
-            <div class="hero-art">
-                <svg viewBox="0 0 64 64" aria-hidden="true"><polygon points="8,16 28.5,23 28.5,58.5 8,47" fill="#fff"/><polygon points="56,16 35.5,23 35.5,58.5 56,47" fill="#fff"/><polygon points="30.5,24 33.5,24 33.5,59.5 32,61 30.5,59.5" fill="#fff"/><polygon points="32,5 41.5,11.5 32,18 22.5,11.5" fill="#F7941D"/></svg>
+        </header>
+
+        <main>
+            <section class="hero">
+                <div class="wrap">
+                    <div>
+                        <span class="tag">O'quv markazi</span>
+                        <h1>Bilim — aniq reja va shaffof natija bilan</h1>
+                        <p class="lead">
+                            Mensa Learning Center'da har bir dars, davomat va
+                            to'lov ota-onaga ko'rinib turadi. Birinchi sinov
+                            darsiga keling — davom etmasangiz, to'lamaysiz.
+                        </p>
+                        <div class="actions">
+                            <a class="btn btn-orange" href="#yozilish"
+                                >Sinov darsiga yozilish</a
+                            >
+                            <a
+                                class="btn btn-ghost"
+                                href="https://crm.mensalc.uz/login"
+                                >Ota-onalar kabineti</a
+                            >
+                        </div>
+                    </div>
+                    <div class="hero-art">
+                        <svg viewBox="0 0 64 64" aria-hidden="true">
+                            <polygon
+                                points="8,16 28.5,23 28.5,58.5 8,47"
+                                fill="#fff"
+                            />
+                            <polygon
+                                points="56,16 35.5,23 35.5,58.5 56,47"
+                                fill="#fff"
+                            />
+                            <polygon
+                                points="30.5,24 33.5,24 33.5,59.5 32,61 30.5,59.5"
+                                fill="#fff"
+                            />
+                            <polygon
+                                points="32,5 41.5,11.5 32,18 22.5,11.5"
+                                fill="#F7941D"
+                            />
+                        </svg>
+                    </div>
+                </div>
+            </section>
+
+            <section id="nega">
+                <div class="wrap">
+                    <h2>Nega Mensa?</h2>
+                    <p class="sub">
+                        Biz o'qishni ham, to'lovni ham ota-ona uchun tushunarli
+                        qilamiz.
+                    </p>
+                    <div class="grid-3 grid">
+                        <div class="card">
+                            <div class="icon">
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <path d="M9 12l2 2 4-4" />
+                                    <circle cx="12" cy="12" r="9" />
+                                </svg>
+                            </div>
+                            <h3>Sinov darsi</h3>
+                            <p>
+                                Avval darsga qatnashib ko'ring. O'qishni davom
+                                ettirmasangiz, sinov darslari uchun pul
+                                olinmaydi.
+                            </p>
+                        </div>
+                        <div class="card">
+                            <div class="icon">
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <rect
+                                        x="3"
+                                        y="5"
+                                        width="18"
+                                        height="14"
+                                        rx="2"
+                                    />
+                                    <path d="M3 10h18" />
+                                </svg>
+                            </div>
+                            <h3>Adolatli to'lov</h3>
+                            <p>
+                                To'lov o'tilgan darslar bo'yicha hisoblanadi.
+                                Oyda belgilangan darsdan ortig'i bepul, sababli
+                                qoldirilgan dars hisoblanmaydi.
+                            </p>
+                        </div>
+                        <div class="card">
+                            <div class="icon">
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <path
+                                        d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
+                                    />
+                                    <circle cx="9" cy="7" r="4" />
+                                    <path d="M22 21v-2a4 4 0 0 0-3-3.9" />
+                                    <path d="M16 3.1a4 4 0 0 1 0 7.8" />
+                                </svg>
+                            </div>
+                            <h3>Ota-ona kabineti</h3>
+                            <p>
+                                Farzandingizning davomati, balansi va to'lovlar
+                                tarixi onlayn — bitta loginda barcha
+                                farzandlaringiz.
+                            </p>
+                        </div>
+                        <div class="card">
+                            <div class="icon">
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <path d="M22 2 11 13" />
+                                    <path d="M22 2 15 22l-4-9-9-4z" />
+                                </svg>
+                            </div>
+                            <h3>Telegram xabarlari</h3>
+                            <p>
+                                To'lov qabul qilinganda yoki farzandingiz darsga
+                                kelmaganda Telegram orqali darhol xabar olasiz.
+                            </p>
+                        </div>
+                        <div class="card">
+                            <div class="icon">
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <circle cx="12" cy="12" r="9" />
+                                    <path d="M12 7v5l3 3" />
+                                </svg>
+                            </div>
+                            <h3>Muzlatish imkoni</h3>
+                            <p>
+                                Kasallik yoki safar paytida o'qishni vaqtincha
+                                muzlatish mumkin — bu davr uchun pul
+                                hisoblanmaydi.
+                            </p>
+                        </div>
+                        <div class="card">
+                            <div class="icon">
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <path d="M4 19V5" />
+                                    <path d="M4 19h16" />
+                                    <path d="M8 15l4-4 3 3 5-6" />
+                                </svg>
+                            </div>
+                            <h3>Har dars nazoratda</h3>
+                            <p>
+                                Davomat har darsda belgilanadi va jurnalda
+                                saqlanadi — natija va qatnashuv doim ko'rinib
+                                turadi.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="kurslar" class="alt">
+                <div class="wrap">
+                    <h2>Kurslar</h2>
+                    <p class="sub">Hozir ochiq guruhlar va oylik narxlar.</p>
+                    <div id="courses" class="grid-3 grid">
+                        <div class="empty">Yuklanmoqda…</div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="qanday">
+                <div class="wrap">
+                    <h2>Qanday boshlanadi</h2>
+                    <p class="sub">
+                        Uch qadam — va farzandingiz o'qishni boshlaydi.
+                    </p>
+                    <div class="grid-3 steps grid">
+                        <div class="card">
+                            <h3>Ariza qoldiring</h3>
+                            <p>
+                                Pastdagi formani to'ldiring yoki qo'ng'iroq
+                                qiling — administrator siz bilan bog'lanadi.
+                            </p>
+                        </div>
+                        <div class="card">
+                            <h3>Sinov darsiga keling</h3>
+                            <p>
+                                Guruh, o'qituvchi va dars uslubi bilan
+                                tanishing. Davom etmasangiz, sinov darsi uchun
+                                to'lamaysiz.
+                            </p>
+                        </div>
+                        <div class="card">
+                            <h3>O'qishni boshlang</h3>
+                            <p>
+                                Ota-ona kabinetiga login olasiz: davomat, balans
+                                va to'lovlar doim ko'z oldingizda.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="yozilish" class="alt">
+                <div class="wrap signup">
+                    <div>
+                        <h2>Sinov darsiga yozilish</h2>
+                        <p class="sub">
+                            Ism va telefon raqamingizni qoldiring —
+                            administrator qulay vaqtni kelishish uchun
+                            qo'ng'iroq qiladi.
+                        </p>
+                        <div id="aloqa" class="contact"></div>
+                    </div>
+                    <form class="box" id="signup" novalidate>
+                        <label
+                            >Ism-familiya<input
+                                name="full_name"
+                                required
+                                autocomplete="name"
+                        /></label>
+                        <label
+                            >Telefon raqam<input
+                                name="phone"
+                                type="tel"
+                                required
+                                inputmode="tel"
+                                placeholder="+998 90 123 45 67"
+                                autocomplete="tel"
+                        /></label>
+                        <label
+                            >Qaysi kurs qiziqtiradi<select
+                                name="course"
+                                id="course-select"
+                            >
+                                <option value="">Hali bilmayman</option>
+                            </select></label
+                        >
+                        <label id="branch-label" hidden
+                            >Filial<select
+                                name="branch_id"
+                                id="branch-select"
+                            ></select
+                        ></label>
+                        <label
+                            >Izoh (ixtiyoriy)<textarea
+                                name="note"
+                                rows="3"
+                            ></textarea>
+                        </label>
+                        <input
+                            class="hp"
+                            name="website"
+                            tabindex="-1"
+                            autocomplete="off"
+                        />
+                        <button class="btn btn-orange" type="submit">
+                            Yuborish
+                        </button>
+                        <p class="msg" id="signup-msg" role="status"></p>
+                    </form>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <div class="wrap">
+                <span>© <span id="year"></span> Mensa Learning Center</span>
+                <span
+                    ><a href="https://crm.mensalc.uz/login"
+                        >Kabinetga kirish</a
+                    ></span
+                >
             </div>
-        </div>
-    </section>
+        </footer>
 
-    <section id="nega">
-        <div class="wrap">
-            <h2>Nega Mensa?</h2>
-            <p class="sub">Biz o'qishni ham, to'lovni ham ota-ona uchun tushunarli qilamiz.</p>
-            <div class="grid grid-3">
-                <div class="card">
-                    <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></div>
-                    <h3>Sinov darsi</h3>
-                    <p>Avval darsga qatnashib ko'ring. O'qishni davom ettirmasangiz, sinov darslari uchun pul olinmaydi.</p>
-                </div>
-                <div class="card">
-                    <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg></div>
-                    <h3>Adolatli to'lov</h3>
-                    <p>To'lov o'tilgan darslar bo'yicha hisoblanadi. Oyda belgilangan darsdan ortig'i bepul, sababli qoldirilgan dars hisoblanmaydi.</p>
-                </div>
-                <div class="card">
-                    <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/></svg></div>
-                    <h3>Ota-ona kabineti</h3>
-                    <p>Farzandingizning davomati, balansi va to'lovlar tarixi onlayn — bitta loginda barcha farzandlaringiz.</p>
-                </div>
-                <div class="card">
-                    <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg></div>
-                    <h3>Telegram xabarlari</h3>
-                    <p>To'lov qabul qilinganda yoki farzandingiz darsga kelmaganda Telegram orqali darhol xabar olasiz.</p>
-                </div>
-                <div class="card">
-                    <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
-                    <h3>Muzlatish imkoni</h3>
-                    <p>Kasallik yoki safar paytida o'qishni vaqtincha muzlatish mumkin — bu davr uchun pul hisoblanmaydi.</p>
-                </div>
-                <div class="card">
-                    <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 15l4-4 3 3 5-6"/></svg></div>
-                    <h3>Har dars nazoratda</h3>
-                    <p>Davomat har darsda belgilanadi va jurnalda saqlanadi — natija va qatnashuv doim ko'rinib turadi.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+        <script>
+            const API = 'https://crm.mensalc.uz/api/v1/public';
+            const days = ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya'];
+            const money = (v) =>
+                v == null
+                    ? ''
+                    : Math.round(v)
+                          .toString()
+                          .replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+            const esc = (s) =>
+                String(s ?? '').replace(
+                    /[&<>"']/g,
+                    (c) =>
+                        ({
+                            '&': '&amp;',
+                            '<': '&lt;',
+                            '>': '&gt;',
+                            '"': '&quot;',
+                            "'": '&#39;',
+                        })[c],
+                );
+            document.getElementById('year').textContent =
+                new Date().getFullYear();
 
-    <section id="kurslar" class="alt">
-        <div class="wrap">
-            <h2>Kurslar</h2>
-            <p class="sub">Hozir ochiq guruhlar va oylik narxlar.</p>
-            <div id="courses" class="grid grid-3">
-                <div class="empty">Yuklanmoqda…</div>
-            </div>
-        </div>
-    </section>
-
-    <section id="qanday">
-        <div class="wrap">
-            <h2>Qanday boshlanadi</h2>
-            <p class="sub">Uch qadam — va farzandingiz o'qishni boshlaydi.</p>
-            <div class="grid grid-3 steps">
-                <div class="card"><h3>Ariza qoldiring</h3><p>Pastdagi formani to'ldiring yoki qo'ng'iroq qiling — administrator siz bilan bog'lanadi.</p></div>
-                <div class="card"><h3>Sinov darsiga keling</h3><p>Guruh, o'qituvchi va dars uslubi bilan tanishing. Davom etmasangiz, sinov darsi uchun to'lamaysiz.</p></div>
-                <div class="card"><h3>O'qishni boshlang</h3><p>Ota-ona kabinetiga login olasiz: davomat, balans va to'lovlar doim ko'z oldingizda.</p></div>
-            </div>
-        </div>
-    </section>
-
-    <section id="yozilish" class="alt">
-        <div class="wrap signup">
-            <div>
-                <h2>Sinov darsiga yozilish</h2>
-                <p class="sub">Ism va telefon raqamingizni qoldiring — administrator qulay vaqtni kelishish uchun qo'ng'iroq qiladi.</p>
-                <div id="aloqa" class="contact"></div>
-            </div>
-            <form class="box" id="signup" novalidate>
-                <label>Ism-familiya<input name="full_name" required autocomplete="name"></label>
-                <label>Telefon raqam<input name="phone" type="tel" required inputmode="tel" placeholder="+998 90 123 45 67" autocomplete="tel"></label>
-                <label>Qaysi kurs qiziqtiradi<select name="course" id="course-select"><option value="">Hali bilmayman</option></select></label>
-                <label id="branch-label" hidden>Filial<select name="branch_id" id="branch-select"></select></label>
-                <label>Izoh (ixtiyoriy)<textarea name="note" rows="3"></textarea></label>
-                <input class="hp" name="website" tabindex="-1" autocomplete="off">
-                <button class="btn btn-orange" type="submit">Yuborish</button>
-                <p class="msg" id="signup-msg" role="status"></p>
-            </form>
-        </div>
-    </section>
-</main>
-
-<footer>
-    <div class="wrap">
-        <span>© <span id="year"></span> Mensa Learning Center</span>
-        <span><a href="https://crm.mensalc.uz/login">Kabinetga kirish</a></span>
-    </div>
-</footer>
-
-<script>
-    const API = 'https://crm.mensalc.uz/api/v1/public';
-    const days = ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya'];
-    const money = (v) => v == null ? '' : Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    document.getElementById('year').textContent = new Date().getFullYear();
-
-    fetch(`${API}/info`, { headers: { Accept: 'application/json' } })
-        .then((r) => r.ok ? r.json() : Promise.reject())
-        .then(({ courses, branches }) => {
-            const box = document.getElementById('courses');
-            box.innerHTML = courses.length ? courses.map((c) => `
+            fetch(`${API}/info`, { headers: { Accept: 'application/json' } })
+                .then((r) => (r.ok ? r.json() : Promise.reject()))
+                .then(({ courses, branches }) => {
+                    const box = document.getElementById('courses');
+                    box.innerHTML = courses.length
+                        ? courses
+                              .map(
+                                  (c) => `
                 <div class="card course">
                     <h3>${esc(c.name)}</h3>
                     ${c.price_from ? `<div class="price">${money(c.price_from)} so'm <span class="meta">/ oy</span></div>` : ''}
                     <div class="meta">${c.lessons_per_month ? `Oyiga ${c.lessons_per_month} dars · ` : ''}${c.days.map((d) => days[d - 1]).join(', ')}</div>
                     <a class="btn btn-orange" style="margin-top:10px" href="#yozilish" data-course="${esc(c.name)}">Yozilish</a>
-                </div>`).join('') : '<div class="empty">Kurslar ro\'yxati tez orada e\'lon qilinadi. Hozir yozilish uchun ariza qoldiring.</div>';
+                </div>`,
+                              )
+                              .join('')
+                        : '<div class="empty">Kurslar ro\'yxati tez orada e\'lon qilinadi. Hozir yozilish uchun ariza qoldiring.</div>';
 
-            const select = document.getElementById('course-select');
-            courses.forEach((c) => select.insertAdjacentHTML('beforeend', `<option>${esc(c.name)}</option>`));
-            box.querySelectorAll('[data-course]').forEach((a) => a.addEventListener('click', () => { select.value = a.dataset.course; }));
+                    const select = document.getElementById('course-select');
+                    courses.forEach((c) =>
+                        select.insertAdjacentHTML(
+                            'beforeend',
+                            `<option>${esc(c.name)}</option>`,
+                        ),
+                    );
+                    box.querySelectorAll('[data-course]').forEach((a) =>
+                        a.addEventListener('click', () => {
+                            select.value = a.dataset.course;
+                        }),
+                    );
 
-            const contact = document.getElementById('aloqa');
-            contact.innerHTML = branches.filter((b) => b.address || b.phone).map((b) => `
+                    const contact = document.getElementById('aloqa');
+                    contact.innerHTML = branches
+                        .filter((b) => b.address || b.phone)
+                        .map(
+                            (b) => `
                 <div class="card">
                     <b>${esc(b.name)}</b>
                     ${b.address ? `<span>${esc(b.address)}</span>` : ''}
                     ${b.phone ? `<a href="tel:${esc(b.phone.replace(/\s/g, ''))}">${esc(b.phone)}</a>` : ''}
-                </div>`).join('');
+                </div>`,
+                        )
+                        .join('');
 
-            if (branches.length > 1) {
-                document.getElementById('branch-label').hidden = false;
-                document.getElementById('branch-select').innerHTML = branches.map((b) => `<option value="${b.id}">${esc(b.name)}</option>`).join('');
-            }
-        })
-        .catch(() => {
-            document.getElementById('courses').innerHTML = '<div class="empty">Kurslar haqida ma\'lumot olish uchun ariza qoldiring.</div>';
-        });
+                    if (branches.length > 1) {
+                        document.getElementById('branch-label').hidden = false;
+                        document.getElementById('branch-select').innerHTML =
+                            branches
+                                .map(
+                                    (b) =>
+                                        `<option value="${b.id}">${esc(b.name)}</option>`,
+                                )
+                                .join('');
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('courses').innerHTML =
+                        '<div class="empty">Kurslar haqida ma\'lumot olish uchun ariza qoldiring.</div>';
+                });
 
-    document.getElementById('signup').addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const form = event.target;
-        const msg = document.getElementById('signup-msg');
-        const data = Object.fromEntries(new FormData(form));
-        if (!data.branch_id) delete data.branch_id;
-        msg.className = 'msg';
-        msg.textContent = 'Yuborilmoqda…';
+            document
+                .getElementById('signup')
+                .addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    const form = event.target;
+                    const msg = document.getElementById('signup-msg');
+                    const data = Object.fromEntries(new FormData(form));
+                    if (!data.branch_id) delete data.branch_id;
+                    msg.className = 'msg';
+                    msg.textContent = 'Yuborilmoqda…';
 
-        try {
-            const response = await fetch(`${API}/leads`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'Accept-Language': 'uz' },
-                body: JSON.stringify(data),
-            });
-            const body = await response.json().catch(() => ({}));
+                    try {
+                        const response = await fetch(`${API}/leads`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Accept: 'application/json',
+                                'Accept-Language': 'uz',
+                            },
+                            body: JSON.stringify(data),
+                        });
+                        const body = await response.json().catch(() => ({}));
 
-            if (!response.ok) {
-                const first = body.errors ? Object.values(body.errors)[0][0] : 'Xatolik yuz berdi. Iltimos, qayta urinib ko\'ring.';
-                throw new Error(first);
-            }
+                        if (!response.ok) {
+                            const first = body.errors
+                                ? Object.values(body.errors)[0][0]
+                                : "Xatolik yuz berdi. Iltimos, qayta urinib ko'ring.";
+                            throw new Error(first);
+                        }
 
-            form.reset();
-            msg.className = 'msg ok';
-            msg.textContent = 'Rahmat! Administrator tez orada siz bilan bog\'lanadi.';
-        } catch (error) {
-            msg.className = 'msg err';
-            msg.textContent = error.message;
-        }
-    });
-</script>
-</body>
+                        form.reset();
+                        msg.className = 'msg ok';
+                        msg.textContent =
+                            "Rahmat! Administrator tez orada siz bilan bog'lanadi.";
+                    } catch (error) {
+                        msg.className = 'msg err';
+                        msg.textContent = error.message;
+                    }
+                });
+        </script>
+    </body>
 </html>

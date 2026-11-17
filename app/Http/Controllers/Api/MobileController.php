@@ -139,7 +139,7 @@ class MobileController extends Controller
             'note' => ['nullable', 'string', 'max:255'],
             'idempotency_key' => ['nullable', 'string', 'max:64'],
         ]);
-        $payment = $finance->receivePayment($enrollment, Cashbox::query()->findOrFail($validated['cashbox_id']), (int) $validated['amount'], $validated['note'] ?? null, null, $validated['idempotency_key'] ?? null);
+        $payment = $finance->receivePayment($enrollment, Cashbox::query()->findOrFail($request->integer('cashbox_id')), (int) $validated['amount'], $validated['note'] ?? null, null, $validated['idempotency_key'] ?? null);
 
         return response()->json([
             'payment' => ['id' => $payment->id, 'receipt_no' => $payment->receipt_no, 'amount' => $payment->amount],
