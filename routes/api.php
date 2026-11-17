@@ -2,10 +2,13 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\MobileController;
+use App\Http\Controllers\Api\PublicController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->name('api.')->group(function () {
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:10,1')->name('login');
+    Route::get('public/info', [PublicController::class, 'info'])->middleware('throttle:60,1')->name('public.info');
+    Route::post('public/leads', [PublicController::class, 'lead'])->middleware('throttle:5,1')->name('public.leads');
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('me', [AuthController::class, 'me'])->name('me');

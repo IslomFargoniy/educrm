@@ -45,3 +45,11 @@ it('receives a payment through the API', function () {
         ->assertCreated()
         ->assertJsonPath('balance', $before + 50_000);
 });
+
+it('serves public courses and turns website sign-ups into leads', function () {
+    $this->getJson(route('api.public.info'))->assertOk()->assertJsonStructure(['courses' => [['name', 'price_from']], 'branches']);
+
+    $this->postJson(route('api.public.leads'), ['full_name' => 'Test Mijoz', 'phone' => '90 555 44 33', 'course' => 'English'])->assertCreated();
+
+    expect(\App\Models\Lead::query()->where('phone', '+998905554433')->first()->source->value)->toBe('website');
+});
