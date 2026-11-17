@@ -44,7 +44,7 @@ sudo chown -h ${SITE_USER}:${SITE_USER} ${DOC_ROOT}/storage
 sudo rsync -a --delete /tmp/mensalc-upload/landing/ ${LANDING_ROOT}/
 sudo chown -R ${LANDING_USER}:${LANDING_USER} ${LANDING_ROOT}
 sudo rm -rf /tmp/mensalc-upload
-artisan() { sudo -u ${SITE_USER} -H bash -c "cd ${APP_DIR} && php artisan \\$*"; }
+artisan() { sudo -u ${SITE_USER} -H bash -c "cd ${APP_DIR} && php artisan \$*"; }
 artisan down --retry=15 || true
 artisan migrate --force
 artisan db:seed --force
