@@ -1,9 +1,11 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import {
     AlertTriangle,
     Banknote,
+    ClipboardCheck,
     GraduationCap,
     PiggyBank,
+    Plus,
     TrendingUp,
     UserPlus,
     Users,
@@ -12,10 +14,16 @@ import {
 import Money from '@/components/money';
 import PageHeader from '@/components/page-header';
 import StatCard from '@/components/stat-card';
+import StatusBadge from '@/components/status-badge';
+import { Button } from '@/components/ui/button';
+import { useCan } from '@/hooks/use-can';
 import { formatMoney, formatMonth } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
-import { dashboard } from '@/routes';
+import { dashboard, schedule } from '@/routes';
+import attendance from '@/routes/attendance';
 import cashboxRoutes from '@/routes/cashboxes';
+import lessonRoutes from '@/routes/lessons';
+import studentRoutes from '@/routes/students';
 
 type Props = {
     stats: {
@@ -38,18 +46,76 @@ type Props = {
         branch: { name: string };
     }[];
     months: { month: string; income: number; expenses: number }[];
+    todayLessons: {
+        id: number;
+        time: string;
+        group: string;
+        teacher: string | null;
+        room: string | null;
+        status: string;
+    }[];
 };
 
-export default function Dashboard({ stats, cashboxes, months }: Props) {
+const cashboxInitials: Record<string, string> = {
+    cash: 'NQ',
+    card: 'KR',
+    click: 'CL',
+    payme: 'PM',
+};
+
+export default function Dashboard({
+    stats,
+    cashboxes,
+    months,
+    todayLessons,
+}: Props) {
     const t = useT();
     const locale = useLocale();
+    const { can } = useCan();
+    const { auth } = usePage().props;
+    const cashTotal = cashboxes.reduce((sum, c) => sum + c.balance, 0);
+    const today = new Intl.DateTimeFormat(
+        locale === 'uz' ? 'uz-Latn' : locale,
+        {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+        },
+    ).format(new Date());
     const max = Math.max(1, ...months.flatMap((m) => [m.income, m.expenses]));
 
     return (
         <>
             <Head title={t('Dashboard')} />
             <div className="flex flex-col gap-6 p-4 md:p-6">
-                <PageHeader title={t('Dashboard')} />
+                <PageHeader
+                    title={t('Hello, :name', { name: auth.user.name })}
+                    description={<span className="capitalize">{today}</span>}
+                    actions={
+                        <>
+                            {(can('attendance.mark') ||
+                                can('lessons.manage')) && (
+                                <Button variant="outline" asChild>
+                                    <Link href={attendance.index()}>
+                                        <ClipboardCheck />
+                                        {t('Mark attendance')}
+                                    </Link>
+                                </Button>
+                            )}
+                            {can('payments.create') && (
+                                <Button
+                                    asChild
+                                    className="bg-highlight font-bold text-highlight-foreground hover:bg-highlight/90"
+                                >
+                                    <Link href={studentRoutes.index()}>
+                                        <Plus />
+                                        {t('Receive payment')}
+                                    </Link>
+                                </Button>
+                            )}
+                        </>
+                    }
+                />
 
                 <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                     <StatCard
@@ -102,14 +168,14 @@ export default function Dashboard({ stats, cashboxes, months }: Props) {
                 </div>
 
                 <div className="grid gap-4 lg:grid-cols-3">
-                    <section className="rounded-xl border bg-card p-4 lg:col-span-2">
+                    <section className="rounded-2xl border bg-card p-5 lg:col-span-2">
                         <div className="mb-4 flex items-center justify-between">
-                            <h2 className="font-bold">
+                            <h2 className="font-extrabold">
                                 {t('Income and expenses')}
                             </h2>
                             <div className="flex gap-3 text-xs">
                                 <span className="flex items-center gap-1">
-                                    <span className="size-2.5 rounded-sm bg-primary" />
+                                    <span className="size-2.5 rounded-sm bg-chart-1" />
                                     {t('Income')}
                                 </span>
                                 <span className="flex items-center gap-1">
@@ -126,14 +192,14 @@ export default function Dashboard({ stats, cashboxes, months }: Props) {
                                 >
                                     <div className="flex h-44 w-full items-end justify-center gap-1">
                                         <div
-                                            className="w-1/3 rounded-t bg-primary"
+                                            className="w-1/3 max-w-7 rounded-t-md bg-chart-1"
                                             style={{
                                                 height: `${(m.income / max) * 100}%`,
                                             }}
                                             title={formatMoney(m.income)}
                                         />
                                         <div
-                                            className="w-1/3 rounded-t bg-highlight"
+                                            className="w-1/3 max-w-7 rounded-t-md bg-highlight"
                                             style={{
                                                 height: `${(m.expenses / max) * 100}%`,
                                             }}
@@ -150,31 +216,105 @@ export default function Dashboard({ stats, cashboxes, months }: Props) {
                         </div>
                     </section>
 
-                    <section className="rounded-xl border bg-card p-4">
-                        <h2 className="mb-3 font-bold">{t('Cashboxes')}</h2>
-                        <ul className="divide-y">
+                    <section className="flex flex-col rounded-2xl border bg-card p-5">
+                        <div className="mb-3 flex items-center justify-between">
+                            <h2 className="font-extrabold">{t('Cashboxes')}</h2>
+                            <Link
+                                href={cashboxRoutes.index()}
+                                className="text-sm font-bold text-secondary-foreground hover:underline"
+                            >
+                                {t('All')}
+                            </Link>
+                        </div>
+                        <ul className="flex flex-col gap-1">
                             {cashboxes.map((c) => (
                                 <li key={c.id}>
                                     <Link
                                         href={cashboxRoutes.show(c.id)}
-                                        className="flex items-center justify-between py-2 text-sm hover:text-primary"
+                                        className="flex items-center gap-3 rounded-xl px-2 py-2 text-sm transition-colors hover:bg-muted"
                                     >
-                                        <span>
-                                            {c.name}
-                                            <span className="ml-1 text-xs text-muted-foreground">
-                                                · {c.branch.name}
+                                        <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-secondary text-xs font-extrabold text-secondary-foreground">
+                                            {cashboxInitials[c.method] ??
+                                                c.name
+                                                    .slice(0, 2)
+                                                    .toUpperCase()}
+                                        </span>
+                                        <span className="flex min-w-0 flex-1 flex-col">
+                                            <span className="truncate font-bold">
+                                                {c.name}
+                                            </span>
+                                            <span className="truncate text-xs text-muted-foreground">
+                                                {c.branch.name}
                                             </span>
                                         </span>
                                         <Money
                                             value={c.balance}
-                                            className="font-semibold"
+                                            className="font-extrabold tabular-nums"
                                         />
                                     </Link>
                                 </li>
                             ))}
                         </ul>
+                        <div className="mt-auto flex justify-between border-t px-2 pt-3 text-sm">
+                            <span className="font-semibold text-muted-foreground">
+                                {t('Total')}
+                            </span>
+                            <Money
+                                value={cashTotal}
+                                className="font-extrabold tabular-nums"
+                            />
+                        </div>
                     </section>
                 </div>
+
+                <section className="rounded-2xl border bg-card p-5">
+                    <div className="mb-3 flex items-center justify-between">
+                        <h2 className="font-extrabold">{t('Today lessons')}</h2>
+                        {can('groups.view') && (
+                            <Link
+                                href={schedule()}
+                                className="text-sm font-bold text-secondary-foreground hover:underline"
+                            >
+                                {t('Schedule')}
+                            </Link>
+                        )}
+                    </div>
+                    {todayLessons.length === 0 ? (
+                        <p className="py-6 text-center text-sm text-muted-foreground">
+                            {t('No lessons today.')}
+                        </p>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <ul className="flex min-w-[560px] flex-col">
+                                {todayLessons.map((lesson) => (
+                                    <li key={lesson.id}>
+                                        <Link
+                                            href={lessonRoutes.show(lesson.id)}
+                                            className="grid grid-cols-[72px_minmax(0,1.4fr)_minmax(0,1fr)_72px_140px] items-center gap-3 rounded-xl px-2 py-3 text-sm transition-colors hover:bg-muted"
+                                        >
+                                            <span className="font-extrabold tabular-nums">
+                                                {lesson.time}
+                                            </span>
+                                            <span className="truncate font-bold">
+                                                {lesson.group}
+                                            </span>
+                                            <span className="truncate text-muted-foreground">
+                                                {lesson.teacher ?? '—'}
+                                            </span>
+                                            <span className="text-muted-foreground">
+                                                {lesson.room ?? '—'}
+                                            </span>
+                                            <StatusBadge
+                                                status={lesson.status}
+                                                className="justify-self-start"
+                                            />
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                </section>
             </div>
         </>
     );

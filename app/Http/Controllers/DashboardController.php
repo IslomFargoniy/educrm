@@ -7,6 +7,7 @@ use App\Enums\TransactionType;
 use App\Models\Cashbox;
 use App\Models\Enrollment;
 use App\Models\Lead;
+use App\Models\Lesson;
 use App\Models\Transaction;
 use App\Services\FinanceService;
 use Inertia\Inertia;
@@ -56,6 +57,21 @@ class DashboardController extends Controller
             'cashboxes' => Cashbox::query()->whereIn('branch_id', $branchIds)->where('is_active', true)
                 ->with('branch:id,name')->orderBy('branch_id')->get(['id', 'branch_id', 'name', 'method', 'balance']),
             'months' => $months,
+            'todayLessons' => Lesson::query()
+                ->whereDate('date', today())
+                ->whereHas('group', fn ($q) => $q->whereIn('branch_id', $branchIds))
+                ->with('group:id,name', 'teacher:id,name', 'room:id,name')
+                ->orderBy('start_time')
+                ->limit(12)
+                ->get()
+                ->map(fn (Lesson $lesson) => [
+                    'id' => $lesson->id,
+                    'time' => substr($lesson->start_time, 0, 5),
+                    'group' => $lesson->group->name,
+                    'teacher' => $lesson->teacher?->name,
+                    'room' => $lesson->room?->name,
+                    'status' => $lesson->status->value,
+                ]),
         ]);
     }
 }

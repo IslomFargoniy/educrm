@@ -3,14 +3,14 @@ import AppLogoIcon from '@/components/app-logo-icon';
 export default function AppLogo() {
     return (
         <>
-            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-white/10">
-                <AppLogoIcon className="size-6 text-white" />
+            <div className="flex aspect-square size-9 items-center justify-center rounded-xl bg-highlight">
+                <AppLogoIcon className="size-6 text-primary dark:text-[#0b0f7e]" />
             </div>
-            <div className="ml-1 grid flex-1 text-left leading-tight">
-                <span className="truncate text-base font-extrabold tracking-tight text-white">
+            <div className="ml-1.5 grid flex-1 text-left leading-tight">
+                <span className="truncate text-lg font-extrabold tracking-tight text-white">
                     Mensa
                 </span>
-                <span className="truncate text-[10px] text-sidebar-foreground/80">
+                <span className="truncate text-xs text-sidebar-muted">
                     Learning center
                 </span>
             </div>

@@ -130,8 +130,8 @@ export function AppSidebar() {
     ].filter(Boolean) as NavItem[];
 
     return (
-        <Sidebar collapsible="icon" variant="inset">
-            <SidebarHeader>
+        <Sidebar collapsible="icon" variant="sidebar">
+            <SidebarHeader className="px-3 pt-4 pb-2">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
@@ -154,7 +154,7 @@ export function AppSidebar() {
                 )}
             </SidebarContent>
 
-            <SidebarFooter>
+            <SidebarFooter className="border-t border-sidebar-accent/60 p-3">
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

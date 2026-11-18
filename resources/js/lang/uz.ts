@@ -517,4 +517,10 @@ export const uz: Record<string, string> = {
     'tx.teacher_earning': 'Qarz yopildi',
     'tx.teacher_payout': 'Oylik oldi',
     'until :date': ':date gacha',
+    'Hello, :name': 'Xayrli kun, :name',
+    Total: 'Jami',
+    'Mark attendance': 'Davomat belgilash',
+    'Today lessons': 'Bugungi darslar',
+    'No lessons today.': "Bugun dars yo'q.",
+    Theme: 'Mavzu',
 };

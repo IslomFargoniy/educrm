@@ -511,4 +511,10 @@ export const ru: Record<string, string> = {
     'tx.teacher_earning': 'Долг погашен',
     'tx.teacher_payout': 'Выплата зарплаты',
     'until :date': 'по :date',
+    'Hello, :name': 'Добрый день, :name',
+    Total: 'Итого',
+    'Mark attendance': 'Отметить посещаемость',
+    'Today lessons': 'Уроки сегодня',
+    'No lessons today.': 'Сегодня уроков нет.',
+    Theme: 'Тема',
 };
