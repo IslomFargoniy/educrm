@@ -17,12 +17,11 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        // Kept from the first release: changing it would stop installed apps from updating.
-        applicationId = "uz.mensalc.app"
+        applicationId = "uz.educrm.app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 6
-        versionName = "1.0.5"
+        versionCode = 1
+        versionName = "1.0.0"
         buildConfigField("String", "API_URL", "\"https://crm.mensalc.uz/api/v1/\"")
     }
 
