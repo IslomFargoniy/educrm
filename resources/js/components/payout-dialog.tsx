@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Field from '@/components/field';
 import FormDialog from '@/components/form-dialog';
 import { Button } from '@/components/ui/button';
+import MoneyInput from '@/components/money-input';
 import { Input } from '@/components/ui/input';
 import { NativeSelect } from '@/components/ui/native-select';
 import { formatMoney } from '@/lib/format';
@@ -72,10 +73,9 @@ export default function PayoutDialog({
                             amount: formatMoney(cashboxBalance),
                         })}
                     >
-                        <Input
+                        <MoneyInput
                             key={cashboxId}
                             name="amount"
-                            type="number"
                             min={1}
                             max={maxAmount}
                             defaultValue={maxAmount > 0 ? maxAmount : undefined}

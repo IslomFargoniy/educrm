@@ -1,5 +1,6 @@
 import Field from '@/components/field';
 import { Checkbox } from '@/components/ui/checkbox';
+import MoneyInput from '@/components/money-input';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { NativeSelect } from '@/components/ui/native-select';
@@ -162,13 +163,7 @@ export default function GroupFormFields({
                         label={t('Monthly price')}
                         error={errors.monthly_price}
                     >
-                        <Input
-                            name="monthly_price"
-                            type="number"
-                            min={0}
-                            step={1000}
-                            required
-                        />
+                        <MoneyInput name="monthly_price" min={0} required />
                     </Field>
                     <Field
                         label={t('Lessons per month (N)')}

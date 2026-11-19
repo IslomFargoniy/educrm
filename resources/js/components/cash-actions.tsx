@@ -10,6 +10,7 @@ import Field from '@/components/field';
 import FormDialog from '@/components/form-dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import MoneyInput from '@/components/money-input';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { NativeSelect } from '@/components/ui/native-select';
@@ -137,9 +138,8 @@ export default function CashActions({
                                 error={errors.amount}
                                 hint={inCashbox(expenseBoxId)}
                             >
-                                <Input
+                                <MoneyInput
                                     name="amount"
-                                    type="number"
                                     min={1}
                                     max={balanceOf(expenseBoxId)}
                                     required
@@ -197,9 +197,8 @@ export default function CashActions({
                                 error={errors.amount}
                                 hint={inCashbox(transferBoxId)}
                             >
-                                <Input
+                                <MoneyInput
                                     name="amount"
-                                    type="number"
                                     min={1}
                                     max={balanceOf(transferBoxId)}
                                     required
@@ -240,10 +239,9 @@ export default function CashActions({
                                 error={errors.amount}
                                 hint={inCashbox(withdrawBoxId)}
                             >
-                                <Input
+                                <MoneyInput
                                     key={withdrawBoxId}
                                     name="amount"
-                                    type="number"
                                     min={1}
                                     defaultValue={
                                         suggestedWithdrawal > 0

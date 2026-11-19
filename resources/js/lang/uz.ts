@@ -178,6 +178,8 @@ export const uz: Record<string, string> = {
     'Teacher salaries are paid on the Teachers page, not as an expense.':
         "O'qituvchilar oyligi xarajat sifatida emas, «O'qituvchilar» sahifasidan beriladi.",
     'Teacher salaries': "O'qituvchilar oyligi",
+    'Must be at least :amount': "Kamida :amount bo'lishi kerak",
+    'Must be at most :amount': "Ko'pi bilan :amount bo'lishi mumkin",
     Leads: 'Lidlar',
     Lessons: 'Darslar',
     'Leaves the group': 'Guruhdan chiqadi',

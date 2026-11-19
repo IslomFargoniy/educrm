@@ -15,6 +15,7 @@ import Money from '@/components/money';
 import PageHeader from '@/components/page-header';
 import StatusBadge from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
+import MoneyInput from '@/components/money-input';
 import { Input } from '@/components/ui/input';
 import { NativeSelect } from '@/components/ui/native-select';
 import {
@@ -279,11 +280,9 @@ export default function GroupShow({
                                                 label={t('Monthly price')}
                                                 error={errors.monthly_price}
                                             >
-                                                <Input
+                                                <MoneyInput
                                                     name="monthly_price"
-                                                    type="number"
                                                     min={0}
-                                                    step={1000}
                                                     defaultValue={
                                                         group.current_price
                                                             ?.monthly_price

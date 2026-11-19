@@ -26,6 +26,7 @@ import PeriodFilter from '@/components/period-filter';
 import StatusBadge from '@/components/status-badge';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import MoneyInput from '@/components/money-input';
 import { Input } from '@/components/ui/input';
 import PhoneInput from '@/components/phone-input';
 import { NativeSelect } from '@/components/ui/native-select';
@@ -637,9 +638,8 @@ function EnrollmentPanel({
                                     label={t('Amount')}
                                     error={errors.amount}
                                 >
-                                    <Input
+                                    <MoneyInput
                                         name="amount"
-                                        type="number"
                                         min={1}
                                         required
                                         autoFocus
@@ -742,9 +742,8 @@ function EnrollmentPanel({
                                         label={t('Amount')}
                                         error={errors.amount}
                                     >
-                                        <Input
+                                        <MoneyInput
                                             name="amount"
-                                            type="number"
                                             min={1}
                                             max={e.available}
                                             defaultValue={e.available}
@@ -839,9 +838,8 @@ function EnrollmentPanel({
                                         label={t('Discount')}
                                         error={errors.discount_value}
                                     >
-                                        <Input
+                                        <MoneyInput
                                             name="discount_value"
-                                            type="number"
                                             min={0}
                                             defaultValue={e.discount_value}
                                         />
@@ -893,9 +891,8 @@ function EnrollmentPanel({
                                     label={t('Amount')}
                                     error={errors.amount}
                                 >
-                                    <Input
+                                    <MoneyInput
                                         name="amount"
-                                        type="number"
                                         min={1}
                                         max={e.available}
                                         defaultValue={e.available}
@@ -1176,9 +1173,8 @@ function EnrollDialog({
                             label={t('Discount')}
                             error={errors.discount_value}
                         >
-                            <Input
+                            <MoneyInput
                                 name="discount_value"
-                                type="number"
                                 min={0}
                                 defaultValue={0}
                             />

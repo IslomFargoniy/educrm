@@ -174,6 +174,8 @@ export const ru: Record<string, string> = {
     'Teacher salaries are paid on the Teachers page, not as an expense.':
         'Зарплата преподавателей выдаётся на странице «Преподаватели», а не как расход.',
     'Teacher salaries': 'Зарплаты преподавателей',
+    'Must be at least :amount': 'Не меньше :amount',
+    'Must be at most :amount': 'Не больше :amount',
     Leads: 'Лиды',
     Lessons: 'Уроки',
     'Leaves the group': 'Уходит из группы',
