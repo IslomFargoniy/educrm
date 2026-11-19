@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -100,7 +101,7 @@ fun LessonsScreen(api: EduCrmApi, user: UserProfile, onOpen: (Int) -> Unit) {
                 EmptyState(stringResource(R.string.no_lessons))
             } else {
                 LazyColumn(contentPadding = contentPadding(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    items(data.lessons, key = { it.id }) { lesson -> LessonCard(lesson) { onOpen(lesson.id) } }
+                    itemsIndexed(data.lessons, key = { _, it -> it.id }) { index, lesson -> LessonCard(index + 1, lesson) { onOpen(lesson.id) } }
                 }
             }
         }
@@ -108,10 +109,11 @@ fun LessonsScreen(api: EduCrmApi, user: UserProfile, onOpen: (Int) -> Unit) {
 }
 
 @Composable
-private fun LessonCard(lesson: LessonItem, onClick: () -> Unit) {
+private fun LessonCard(number: Int, lesson: LessonItem, onClick: () -> Unit) {
     val (statusText, statusColor) = lessonStatus(lesson.status)
     EduCrmCard(onClick = onClick) {
         Row(Modifier.height(androidx.compose.foundation.layout.IntrinsicSize.Min).padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            RowNumber(number)
             Column(Modifier.width(56.dp)) {
                 Text(lesson.start_time, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
                 Text(lesson.end_time, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
@@ -190,10 +192,11 @@ fun LessonScreen(api: EduCrmApi, lessonId: Int, onBack: () -> Unit) {
                     )
                 }
                 LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    items(data.students, key = { it.enrollment_id }) { student ->
+                    itemsIndexed(data.students, key = { _, it -> it.enrollment_id }) { index, student ->
                         EduCrmCard {
                             Column(Modifier.padding(14.dp)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
+                                    RowNumber(index + 1)
                                     Initials(student.full_name, size = 38)
                                     Text(student.full_name, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f).padding(horizontal = 10.dp))
                                     if (student.is_trial) Pill(stringResource(R.string.trial), Orange)

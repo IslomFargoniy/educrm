@@ -59,4 +59,21 @@
     <string name="update_permission">Telefon sozlamalarida EduCrm uchun «Noma\'lum ilovalarni o\'rnatish»ga ruxsat bering, so\'ng qaytib «Yangilash»ni bosing.</string>
     <string name="update_failed">Yuklab bo\'lmadi. Internetni tekshirib, qayta urinib ko\'ring.</string>
     <string name="app_version">Versiya %1$s</string>
+    <string name="new_student">Yangi o\'quvchi</string>
+    <string name="new_lead">Yangi lid</string>
+    <string name="student">O\'quvchi</string>
+    <string name="lead">Lid</string>
+    <string name="first_name">Ism</string>
+    <string name="last_name">Familiya</string>
+    <string name="last_name_optional">Familiya (ixtiyoriy)</string>
+    <string name="group_optional">Guruh (ixtiyoriy)</string>
+    <string name="source">Manba</string>
+    <string name="course">Kurs</string>
+    <string name="add">Qo\'shish</string>
+    <string name="source_referral">Tanish-bilish</string>
+    <string name="source_banner">Banner</string>
+    <string name="source_walk_in">O\'zi keldi</string>
+    <string name="source_website">Sayt</string>
+    <string name="source_other">Boshqa</string>
+    <string name="lead_added">Lid qo\'shildi: %1$s</string>
 </resources>

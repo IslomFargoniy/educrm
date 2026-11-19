@@ -58,4 +58,21 @@
     <string name="update_permission">Разрешите EduCrm «Установку неизвестных приложений» в настройках телефона, затем вернитесь и нажмите «Обновить».</string>
     <string name="update_failed">Не удалось загрузить. Проверьте интернет и попробуйте снова.</string>
     <string name="app_version">Версия %1$s</string>
+    <string name="new_student">Новый ученик</string>
+    <string name="new_lead">Новый лид</string>
+    <string name="student">Ученик</string>
+    <string name="lead">Лид</string>
+    <string name="first_name">Имя</string>
+    <string name="last_name">Фамилия</string>
+    <string name="last_name_optional">Фамилия (необязательно)</string>
+    <string name="group_optional">Группа (необязательно)</string>
+    <string name="source">Источник</string>
+    <string name="course">Курс</string>
+    <string name="add">Добавить</string>
+    <string name="source_referral">По рекомендации</string>
+    <string name="source_banner">Баннер</string>
+    <string name="source_walk_in">Пришёл сам</string>
+    <string name="source_website">Сайт</string>
+    <string name="source_other">Другое</string>
+    <string name="lead_added">Лид добавлен: %1$s</string>
 </resources>

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
@@ -205,3 +206,17 @@ fun HistoryList(history: History, signed: Boolean) {
 @Composable
 fun contentPadding(): androidx.compose.foundation.layout.PaddingValues =
     androidx.compose.foundation.layout.PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp + LocalBottomBarInset.current)
+
+/**
+ * Row number (№) in front of list items, like the web tables.
+ */
+@Composable
+fun RowNumber(number: Int) {
+    Text(
+        number.toString(),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        fontSize = 13.sp,
+        textAlign = androidx.compose.ui.text.style.TextAlign.End,
+        modifier = Modifier.width(26.dp).padding(end = 8.dp),
+    )
+}

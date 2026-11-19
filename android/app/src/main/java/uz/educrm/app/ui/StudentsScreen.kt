@@ -17,6 +17,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -59,17 +63,25 @@ import uz.educrm.app.data.readableMessage
 import java.util.UUID
 
 @Composable
-fun StudentsScreen(api: EduCrmApi, onOpen: (Int) -> Unit) {
+fun StudentsScreen(api: EduCrmApi, user: UserProfile, onOpen: (Int) -> Unit) {
     var query by remember { mutableStateOf("") }
     var state by remember { mutableStateOf<Load<StudentsResponse>>(Load.Loading) }
     var reload by remember { mutableStateOf(0) }
     val networkError = stringResource(R.string.error_network)
+    val kinds = listOfNotNull(
+        if (user.can("students.create")) NewPersonKind.Student else null,
+        if (user.can("leads.manage")) NewPersonKind.Lead else null,
+    )
+    var adding by remember { mutableStateOf(false) }
+    var notice by remember { mutableStateOf<String?>(null) }
+    val leadAdded = stringResource(R.string.lead_added, "%s")
 
     LaunchedEffect(query, reload) {
         delay(300)
         state = runCatching { api.students(query) }.fold({ Load.Ready(it) }, { Load.Failed(it.readableMessage(networkError)) })
     }
 
+    Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize()) {
         ScreenHeader(
             title = stringResource(R.string.students),
@@ -92,14 +104,16 @@ fun StudentsScreen(api: EduCrmApi, onOpen: (Int) -> Unit) {
                 )
             },
         )
+        notice?.let { Text(it, color = eduCrm.success, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 10.dp)) }
         LoadBox(state, { reload++ }) { data ->
             if (data.students.isEmpty()) {
                 EmptyState("—")
             }
             LazyColumn(contentPadding = contentPadding(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                items(data.students, key = { it.id }) { student ->
+                itemsIndexed(data.students, key = { _, it -> it.id }) { index, student ->
                     EduCrmCard(onClick = { onOpen(student.id) }) {
                         Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                            RowNumber(index + 1)
                             Initials(student.full_name)
                             Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
                                 Text(student.full_name, fontWeight = FontWeight.Bold, maxLines = 1)
@@ -111,6 +125,30 @@ fun StudentsScreen(api: EduCrmApi, onOpen: (Int) -> Unit) {
                 }
             }
         }
+    }
+
+    if (kinds.isNotEmpty()) {
+        FloatingActionButton(
+            onClick = { adding = true },
+            containerColor = Orange,
+            contentColor = OnOrange,
+            modifier = Modifier.align(Alignment.BottomEnd).padding(end = 20.dp, bottom = LocalBottomBarInset.current + 8.dp),
+        ) {
+            Icon(Icons.Filled.Add, stringResource(R.string.add))
+        }
+    }
+
+    if (adding) {
+        AddPersonDialog(api, kinds, onDismiss = { adding = false }) { kind, id, fullName ->
+            adding = false
+            if (kind == NewPersonKind.Student) {
+                onOpen(id)
+            } else {
+                notice = leadAdded.format(fullName)
+            }
+            reload++
+        }
+    }
     }
 }
 

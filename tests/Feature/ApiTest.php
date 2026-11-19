@@ -3,6 +3,7 @@
 use App\Enums\Role;
 use App\Models\Cashbox;
 use App\Models\Enrollment;
+use App\Models\Group;
 use App\Models\Lead;
 use App\Models\Lesson;
 use App\Models\User;
@@ -53,4 +54,23 @@ it('serves public courses and turns website sign-ups into leads', function () {
     $this->postJson(route('api.public.leads'), ['full_name' => 'Test Mijoz', 'phone' => '90 555 44 33', 'course' => 'English'])->assertCreated();
 
     expect(Lead::query()->where('phone', '+998905554433')->first()->source->value)->toBe('website');
+});
+
+it('adds a student and a lead with first and last name separately through the API', function () {
+    $admin = User::role(Role::Admin->value)->first();
+    $token = $admin->createToken('test')->plainTextToken;
+    $group = Group::query()->where('status', 'active')->first();
+
+    $options = $this->withToken($token)->getJson(route('api.form-options'))->assertOk();
+    expect($options->json('groups'))->not->toBeEmpty();
+
+    $id = $this->withToken($token)->postJson(route('api.students.store'), ['first_name' => 'Ali', 'last_name' => 'Valiyev', 'phone' => '90 111 22 33', 'group_id' => $group->id])
+        ->assertCreated()->assertJsonPath('student.full_name', 'Ali Valiyev')->json('student.id');
+    expect(Enrollment::query()->where('student_id', $id)->where('group_id', $group->id)->exists())->toBeTrue();
+
+    $this->withToken($token)->postJson(route('api.students.store'), ['first_name' => 'Ali'])->assertUnprocessable()->assertJsonValidationErrors('last_name');
+
+    $this->withToken($token)->postJson(route('api.leads.store'), ['first_name' => 'Bek', 'last_name' => 'Karimov', 'phone' => '90 222 33 44', 'source' => 'instagram'])
+        ->assertCreated()->assertJsonPath('lead.full_name', 'Bek Karimov');
+    expect(Lead::query()->where('first_name', 'Bek')->value('last_name'))->toBe('Karimov');
 });

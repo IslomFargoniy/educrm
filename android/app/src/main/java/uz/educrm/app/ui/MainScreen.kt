@@ -60,7 +60,7 @@ fun MainScreen(api: EduCrmApi, user: UserProfile, themeMode: ThemeMode, onThemeC
                 composable("lesson/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) {
                     LessonScreen(api, it.arguments!!.getInt("id")) { nav.popBackStack() }
                 }
-                composable("students") { StudentsScreen(api) { id -> nav.navigate("student/$id") } }
+                composable("students") { StudentsScreen(api, user) { id -> nav.navigate("student/$id") } }
                 composable("student/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) {
                     StudentScreen(api, user, it.arguments!!.getInt("id")) { nav.popBackStack() }
                 }

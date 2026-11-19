@@ -29,6 +29,9 @@ interface EduCrmApi {
     @GET("cashboxes") suspend fun cashboxes(): CashboxesResponse
     @POST("enrollments/{id}/payments") suspend fun pay(@Path("id") enrollmentId: Int, @Body body: PaymentRequest): PaymentResponse
     @GET("me/balance") suspend fun myBalance(): BalanceResponse
+    @GET("form-options") suspend fun formOptions(): FormOptions
+    @POST("students") suspend fun createStudent(@Body body: NewStudentRequest): NewStudentResponse
+    @POST("leads") suspend fun createLead(@Body body: NewLeadRequest): NewLeadResponse
 
     companion object {
         val json = Json {

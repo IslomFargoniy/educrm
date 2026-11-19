@@ -2,20 +2,30 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\LeadSource;
+use App\Enums\LeadStatus;
 use App\Enums\LedgerAccount;
 use App\Http\Controllers\Controller;
 use App\Models\Cashbox;
+use App\Models\Course;
 use App\Models\Enrollment;
+use App\Models\Group;
+use App\Models\Lead;
 use App\Models\Lesson;
 use App\Models\Student;
 use App\Models\User;
 use App\Services\AttendanceService;
 use App\Services\CoverageService;
+use App\Services\EnrollmentService;
 use App\Services\FinanceService;
+use App\Support\Phone;
 use App\Support\Presenters\History;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 /**
  * JSON endpoints for the Android app (admin / manager / teacher).
@@ -172,6 +182,85 @@ class MobileController extends Controller
             'history' => History::forAccount(LedgerAccount::Teacher, $user->id, now()->startOfMonth(), today()),
             'pending' => History::pendingForTeacher($user),
         ]);
+    }
+
+    /**
+     * @return list<int>
+     */
+    /**
+     * Choices for the add student / add lead forms.
+     */
+    public function formOptions(Request $request): JsonResponse
+    {
+        abort_unless($request->user()->can('students.create') || $request->user()->can('leads.manage'), 403);
+
+        return response()->json([
+            'groups' => Group::query()->whereIn('branch_id', $this->scope($request))->where('status', 'active')
+                ->orderBy('name')->get(['id', 'name', 'branch_id']),
+            'courses' => Course::options(),
+            'sources' => array_column(LeadSource::cases(), 'value'),
+        ]);
+    }
+
+    /**
+     * Add a student (first name and last name separately), optionally straight into a group.
+     */
+    public function storeStudent(Request $request, EnrollmentService $enrollments): JsonResponse
+    {
+        abort_unless($request->user()->can('students.create'), 403);
+        $request->merge(['phone' => Phone::normalize($request->input('phone'))]);
+        $validated = $request->validate([
+            'first_name' => ['required', 'string', 'max:100'],
+            'last_name' => ['required', 'string', 'max:100'],
+            'phone' => ['nullable', 'regex:/^\+998\d{9}$/'],
+            'group_id' => ['nullable', 'exists:groups,id'],
+            'branch_id' => ['nullable', 'integer'],
+        ]);
+        $group = isset($validated['group_id']) ? Group::query()->findOrFail((int) $validated['group_id']) : null;
+        $branchId = $group->branch_id ?? $this->scope($request)[0] ?? null;
+        abort_if($branchId === null, 422);
+        $this->authorizeBranch($branchId);
+
+        $student = DB::transaction(function () use ($validated, $group, $branchId, $enrollments) {
+            $student = Student::query()->create([
+                ...Arr::only($validated, ['first_name', 'last_name', 'phone']),
+                'branch_id' => $branchId,
+            ]);
+
+            if ($group !== null) {
+                $enrollments->enroll($student, $group, today());
+            }
+
+            return $student;
+        });
+
+        return response()->json(['student' => ['id' => $student->id, 'full_name' => $student->full_name]], 201);
+    }
+
+    public function storeLead(Request $request): JsonResponse
+    {
+        abort_unless($request->user()->can('leads.manage'), 403);
+        $request->merge(['phone' => Phone::normalize($request->input('phone'))]);
+        $validated = $request->validate([
+            'first_name' => ['required', 'string', 'max:100'],
+            'last_name' => ['nullable', 'string', 'max:100'],
+            'phone' => ['required', 'regex:/^\+998\d{9}$/'],
+            'source' => ['required', Rule::enum(LeadSource::class)],
+            'course_id' => ['nullable', 'exists:courses,id'],
+            'note' => ['nullable', 'string', 'max:2000'],
+        ]);
+        $branchId = $this->scope($request)[0] ?? null;
+        abort_if($branchId === null, 422);
+
+        $lead = Lead::query()->create([
+            ...$validated,
+            'branch_id' => $branchId,
+            'status' => LeadStatus::New,
+            'assigned_to' => $request->user()->id,
+            'next_contact_at' => today(),
+        ]);
+
+        return response()->json(['lead' => ['id' => $lead->id, 'full_name' => $lead->full_name]], 201);
     }
 
     /**

@@ -137,3 +137,24 @@ data class Pending(val total: Long = 0, val items: List<PendingItem> = emptyList
 
 @Serializable
 data class BalanceResponse(val balance: Long, val history: History, val pending: Pending)
+
+@Serializable
+data class OptionItem(val id: Int, val name: String, val branch_id: Int? = null)
+
+@Serializable
+data class FormOptions(val groups: List<OptionItem> = emptyList(), val courses: List<OptionItem> = emptyList(), val sources: List<String> = emptyList())
+
+@Serializable
+data class NewStudentRequest(val first_name: String, val last_name: String, val phone: String? = null, val group_id: Int? = null)
+
+@Serializable
+data class NewLeadRequest(val first_name: String, val last_name: String? = null, val phone: String, val source: String, val course_id: Int? = null)
+
+@Serializable
+data class CreatedPerson(val id: Int, val full_name: String)
+
+@Serializable
+data class NewStudentResponse(val student: CreatedPerson)
+
+@Serializable
+data class NewLeadResponse(val lead: CreatedPerson)
