@@ -252,9 +252,9 @@ function DeviceDetails({
             <Form
                 {...admin.devices.update.form(device.id)}
                 options={{ preserveScroll: true }}
-                className="grid gap-2 sm:grid-cols-[1fr_1fr_auto_auto]"
+                className="grid items-end gap-2 sm:grid-cols-3"
             >
-                {({ processing }) => (
+                {({ processing, errors }) => (
                     <>
                         <Input
                             name="name"
@@ -278,6 +278,27 @@ function DeviceDetails({
                             <option value="in">{t('Entrance')}</option>
                             <option value="out">{t('Exit')}</option>
                         </NativeSelect>
+                        <label className="flex flex-col gap-1 text-xs text-muted-foreground">
+                            Device ID
+                            <Input
+                                name="isup_id"
+                                defaultValue={device.isup_id}
+                                required
+                                pattern="[A-Za-z0-9_\-]{2,32}"
+                                className="font-mono"
+                            />
+                        </label>
+                        <label className="flex flex-col gap-1 text-xs text-muted-foreground">
+                            {t('ISUP key')}
+                            <Input
+                                name="isup_key"
+                                defaultValue={device.isup_key}
+                                required
+                                pattern="[A-Za-z0-9]{8,32}"
+                                title={t('8 or more letters and digits')}
+                                className="font-mono"
+                            />
+                        </label>
                         <input
                             type="hidden"
                             name="is_active"
@@ -286,6 +307,11 @@ function DeviceDetails({
                         <Button variant="outline" disabled={processing}>
                             {t('Save')}
                         </Button>
+                        {(errors.isup_id || errors.isup_key) && (
+                            <p className="text-sm text-danger sm:col-span-3">
+                                {errors.isup_id ?? errors.isup_key}
+                            </p>
+                        )}
                     </>
                 )}
             </Form>

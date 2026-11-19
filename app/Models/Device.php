@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Support\Str;
 
 /**
  * A Hikvision face terminal connected over ISUP 5.0 (entrance or exit of a branch).
@@ -42,17 +41,38 @@ class Device extends Model
     protected static function booted(): void
     {
         static::creating(function (Device $device): void {
-            $device->isup_id ??= 'edu'.Str::lower(Str::random(8));
+            $device->isup_id ??= self::nextIsupId();
             $device->isup_key ??= self::newKey();
         });
     }
 
     /**
-     * ISUP key typed into the device: letters and digits only, easy to type.
+     * Short Device ID typed into the terminal: edu1, edu2, ...
+     */
+    public static function nextIsupId(): string
+    {
+        $number = (int) self::query()->max('id') + 1;
+
+        while (self::query()->where('isup_id', 'edu'.$number)->exists()) {
+            $number++;
+        }
+
+        return 'edu'.$number;
+    }
+
+    /**
+     * ISUP key typed into the terminal: four letters and four digits (e.g. kmtr4827), nothing to confuse.
      */
     public static function newKey(): string
     {
-        return Str::of(Str::random(40))->replaceMatches('/[^A-HJ-NP-Za-km-z2-9]/', '')->substr(0, 12)->value();
+        $letters = 'abcdefghjkmnpqrstuvwxyz';
+        $key = '';
+
+        for ($i = 0; $i < 4; $i++) {
+            $key .= $letters[random_int(0, strlen($letters) - 1)];
+        }
+
+        return $key.random_int(1000, 9999);
     }
 
     /**

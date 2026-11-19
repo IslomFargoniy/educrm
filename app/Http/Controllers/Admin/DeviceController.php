@@ -9,6 +9,7 @@ use App\Models\Device;
 use App\Services\Isup\Gateway;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -66,7 +67,10 @@ class DeviceController extends Controller
     public function update(Request $request, Device $device): RedirectResponse
     {
         $this->authorizeBranch($device->branch_id);
-        $validated = $this->validated($request) + ['is_active' => $request->boolean('is_active', true)];
+        $validated = $this->validated($request) + $request->validate([
+            'isup_id' => ['sometimes', 'required', 'string', 'regex:/^[A-Za-z0-9_-]{2,32}$/', Rule::unique('devices', 'isup_id')->ignore($device->id)],
+            'isup_key' => ['sometimes', 'required', 'string', 'regex:/^[A-Za-z0-9]{8,32}$/'],
+        ]) + ['is_active' => $request->boolean('is_active', true)];
         $this->authorizeBranch((int) $validated['branch_id']);
         $device->update($validated);
         $this->toast(__('Saved.'));
