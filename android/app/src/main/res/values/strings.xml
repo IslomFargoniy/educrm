@@ -55,9 +55,7 @@
     <string name="update_text">Ilovaning yangi versiyasi chiqdi. Hozir yangilaysizmi?</string>
     <string name="update_now">Yangilash</string>
     <string name="update_later">Keyinroq</string>
-    <string name="update_downloading">Yuklanmoqda: %1$d%%</string>
-    <string name="update_permission">Telefon sozlamalarida EduCrm uchun «Noma\'lum ilovalarni o\'rnatish»ga ruxsat bering, so\'ng qaytib «Yangilash»ni bosing.</string>
-    <string name="update_failed">Yuklab bo\'lmadi. Internetni tekshirib, qayta urinib ko\'ring.</string>
+    <string name="update_failed">Havolani ochib bo\'lmadi.</string>
     <string name="app_version">Versiya %1$s</string>
     <string name="new_student">Yangi o\'quvchi</string>
     <string name="new_lead">Yangi lid</string>
@@ -76,4 +74,5 @@
     <string name="source_website">Sayt</string>
     <string name="source_other">Boshqa</string>
     <string name="lead_added">Lid qo\'shildi: %1$s</string>
+    <string name="update_how">Brauzerda yangi APK yuklanadi. Yuklab bo\'lingach, faylni ochib o\'rnating — ma\'lumotlaringiz saqlanib qoladi.</string>
 </resources>

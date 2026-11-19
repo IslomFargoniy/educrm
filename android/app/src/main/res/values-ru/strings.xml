@@ -54,9 +54,7 @@
     <string name="update_text">Вышла новая версия приложения. Обновить сейчас?</string>
     <string name="update_now">Обновить</string>
     <string name="update_later">Позже</string>
-    <string name="update_downloading">Загрузка: %1$d%%</string>
-    <string name="update_permission">Разрешите EduCrm «Установку неизвестных приложений» в настройках телефона, затем вернитесь и нажмите «Обновить».</string>
-    <string name="update_failed">Не удалось загрузить. Проверьте интернет и попробуйте снова.</string>
+    <string name="update_failed">Не удалось открыть ссылку.</string>
     <string name="app_version">Версия %1$s</string>
     <string name="new_student">Новый ученик</string>
     <string name="new_lead">Новый лид</string>
@@ -75,4 +73,5 @@
     <string name="source_website">Сайт</string>
     <string name="source_other">Другое</string>
     <string name="lead_added">Лид добавлен: %1$s</string>
+    <string name="update_how">В браузере скачается новый APK. После загрузки откройте файл и установите — данные сохранятся.</string>
 </resources>

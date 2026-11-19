@@ -1,6 +1,6 @@
 {
-    "versionCode": 2,
-    "versionName": "1.1.0",
+    "versionCode": 3,
+    "versionName": "1.1.1",
     "apk": "educrm.apk",
-    "notes": "Yangi o'quvchi va lid qo'shish (ism va familiya alohida), ro'yxatlarda tartib raqamlari"
+    "notes": "Xavfsizlik: ilova endi o'zi APK o'rnatmaydi, yangilanish brauzer orqali yuklanadi; yangi o'quvchi va lid qo'shish (ism va familiya alohida); ro'yxatlarda tartib raqamlari"
 }
