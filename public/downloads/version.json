@@ -1,6 +1,6 @@
 {
-    "versionCode": 4,
-    "versionName": "1.1.2",
+    "versionCode": 5,
+    "versionName": "1.1.3",
     "apk": "educrm.apk",
-    "notes": "Xavfsizlik: ilova endi o'zi APK o'rnatmaydi, yangilanish brauzer orqali yuklanadi; yangi o'quvchi va lid qo'shish (ism va familiya alohida); barcha ro'yxatlarda tartib raqamlari"
+    "notes": "Profil sahifasida «Yangilanishni tekshirish» tugmasi; barcha ro'yxatlarda tartib raqamlari; yangi o'quvchi va lid qo'shish (ism va familiya alohida)"
 }

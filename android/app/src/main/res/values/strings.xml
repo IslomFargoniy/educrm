@@ -75,4 +75,7 @@
     <string name="source_other">Boshqa</string>
     <string name="lead_added">Lid qo\'shildi: %1$s</string>
     <string name="update_how">Brauzerda yangi APK yuklanadi. Yuklab bo\'lingach, faylni ochib o\'rnating — ma\'lumotlaringiz saqlanib qoladi.</string>
+    <string name="update_check">Yangilanishni tekshirish</string>
+    <string name="update_latest">Sizda eng so\'nggi versiya o\'rnatilgan.</string>
+    <string name="update_opening">%1$s versiya brauzerda yuklanmoqda — faylni ochib o\'rnating.</string>
 </resources>

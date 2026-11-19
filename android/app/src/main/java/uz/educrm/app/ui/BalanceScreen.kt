@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.filled.SystemUpdate
+import kotlinx.coroutines.launch
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -114,6 +116,7 @@ fun ProfileScreen(user: UserProfile, themeMode: ThemeMode, onThemeChange: (Theme
                 Icon(Icons.AutoMirrored.Filled.OpenInNew, null, modifier = Modifier.size(18.dp))
                 Text(stringResource(R.string.open_web), modifier = Modifier.padding(start = 8.dp), fontWeight = FontWeight.SemiBold)
             }
+            CheckUpdateButton()
             Text(
                 stringResource(R.string.app_version, uz.educrm.app.BuildConfig.VERSION_NAME),
                 style = MaterialTheme.typography.bodySmall,
@@ -139,5 +142,51 @@ private fun InfoRow(label: String, value: String) {
     Row(Modifier.fillMaxWidth()) {
         Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
         Text(value, fontWeight = FontWeight.SemiBold)
+    }
+}
+
+/**
+ * Manual update check: opens the new APK link in the browser, or says the app is up to date.
+ */
+@Composable
+private fun CheckUpdateButton() {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val updater = remember { uz.educrm.app.data.AppUpdater(context.applicationContext) }
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    var checking by remember { mutableStateOf(false) }
+    var note by remember { mutableStateOf<String?>(null) }
+    val upToDate = stringResource(R.string.update_latest)
+    val opening = stringResource(R.string.update_opening)
+
+    OutlinedButton(
+        {
+            checking = true
+            note = null
+            scope.launch {
+                val version = updater.newerVersion()
+                if (version == null) {
+                    note = upToDate
+                } else {
+                    note = opening.format(version.versionName)
+                    runCatching { updater.openDownload(version) }
+                }
+                checking = false
+            }
+        },
+        enabled = !checking,
+        shape = MaterialTheme.shapes.medium,
+        modifier = Modifier.fillMaxWidth().height(50.dp),
+    ) {
+        Icon(Icons.Filled.SystemUpdate, null, modifier = Modifier.size(18.dp))
+        Text(stringResource(R.string.update_check), modifier = Modifier.padding(start = 8.dp), fontWeight = FontWeight.SemiBold)
+    }
+    note?.let {
+        Text(
+            it,
+            style = MaterialTheme.typography.bodySmall,
+            color = eduCrm.success,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+        )
     }
 }

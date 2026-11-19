@@ -74,4 +74,7 @@
     <string name="source_other">Другое</string>
     <string name="lead_added">Лид добавлен: %1$s</string>
     <string name="update_how">В браузере скачается новый APK. После загрузки откройте файл и установите — данные сохранятся.</string>
+    <string name="update_check">Проверить обновление</string>
+    <string name="update_latest">Установлена последняя версия.</string>
+    <string name="update_opening">Версия %1$s скачивается в браузере — откройте файл и установите.</string>
 </resources>
