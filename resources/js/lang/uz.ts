@@ -690,4 +690,15 @@ export const uz: Record<string, string> = {
     Passes: "O'tishlar",
     '8 to 16 characters: capital and small letters and digits':
         '8–16 belgi: katta va kichik harf hamda raqam',
+    Camera: 'Kamera',
+    Upload: 'Yuklash',
+    'Take a photo': 'Suratga olish',
+    'Take photo': 'Suratga olish',
+    Retake: 'Qayta olish',
+    'This browser cannot use the camera.':
+        'Bu brauzer kameradan foydalana olmaydi.',
+    'No access to the camera. Allow the camera for this site in the browser.':
+        "Kameraga ruxsat yo'q. Brauzerda bu sayt uchun kamerani yoqing.",
+    'Face straight at the camera, good light, no glasses or cap. The face fills the oval.':
+        "Yuz kameraga to'g'ri qarasin, yorug' joyda, ko'zoynak va bosh kiyimsiz. Yuz ovalni to'ldirsin.",
 };

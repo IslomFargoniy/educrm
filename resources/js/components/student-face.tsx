@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
-import { Camera, ScanFace, Trash2 } from 'lucide-react';
+import { Camera, ScanFace, Trash2, Upload } from 'lucide-react';
 import { useRef, useState } from 'react';
+import CameraCaptureDialog from '@/components/camera-capture-dialog';
 import RowNumber from '@/components/row-number';
 import { Button } from '@/components/ui/button';
 import { useCan } from '@/hooks/use-can';
@@ -44,6 +45,7 @@ export default function StudentFace({
     const { can } = useCan();
     const input = useRef<HTMLInputElement>(null);
     const [uploading, setUploading] = useState(false);
+    const [cameraOpen, setCameraOpen] = useState(false);
 
     if (!face.has_devices && !face.photo && visits.length === 0) {
         return null;
@@ -87,12 +89,11 @@ export default function StudentFace({
                     )}
                 </div>
                 {can('students.update') && (
-                    <div className="flex gap-1">
+                    <div className="flex flex-wrap justify-center gap-1">
                         <input
                             ref={input}
                             type="file"
                             accept="image/*"
-                            capture="user"
                             className="hidden"
                             onChange={(e) => upload(e.target.files?.[0])}
                         />
@@ -100,11 +101,25 @@ export default function StudentFace({
                             size="sm"
                             variant="outline"
                             disabled={uploading}
-                            onClick={() => input.current?.click()}
+                            onClick={() => setCameraOpen(true)}
                         >
                             <Camera />
-                            {face.photo ? t('Change') : t('Add photo')}
+                            {t('Camera')}
                         </Button>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={uploading}
+                            onClick={() => input.current?.click()}
+                        >
+                            <Upload />
+                            {t('Upload')}
+                        </Button>
+                        <CameraCaptureDialog
+                            open={cameraOpen}
+                            onOpenChange={setCameraOpen}
+                            onCapture={upload}
+                        />
                         {face.photo && (
                             <Button
                                 size="icon"

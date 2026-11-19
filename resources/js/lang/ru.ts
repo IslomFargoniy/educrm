@@ -684,4 +684,15 @@ export const ru: Record<string, string> = {
     Passes: 'Проходы',
     '8 to 16 characters: capital and small letters and digits':
         '8–16 символов: заглавные и строчные буквы и цифры',
+    Camera: 'Камера',
+    Upload: 'Загрузить',
+    'Take a photo': 'Сфотографировать',
+    'Take photo': 'Снять',
+    Retake: 'Переснять',
+    'This browser cannot use the camera.':
+        'Этот браузер не может использовать камеру.',
+    'No access to the camera. Allow the camera for this site in the browser.':
+        'Нет доступа к камере. Разрешите камеру для этого сайта в браузере.',
+    'Face straight at the camera, good light, no glasses or cap. The face fills the oval.':
+        'Лицо прямо в камеру, хороший свет, без очков и головного убора. Лицо заполняет овал.',
 };
