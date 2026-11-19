@@ -326,6 +326,9 @@ export const uz: Record<string, string> = {
     Students: "O'quvchilar",
     'Students are not billed for a cancelled lesson. You can add an extra lesson in the group page.':
         "Bekor qilingan dars uchun pul olinmaydi. Guruh sahifasida qo'shimcha dars qo'yish mumkin.",
+    'Students and groups': "O'quvchilar va guruhlar",
+    'Attendance and lessons': 'Davomat va darslar',
+    'Payments and cashboxes': "To'lovlar va kassalar",
     'Students, attendance and cash — in one system.':
         "O'quvchilar, davomat va kassa — bitta tizimda.",
     'Students, parents, groups and starting balances from the old system. Balance: positive — paid in advance, negative — debt.':

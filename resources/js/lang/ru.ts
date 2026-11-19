@@ -321,6 +321,9 @@ export const ru: Record<string, string> = {
     Students: 'Ученики',
     'Students are not billed for a cancelled lesson. You can add an extra lesson in the group page.':
         'За отменённый урок деньги не берутся. Доп. урок можно добавить на странице группы.',
+    'Students and groups': 'Ученики и группы',
+    'Attendance and lessons': 'Посещаемость и уроки',
+    'Payments and cashboxes': 'Платежи и кассы',
     'Students, attendance and cash — in one system.':
         'Ученики, посещаемость и касса — в одной системе.',
     'Students, parents, groups and starting balances from the old system. Balance: positive — paid in advance, negative — debt.':
