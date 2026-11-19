@@ -1,7 +1,11 @@
-import { ChevronDown, ChevronRight, Flag } from 'lucide-react';
-import { Fragment, useState } from 'react';
+import { ChevronDown, ChevronRight, Download, Flag } from 'lucide-react';
+import { Fragment, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import Money from '@/components/money';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { NativeSelect } from '@/components/ui/native-select';
 import {
     Table,
     TableBody,
@@ -10,6 +14,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { exportXlsx } from '@/lib/export-xlsx';
 import { formatDate, formatDateTime } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -54,13 +59,93 @@ export default function HistoryTable({
     history,
     context,
     labels,
+    exportName,
 }: {
     history: History;
     context: Context;
     labels?: { income?: string; expense?: string };
+    /** File name for the Excel download (without extension). */
+    exportName?: string;
 }) {
     const t = useT();
     const [open, setOpen] = useState<Record<string, boolean>>({});
+    const [type, setType] = useState('');
+    const [direction, setDirection] = useState<'' | 'in' | 'out'>('');
+    const [search, setSearch] = useState('');
+    const [exporting, setExporting] = useState(false);
+    const types = useMemo(
+        () => [...new Set(history.rows.map((r) => r.type))],
+        [history.rows],
+    );
+    const rows = useMemo(() => {
+        const needle = search.trim().toLowerCase();
+
+        return history.rows.filter(
+            (row) =>
+                (type === '' || row.type === type) &&
+                (direction === '' ||
+                    (direction === 'in' ? row.income > 0 : row.expense > 0)) &&
+                (needle === '' ||
+                    [
+                        describe(row, context, t),
+                        row.note,
+                        row.by,
+                        ...(row.children ?? []).map((c) => c.student),
+                    ]
+                        .join(' ')
+                        .toLowerCase()
+                        .includes(needle)),
+        );
+    }, [history.rows, type, direction, search, context, t]);
+
+    const download = async () => {
+        setExporting(true);
+
+        try {
+            await exportXlsx(
+                exportName ?? 'tarix',
+                [
+                    '№',
+                    t('Date'),
+                    t('Operation'),
+                    t('Details'),
+                    t('Income'),
+                    t('Expense'),
+                    t('Balance'),
+                    t('By'),
+                    t('Note'),
+                ],
+                rows.flatMap((row, index) => [
+                    [
+                        index + 1,
+                        formatDateTime(row.date),
+                        t(`tx.${row.type}`),
+                        describe(row, context, t),
+                        row.income || null,
+                        row.expense || null,
+                        row.balance,
+                        row.by,
+                        row.note,
+                    ],
+                    ...(row.children ?? []).map((c) => [
+                        '',
+                        '',
+                        '',
+                        `   ${c.student} · ${c.percent}%`,
+                        c.share,
+                        null,
+                        null,
+                        null,
+                        null,
+                    ]),
+                ]),
+            );
+        } catch {
+            toast.error(t('Could not download the file.'));
+        } finally {
+            setExporting(false);
+        }
+    };
 
     return (
         <div className="space-y-3">
@@ -83,7 +168,57 @@ export default function HistoryTable({
                 />
             </div>
 
-            <div className="overflow-hidden rounded-xl border bg-card">
+            <div className="flex flex-wrap items-center gap-2">
+                <NativeSelect
+                    value={type}
+                    onChange={(e) => setType(e.target.value)}
+                    className="w-auto"
+                    aria-label={t('Operation')}
+                >
+                    <option value="">{t('All operations')}</option>
+                    {types.map((value) => (
+                        <option key={value} value={value}>
+                            {t(`tx.${value}`)}
+                        </option>
+                    ))}
+                </NativeSelect>
+                <NativeSelect
+                    value={direction}
+                    onChange={(e) =>
+                        setDirection(e.target.value as '' | 'in' | 'out')
+                    }
+                    className="w-auto"
+                    aria-label={t('Income')}
+                >
+                    <option value="">{t('Income and expense')}</option>
+                    <option value="in">{t('Income only')}</option>
+                    <option value="out">{t('Expense only')}</option>
+                </NativeSelect>
+                <Input
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder={t('Search')}
+                    className="w-full sm:w-56"
+                />
+                <span className="text-xs text-muted-foreground">
+                    {t(':shown of :total', {
+                        shown: rows.length,
+                        total: history.rows.length,
+                    })}
+                </span>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className="ml-auto"
+                    disabled={exporting || rows.length === 0}
+                    onClick={download}
+                >
+                    <Download />
+                    Excel
+                </Button>
+            </div>
+
+            <div className="overflow-x-auto rounded-xl border bg-card">
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -105,7 +240,7 @@ export default function HistoryTable({
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {history.rows.length === 0 && (
+                        {rows.length === 0 && (
                             <TableRow>
                                 <TableCell
                                     colSpan={7}
@@ -115,7 +250,7 @@ export default function HistoryTable({
                                 </TableCell>
                             </TableRow>
                         )}
-                        {history.rows.map((row, index) => {
+                        {rows.map((row, index) => {
                             const key = String(row.id);
                             const expandable =
                                 Boolean(row.children?.length) ||

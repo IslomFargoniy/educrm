@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EnrollmentController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\Finance\CashboxController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\HomeController;
@@ -42,6 +43,7 @@ Route::get('tma', [TelegramController::class, 'miniApp'])->name('tma');
 Route::post('tma/login', [TelegramController::class, 'miniAppLogin'])->middleware('throttle:20,1')->name('tma.login');
 
 Route::middleware(['auth'])->group(function () {
+    Route::post('export/xlsx', ExportController::class)->middleware('throttle:30,1')->name('export.xlsx');
     Route::get('home', HomeController::class)->name('home');
     Route::post('branch', [PreferenceController::class, 'branch'])->name('branch.switch');
     Route::get('portal', PortalController::class)->name('portal');

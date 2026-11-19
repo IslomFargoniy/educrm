@@ -8,6 +8,8 @@ import PageHeader from '@/components/page-header';
 import PayoutDialog from '@/components/payout-dialog';
 import PeriodFilter from '@/components/period-filter';
 import StatCard from '@/components/stat-card';
+import TeacherMonthReport from '@/components/teacher-month-report';
+import type { ReportGroup } from '@/components/teacher-month-report';
 import { useCan } from '@/hooks/use-can';
 import { formatDate, formatMoney, formatPhone } from '@/lib/format';
 import { useT } from '@/lib/i18n';
@@ -34,6 +36,8 @@ type Props = {
         }[];
     };
     period: { from: string; to: string };
+    month: string;
+    report: ReportGroup[];
     cashboxes: { id: number; name: string; balance: number }[];
 };
 
@@ -76,6 +80,8 @@ export default function TeacherShow({
     history,
     pending,
     period,
+    month,
+    report,
     cashboxes,
 }: Props) {
     const t = useT();
@@ -203,6 +209,12 @@ export default function TeacherShow({
                     </section>
                 )}
 
+                <TeacherMonthReport
+                    teacherName={teacher.name}
+                    month={month}
+                    groups={report}
+                />
+
                 <div className="flex flex-wrap items-center justify-between gap-2">
                     <h2 className="text-lg font-bold">
                         {t('Balance history')}
@@ -212,6 +224,7 @@ export default function TeacherShow({
                 <HistoryTable
                     history={history}
                     context="teacher"
+                    exportName={`${teacher.name} ${period.from} ${period.to}`}
                     labels={{
                         income: t('Total earned'),
                         expense: t('Total taken'),

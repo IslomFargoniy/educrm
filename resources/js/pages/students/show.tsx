@@ -318,6 +318,7 @@ export default function StudentShow({
                             <EnrollmentPanel
                                 key={selected.id}
                                 enrollment={selected}
+                                studentName={student.full_name}
                                 others={enrollments.filter(
                                     (e) =>
                                         e.id !== selected.id &&
@@ -458,12 +459,14 @@ export default function StudentShow({
 
 function EnrollmentPanel({
     enrollment: e,
+    studentName,
     others,
     period,
     groups,
     cashboxes,
 }: {
     enrollment: Enrollment;
+    studentName: string;
     others: Enrollment[];
     period: Props['period'];
     groups: Props['groups'];
@@ -992,6 +995,7 @@ function EnrollmentPanel({
             <HistoryTable
                 history={e.history}
                 context="enrollment"
+                exportName={`${studentName} ${e.group.name} ${period.from} ${period.to}`}
                 labels={{
                     income: t('Total paid'),
                     expense: t('Total for lessons'),

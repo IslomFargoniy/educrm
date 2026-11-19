@@ -8,6 +8,7 @@ use App\Models\Cashbox;
 use App\Models\Group;
 use App\Models\User;
 use App\Services\FinanceService;
+use App\Services\Reports\TeacherMonthReport;
 use App\Support\Presenters\History;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -44,13 +45,14 @@ class TeacherController extends Controller
         ]);
     }
 
-    public function show(Request $request, User $teacher): Response
+    public function show(Request $request, User $teacher, TeacherMonthReport $report): Response
     {
         $user = $request->user();
         abort_unless($teacher->id === $user->id || ($user->can('teachers.view') && $teacher->branches()->whereIn('branches.id', $user->accessibleBranchIds())->exists()), 403);
 
         $from = Carbon::parse($request->input('from', now()->startOfMonth()));
         $to = Carbon::parse($request->input('to', today()));
+        $month = preg_match('/^\d{4}-\d{2}$/', (string) $request->input('month')) ? (string) $request->input('month') : now()->format('Y-m');
 
         return Inertia::render('teachers/show', [
             'teacher' => [
@@ -63,6 +65,8 @@ class TeacherController extends Controller
             'history' => History::forAccount(LedgerAccount::Teacher, $teacher->id, $from, $to),
             'pending' => History::pendingForTeacher($teacher),
             'period' => ['from' => $from->toDateString(), 'to' => $to->toDateString()],
+            'month' => $month,
+            'report' => $report->build($teacher, $month, $user->accessibleBranchIds()),
             'cashboxes' => $user->can('payouts.create')
                 ? Cashbox::query()->whereIn('branch_id', $this->branchIds())->where('is_active', true)->get(['id', 'name', 'balance', 'branch_id'])
                 : [],

@@ -66,7 +66,11 @@ export default function CashboxShow({
                 <div className="flex justify-end">
                     <PeriodFilter from={period.from} to={period.to} />
                 </div>
-                <HistoryTable history={history} context="cashbox" />
+                <HistoryTable
+                    history={history}
+                    context="cashbox"
+                    exportName={`${cashbox.name} ${period.from} ${period.to}`}
+                />
             </div>
         </>
     );
