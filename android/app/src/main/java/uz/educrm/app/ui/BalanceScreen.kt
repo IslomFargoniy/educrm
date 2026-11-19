@@ -156,20 +156,16 @@ private fun CheckUpdateButton() {
     var checking by remember { mutableStateOf(false) }
     var note by remember { mutableStateOf<String?>(null) }
     val upToDate = stringResource(R.string.update_latest)
-    val opening = stringResource(R.string.update_opening)
+
+    var found by remember { mutableStateOf<uz.educrm.app.data.AppVersion?>(null) }
 
     OutlinedButton(
         {
             checking = true
             note = null
             scope.launch {
-                val version = updater.newerVersion()
-                if (version == null) {
-                    note = upToDate
-                } else {
-                    note = opening.format(version.versionName)
-                    runCatching { updater.openDownload(version) }
-                }
+                found = updater.newerVersion()
+                if (found == null) note = upToDate
                 checking = false
             }
         },
@@ -180,6 +176,7 @@ private fun CheckUpdateButton() {
         Icon(Icons.Filled.SystemUpdate, null, modifier = Modifier.size(18.dp))
         Text(stringResource(R.string.update_check), modifier = Modifier.padding(start = 8.dp), fontWeight = FontWeight.SemiBold)
     }
+    found?.let { UpdateDialog(it) { found = null } }
     note?.let {
         Text(
             it,
