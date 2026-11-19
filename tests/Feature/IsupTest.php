@@ -14,12 +14,14 @@ use App\Models\User;
 use App\Services\Isup\FaceSync;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia;
 
 beforeEach(function () {
+    Bus::fake([SendNotification::class]);
     config(['isup.token' => str_repeat('t', 32), 'isup.gateway_url' => 'http://gateway.test']);
     $this->gateway = ['X-Gateway-Token' => str_repeat('t', 32)];
     $this->travelTo('2026-11-19 13:00:00');
@@ -76,9 +78,9 @@ it('records a pass once and tells the family "arrived" first and "registered" af
     $this->postJson(route('isup.events'), faceEvent($device, $enrollment->student_id, 11, now()->toIso8601String()), $this->gateway)->assertOk();
 
     expect(StudentVisit::query()->where('student_id', $enrollment->student_id)->count())->toBe(2);
-    Queue::assertPushed(SendNotification::class, 2);
-    Queue::assertPushed(SendNotification::class, fn (SendNotification $job) => $job->template === 'arrived' && $job->telegramOnly);
-    Queue::assertPushed(SendNotification::class, fn (SendNotification $job) => $job->template === 'visit' && $job->telegramOnly);
+    Bus::assertDispatchedAfterResponse(SendNotification::class, 2);
+    Bus::assertDispatchedAfterResponse(SendNotification::class, fn (SendNotification $job) => $job->template === 'arrived' && $job->telegramOnly);
+    Bus::assertDispatchedAfterResponse(SendNotification::class, fn (SendNotification $job) => $job->template === 'visit' && $job->telegramOnly);
 });
 
 it('ignores people on the terminal the CRM did not write there, even when the number matches a student', function () {
@@ -89,7 +91,7 @@ it('ignores people on the terminal the CRM did not write there, even when the nu
     $this->postJson(route('isup.events'), faceEvent($device, $student->id, 1), $this->gateway)->assertOk();
 
     expect(StudentVisit::query()->firstOrFail()->student_id)->toBeNull();
-    Queue::assertNotPushed(SendNotification::class);
+    Bus::assertNotDispatchedAfterResponse(SendNotification::class);
 });
 
 it('uses the server time when a live event comes from a device with a wrong clock', function () {
@@ -236,7 +238,7 @@ it('takes live events the terminal posts to its signed path with the snapshot, a
     $visit = StudentVisit::query()->where('student_id', $enrollment->student_id)->sole();
     expect($visit->photo)->not->toBeNull();
     Storage::disk('local')->assertExists($visit->photo);
-    Queue::assertPushed(SendNotification::class, fn (SendNotification $job) => $job->photo === $visit->photo);
+    Bus::assertDispatchedAfterResponse(SendNotification::class, fn (SendNotification $job) => $job->photo === $visit->photo);
 });
 
 it('counts standing in front of the terminal as one pass', function () {
@@ -248,7 +250,7 @@ it('counts standing in front of the terminal as one pass', function () {
     }
 
     expect(StudentVisit::query()->count())->toBe(1);
-    Queue::assertPushed(SendNotification::class, 1);
+    Bus::assertDispatchedAfterResponse(SendNotification::class, 1);
 
     $this->postJson(route('isup.events'), faceEvent($device, $enrollment->student_id, 9, now()->addMinute()->toIso8601String()), $this->gateway)->assertOk();
     expect(StudentVisit::query()->count())->toBe(2);

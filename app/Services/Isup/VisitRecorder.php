@@ -26,6 +26,9 @@ class VisitRecorder
     /** Families hear only about passes this fresh (catch-up after an outage stays silent). */
     private const NOTIFY_WITHIN_MINUTES = 30;
 
+    /** A pass read back later from the terminal's memory is told to the family only if this fresh. */
+    private const NOTIFY_READ_BACK_MINUTES = 5;
+
     public function __construct(private Notifier $notifier) {}
 
     /**
@@ -82,7 +85,8 @@ class VisitRecorder
 
         $device->forceFill(['last_seen_at' => now(), 'is_online' => true])->save();
 
-        if ($student !== null && $scannedAt->greaterThan(now()->subMinutes(self::NOTIFY_WITHIN_MINUTES))) {
+        // Live passes are told at once; ones read back from the terminal's memory only while still fresh.
+        if ($student !== null && $scannedAt->greaterThan(now()->subMinutes($live ? self::NOTIFY_WITHIN_MINUTES : self::NOTIFY_READ_BACK_MINUTES))) {
             $this->notify($student, $visit, $device);
         }
 
@@ -103,7 +107,7 @@ class VisitRecorder
         $this->notifier->toFamily($student, $first ? 'arrived' : 'visit', [
             'time' => $visit->scanned_at->format('H:i'),
             'device' => $device->name,
-        ], telegramOnly: true, photo: $visit->photo ?: null);
+        ], telegramOnly: true, photo: $visit->photo ?: null, immediately: true);
     }
 
     private function time(mixed $value, bool $live): CarbonImmutable

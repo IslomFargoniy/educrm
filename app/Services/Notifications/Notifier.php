@@ -16,8 +16,9 @@ class Notifier
      * @param  array<string, scalar>  $params
      * @param  bool  $telegramOnly  frequent messages (terminal passes) never fall back to paid SMS
      * @param  string|null  $photo  file on the local disk sent with the message (terminal snapshot)
+     * @param  bool  $immediately  send right after the response instead of waiting for the queue (up to a minute)
      */
-    public function toFamily(Student $student, string $template, array $params, bool $telegramOnly = false, ?string $photo = null): void
+    public function toFamily(Student $student, string $template, array $params, bool $telegramOnly = false, ?string $photo = null, bool $immediately = false): void
     {
         $recipients = $student->guardians()->get();
 
@@ -26,7 +27,8 @@ class Notifier
         }
 
         foreach ($recipients->unique('id') as $user) {
-            SendNotification::dispatch($user->id, $template, ['student' => $student->full_name, ...$params], $telegramOnly, $photo);
+            $job = [$user->id, $template, ['student' => $student->full_name, ...$params], $telegramOnly, $photo];
+            $immediately ? SendNotification::dispatchAfterResponse(...$job) : SendNotification::dispatch(...$job);
         }
     }
 
