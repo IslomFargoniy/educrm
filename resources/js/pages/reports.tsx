@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { Download } from 'lucide-react';
 import { useState } from 'react';
+import RowNumber from '@/components/row-number';
 import Money from '@/components/money';
 import PageHeader from '@/components/page-header';
 import PeriodFilter from '@/components/period-filter';
@@ -180,12 +181,16 @@ export default function Reports({
                                 {t('No expenses in this period.')}
                             </p>
                         )}
-                        {expenses.map((e) => (
+                        {expenses.map((e, index) => (
                             <div
                                 key={e.category}
                                 className="grid grid-cols-[10rem_1fr_7rem] items-center gap-3 text-sm"
                             >
                                 <span className="truncate font-medium">
+                                    <RowNumber
+                                        value={index + 1}
+                                        className="mr-2"
+                                    />
                                     {e.category}
                                 </span>
                                 <div className="h-3 rounded-full bg-muted">

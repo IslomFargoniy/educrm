@@ -11,6 +11,7 @@ import {
     Users,
     Wallet,
 } from 'lucide-react';
+import RowNumber from '@/components/row-number';
 import Money from '@/components/money';
 import PageHeader from '@/components/page-header';
 import StatCard from '@/components/stat-card';
@@ -227,12 +228,13 @@ export default function Dashboard({
                             </Link>
                         </div>
                         <ul className="flex flex-col gap-1">
-                            {cashboxes.map((c) => (
+                            {cashboxes.map((c, index) => (
                                 <li key={c.id}>
                                     <Link
                                         href={cashboxRoutes.show(c.id)}
                                         className="flex items-center gap-3 rounded-xl px-2 py-2 text-sm transition-colors hover:bg-muted"
                                     >
+                                        <RowNumber value={index + 1} />
                                         <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-secondary text-xs font-extrabold text-secondary-foreground">
                                             {cashboxInitials[c.method] ??
                                                 c.name
@@ -286,12 +288,13 @@ export default function Dashboard({
                     ) : (
                         <div className="overflow-x-auto">
                             <ul className="flex min-w-[560px] flex-col">
-                                {todayLessons.map((lesson) => (
+                                {todayLessons.map((lesson, index) => (
                                     <li key={lesson.id}>
                                         <Link
                                             href={lessonRoutes.show(lesson.id)}
-                                            className="grid grid-cols-[72px_minmax(0,1.4fr)_minmax(0,1fr)_72px_140px] items-center gap-3 rounded-xl px-2 py-3 text-sm transition-colors hover:bg-muted"
+                                            className="grid grid-cols-[24px_72px_minmax(0,1.4fr)_minmax(0,1fr)_72px_140px] items-center gap-3 rounded-xl px-2 py-3 text-sm transition-colors hover:bg-muted"
                                         >
+                                            <RowNumber value={index + 1} />
                                             <span className="font-extrabold tabular-nums">
                                                 {lesson.time}
                                             </span>

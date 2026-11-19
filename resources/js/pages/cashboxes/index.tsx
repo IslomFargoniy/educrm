@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import RowNumber from '@/components/row-number';
 import CashActions from '@/components/cash-actions';
 import Money from '@/components/money';
 import PageHeader from '@/components/page-header';
@@ -69,7 +70,7 @@ export default function CashboxesIndex({
                     />
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                    {list.map((c) => (
+                    {list.map((c, index) => (
                         <Link
                             key={c.id}
                             href={cashboxes.show(c.id)}
@@ -81,7 +82,13 @@ export default function CashboxesIndex({
                             <div className="text-xs font-semibold text-muted-foreground uppercase">
                                 {t(`method.${c.method}`)} · {c.branch}
                             </div>
-                            <div className="mt-1 font-bold">{c.name}</div>
+                            <div className="mt-1 font-bold">
+                                <RowNumber
+                                    value={index + 1}
+                                    className="mr-2 w-auto"
+                                />
+                                {c.name}
+                            </div>
                             <Money
                                 value={c.balance}
                                 className="mt-2 block text-2xl font-extrabold"

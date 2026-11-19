@@ -1,5 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { Clock, DoorOpen, Plus, Users } from 'lucide-react';
+import RowNumber from '@/components/row-number';
 import EmptyState from '@/components/empty-state';
 import FormDialog from '@/components/form-dialog';
 import GroupFormFields from '@/components/group-form-fields';
@@ -90,7 +91,7 @@ export default function GroupsIndex({
                     <EmptyState>{t('No groups yet.')}</EmptyState>
                 ) : (
                     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                        {list.map((g) => (
+                        {list.map((g, index) => (
                             <Link
                                 key={g.id}
                                 href={groups.show(g.id)}
@@ -101,6 +102,10 @@ export default function GroupsIndex({
                                 <div className="flex items-start justify-between gap-2">
                                     <div>
                                         <div className="text-lg font-extrabold group-hover:text-primary">
+                                            <RowNumber
+                                                value={index + 1}
+                                                className="mr-2 w-auto text-sm"
+                                            />
                                             {g.name}
                                         </div>
                                         <div className="text-sm text-muted-foreground">

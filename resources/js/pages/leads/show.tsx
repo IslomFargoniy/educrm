@@ -269,12 +269,15 @@ export default function LeadShow({
                         </Form>
                     )}
                     <ul className="space-y-2">
-                        {lead.notes.map((n) => (
+                        {lead.notes.map((n, index) => (
                             <li
                                 key={n.id}
                                 className="rounded-xl border bg-card p-3 text-sm"
                             >
                                 <div className="mb-1 text-xs text-muted-foreground">
+                                    <span className="mr-2 font-semibold tabular-nums">
+                                        #{lead.notes.length - index}
+                                    </span>
                                     {formatDateTime(n.at)} · {n.by}
                                 </div>
                                 <p className="whitespace-pre-line">{n.text}</p>

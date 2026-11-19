@@ -1,6 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { Ban, CheckCheck, RotateCcw, UserRoundCog } from 'lucide-react';
 import { useState } from 'react';
+import RowNumber from '@/components/row-number';
 import Field from '@/components/field';
 import FormDialog from '@/components/form-dialog';
 import Money from '@/components/money';
@@ -290,13 +291,17 @@ export default function LessonShow({
                                 </Button>
                             </div>
                         )}
-                        {roster.map((r) => (
+                        {roster.map((r, index) => (
                             <div
                                 key={r.enrollment_id}
                                 className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card p-3"
                             >
                                 <div className="min-w-0">
                                     <div className="font-semibold">
+                                        <RowNumber
+                                            value={index + 1}
+                                            className="mr-2"
+                                        />
                                         {r.full_name}
                                         {r.enrollment_status === 'trial' && (
                                             <span className="ml-2 rounded-full bg-highlight/20 px-2 py-0.5 text-xs font-semibold">

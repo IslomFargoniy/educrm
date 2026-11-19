@@ -67,9 +67,10 @@ fun BalanceScreen(api: EduCrmApi) {
                     Column(Modifier.padding(16.dp)) {
                         Text(stringResource(R.string.waiting_payment), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text(money(data.pending.total) + " " + stringResource(R.string.sum), fontWeight = FontWeight.ExtraBold, fontSize = 22.sp)
-                        data.pending.items.take(20).forEach {
+                        data.pending.items.take(20).forEachIndexed { index, it ->
                             HorizontalDivider(Modifier.padding(vertical = 8.dp), color = eduCrm.border)
-                            Row(Modifier.fillMaxWidth()) {
+                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                RowNumber(index + 1)
                                 Column(Modifier.weight(1f)) {
                                     Text(it.student, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
                                     Text("${it.group} · ${date(it.lesson_date)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

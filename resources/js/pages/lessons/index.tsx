@@ -6,6 +6,7 @@ import {
     Clock,
     DoorOpen,
 } from 'lucide-react';
+import RowNumber from '@/components/row-number';
 import EmptyState from '@/components/empty-state';
 import PageHeader from '@/components/page-header';
 import StatusBadge from '@/components/status-badge';
@@ -95,7 +96,7 @@ export default function LessonsIndex({
                     <EmptyState>{t('No lessons on this day.')}</EmptyState>
                 ) : (
                     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                        {list.map((lesson) => (
+                        {list.map((lesson, index) => (
                             <Link
                                 key={lesson.id}
                                 href={lessons.show(lesson.id)}
@@ -107,6 +108,10 @@ export default function LessonsIndex({
                             >
                                 <div className="flex items-start justify-between gap-2">
                                     <div className="text-lg font-extrabold">
+                                        <RowNumber
+                                            value={index + 1}
+                                            className="mr-2 w-auto text-sm"
+                                        />
                                         {lesson.group}
                                     </div>
                                     {lesson.status === 'held' ? (

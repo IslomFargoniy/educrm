@@ -1,4 +1,5 @@
 import { Form, Head, router } from '@inertiajs/react';
+import RowNumber from '@/components/row-number';
 import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,12 +37,15 @@ export default function ExpenseCategories({
                     )}
                 </Form>
                 <ul className="divide-y rounded-xl border bg-card">
-                    {categories.map((c) => (
+                    {categories.map((c, index) => (
                         <li
                             key={c.id}
                             className={`flex items-center justify-between px-4 py-2.5 text-sm ${c.is_active ? '' : 'opacity-50'}`}
                         >
-                            <span>{c.name}</span>
+                            <span>
+                                <RowNumber value={index + 1} className="mr-3" />
+                                {c.name}
+                            </span>
                             <Button
                                 size="sm"
                                 variant="ghost"

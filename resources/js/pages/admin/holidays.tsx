@@ -1,5 +1,6 @@
 import { Head, router, usePage } from '@inertiajs/react';
 import { Plus, Trash2 } from 'lucide-react';
+import RowNumber from '@/components/row-number';
 import Field from '@/components/field';
 import FormDialog from '@/components/form-dialog';
 import PageHeader from '@/components/page-header';
@@ -101,12 +102,13 @@ export default function Holidays({
                     {holidays.length === 0 && (
                         <li className="p-4 text-sm text-muted-foreground">—</li>
                     )}
-                    {holidays.map((h) => (
+                    {holidays.map((h, index) => (
                         <li
                             key={h.id}
                             className="flex items-center justify-between px-4 py-2.5 text-sm"
                         >
                             <span>
+                                <RowNumber value={index + 1} className="mr-3" />
                                 <b>{formatDate(h.date)}</b> · {h.name}{' '}
                                 <span className="text-muted-foreground">
                                     · {h.branch ?? t('All branches')}

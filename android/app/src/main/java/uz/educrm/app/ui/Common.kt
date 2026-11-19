@@ -183,6 +183,7 @@ fun HistoryList(history: History, signed: Boolean) {
             history.rows.forEachIndexed { index, row ->
                 if (index > 0) HorizontalDivider(Modifier.padding(horizontal = 14.dp), color = eduCrm.border)
                 Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    RowNumber(index + 1)
                     Column(Modifier.weight(1f)) {
                         Text(txLabel(row.type), fontWeight = FontWeight.SemiBold)
                         Text("${date(row.date)} · ${describe(row.type, row.metaObject)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

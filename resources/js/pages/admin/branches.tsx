@@ -1,5 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
+import RowNumber from '@/components/row-number';
 import Field from '@/components/field';
 import FormDialog from '@/components/form-dialog';
 import Money from '@/components/money';
@@ -133,12 +134,16 @@ export default function Branches({
                                             —
                                         </li>
                                     )}
-                                    {branch.rooms.map((room) => (
+                                    {branch.rooms.map((room, index) => (
                                         <li
                                             key={room.id}
                                             className="flex items-center justify-between px-3 py-2"
                                         >
                                             <span>
+                                                <RowNumber
+                                                    value={index + 1}
+                                                    className="mr-2"
+                                                />
                                                 {room.name}{' '}
                                                 {room.capacity && (
                                                     <span className="text-muted-foreground">
@@ -258,12 +263,16 @@ export default function Branches({
                                     )}
                                 </div>
                                 <ul className="divide-y rounded-xl border text-sm">
-                                    {branch.cashboxes.map((c) => (
+                                    {branch.cashboxes.map((c, index) => (
                                         <li
                                             key={c.id}
                                             className={`flex items-center justify-between px-3 py-2 ${c.is_active ? '' : 'opacity-50'}`}
                                         >
                                             <span>
+                                                <RowNumber
+                                                    value={index + 1}
+                                                    className="mr-2"
+                                                />
                                                 {c.name}{' '}
                                                 <span className="text-muted-foreground">
                                                     · {t(`method.${c.method}`)}

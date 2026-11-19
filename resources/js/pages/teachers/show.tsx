@@ -1,4 +1,5 @@
 import { Head } from '@inertiajs/react';
+import RowNumber from '@/components/row-number';
 import HistoryTable from '@/components/history-table';
 import type { History } from '@/components/history-table';
 import Money from '@/components/money';
@@ -107,12 +108,16 @@ export default function TeacherShow({
                         </h2>
                         <div className="rounded-xl border bg-card">
                             <ul className="divide-y text-sm">
-                                {pending.items.map((item) => (
+                                {pending.items.map((item, index) => (
                                     <li
                                         key={item.id}
                                         className="flex items-center justify-between px-3 py-2"
                                     >
                                         <span>
+                                            <RowNumber
+                                                value={index + 1}
+                                                className="mr-2"
+                                            />
                                             <span className="font-semibold">
                                                 {item.student}
                                             </span>{' '}
