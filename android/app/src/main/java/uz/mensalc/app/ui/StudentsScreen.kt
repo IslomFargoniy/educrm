@@ -207,7 +207,7 @@ private fun PaymentDialog(api: MensaApi, enrollment: EnrollmentDetail, onDismiss
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(enrollment.group, fontWeight = FontWeight.Bold)
-                OutlinedTextField(amount, { amount = it.filter(Char::isDigit) }, label = { Text(stringResource(R.string.amount)) }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true)
+                MoneyField(amount, { amount = it }, label = stringResource(R.string.amount), modifier = Modifier.fillMaxWidth())
                 Text(stringResource(R.string.cashbox), style = MaterialTheme.typography.labelMedium)
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     cashboxes.forEach { c -> FilterChip(selected = c.id == cashboxId, onClick = { cashboxId = c.id }, label = { Text(c.name) }) }
