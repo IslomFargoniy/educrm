@@ -47,18 +47,18 @@ class Device extends Model
     }
 
     /**
-     * Device ID typed into the terminal: <crm host>-1, <crm host>-2, ...
+     * Device ID typed into the terminal: the CRM domain without dots plus a number (crmmensalcuz1); terminals take letters and digits only.
      */
     public static function nextIsupId(): string
     {
         $prefix = (string) config('isup.device_id_prefix');
         $number = (int) self::query()->max('id') + 1;
 
-        while (self::query()->where('isup_id', $prefix.'-'.$number)->exists()) {
+        while (self::query()->where('isup_id', $prefix.$number)->exists()) {
             $number++;
         }
 
-        return $prefix.'-'.$number;
+        return $prefix.$number;
     }
 
     /**

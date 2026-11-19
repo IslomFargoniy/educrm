@@ -14,9 +14,9 @@ return [
     'server_port' => (int) env('ISUP_SERVER_PORT', 7660),
 
     /*
-    | New devices get "<prefix>-<number>" as Device ID and this key (random when empty).
+    | New devices get "<prefix><number>" as Device ID (terminals accept letters and digits only) and this key (random when empty).
     */
-    'device_id_prefix' => env('ISUP_DEVICE_ID_PREFIX', parse_url((string) env('APP_URL', 'http://educrm'), PHP_URL_HOST) ?: 'educrm'),
+    'device_id_prefix' => env('ISUP_DEVICE_ID_PREFIX', preg_replace('/[^A-Za-z0-9]/', '', (string) parse_url((string) env('APP_URL', 'http://educrm'), PHP_URL_HOST)) ?: 'educrm'),
     'default_key' => env('ISUP_DEFAULT_KEY'),
 
     /*
