@@ -58,6 +58,10 @@ export const ru: Record<string, string> = {
     'Groups and leads choose a course from this list.':
         'Группы и лиды выбирают курс из этого списка.',
     'e.g. IELTS': 'например, IELTS',
+    'At period start': 'На начало',
+    'At period end': 'На конец',
+    'Start of period + earned − paid = end of period. Salaries paid in this period can include money earned earlier, so paid may be more than earned.':
+        'Остаток на начало + заработано − выплачено = остаток на конец. Выплаты за период могут включать деньги, заработанные раньше, поэтому выплачено может быть больше заработанного.',
     'Attendance can be marked only on the lesson day. Later changes are made by the administrator.':
         'Посещаемость отмечается только в день урока. Позже изменения вносит администратор.',
     'Attendance journal': 'Журнал посещаемости',

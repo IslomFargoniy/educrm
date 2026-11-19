@@ -58,6 +58,10 @@ export const uz: Record<string, string> = {
     'Groups and leads choose a course from this list.':
         "Guruh va lidlar kursni shu ro'yxatdan tanlaydi.",
     'e.g. IELTS': 'masalan, IELTS',
+    'At period start': 'Davr boshida',
+    'At period end': 'Davr oxirida',
+    'Start of period + earned − paid = end of period. Salaries paid in this period can include money earned earlier, so paid may be more than earned.':
+        "Davr boshidagi qoldiq + ishlagan − berilgan = davr oxiridagi qoldiq. Bu davrda berilgan oylik oldingi oylarda ishlangan pulni ham o'z ichiga oladi, shuning uchun berilgan summa ishlagandan ko'p bo'lishi mumkin.",
     'Attendance can be marked only on the lesson day. Later changes are made by the administrator.':
         "Davomat faqat dars kuni belgilanadi. Keyingi o'zgarishlarni administrator qiladi.",
     'Attendance journal': 'Davomat jurnali',

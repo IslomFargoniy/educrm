@@ -29,9 +29,10 @@ type Props = {
     teachers: {
         teacher: string | null;
         teacher_id: number;
+        opening: number;
         earned: number;
         paid: number;
-        balance: number | null;
+        closing: number;
     }[];
     debtors: {
         student_id: number;
@@ -171,30 +172,43 @@ export default function Reports({
                 )}
 
                 {tab === 'teachers' && (
-                    <SimpleTable
-                        heads={[
-                            t('Teacher'),
-                            t('Earned'),
-                            t('Paid out'),
-                            t('Balance now'),
-                        ]}
-                        rows={teacherRows.map((r) => [
-                            <Link
-                                key="n"
-                                href={teachers.show(r.teacher_id)}
-                                className="font-semibold hover:text-primary"
-                            >
-                                {r.teacher}
-                            </Link>,
-                            <Money key="e" value={r.earned} />,
-                            <Money key="p" value={r.paid} />,
-                            <Money
-                                key="b"
-                                value={r.balance}
-                                className="font-bold"
-                            />,
-                        ])}
-                    />
+                    <div className="space-y-2">
+                        <p className="text-sm text-muted-foreground">
+                            {t(
+                                'Start of period + earned − paid = end of period. Salaries paid in this period can include money earned earlier, so paid may be more than earned.',
+                            )}
+                        </p>
+                        <SimpleTable
+                            heads={[
+                                t('Teacher'),
+                                t('At period start'),
+                                t('Earned'),
+                                t('Paid out'),
+                                t('At period end'),
+                            ]}
+                            rows={teacherRows.map((r) => [
+                                <Link
+                                    key="n"
+                                    href={teachers.show(r.teacher_id)}
+                                    className="font-semibold hover:text-primary"
+                                >
+                                    {r.teacher}
+                                </Link>,
+                                <Money
+                                    key="o"
+                                    value={r.opening}
+                                    className="text-muted-foreground"
+                                />,
+                                <Money key="e" value={r.earned} />,
+                                <Money key="p" value={r.paid} />,
+                                <Money
+                                    key="c"
+                                    value={r.closing}
+                                    className="font-bold"
+                                />,
+                            ])}
+                        />
+                    </div>
                 )}
 
                 {tab === 'debtors' && (

@@ -49,17 +49,34 @@ class ReportController extends Controller
             ->map(fn ($items, $name) => ['category' => $name, 'total' => (int) $items->sum('amount')])
             ->sortByDesc('total')->values();
 
-        $teacherEarnings = $transactions()->whereIn('type', [TransactionType::TeacherEarning, TransactionType::EarningReversal, TransactionType::TeacherPayout])
-            ->with('entries')->get()
-            ->flatMap(fn (Transaction $t) => $t->entries->where('account_type.value', 'teacher')->map(fn ($e) => ['teacher_id' => $e->account_id, 'type' => $t->type->value, 'amount' => $e->amount]))
-            ->groupBy('teacher_id')
-            ->map(fn ($rows, $teacherId) => [
-                'teacher' => User::query()->find($teacherId)?->name,
-                'teacher_id' => (int) $teacherId,
-                'earned' => (int) $rows->whereIn('type', ['teacher_earning', 'earning_reversal'])->sum('amount'),
-                'paid' => -(int) $rows->where('type', 'teacher_payout')->sum('amount'),
-                'balance' => User::query()->find($teacherId)?->balance,
-            ])->values();
+        // Teacher money straight from the ledger: opening + earned − paid (+ other) = closing.
+        // Payouts in the period may pay for lessons earned before it, so "paid" can exceed "earned".
+        $teacherEntries = LedgerEntry::query()
+            ->join('transactions', 'transactions.id', '=', 'ledger_entries.transaction_id')
+            ->where('ledger_entries.account_type', LedgerAccount::Teacher)
+            ->whereIn('transactions.branch_id', $branchIds)
+            ->where('transactions.occurred_at', '<=', $to)
+            ->groupBy('ledger_entries.account_id')
+            ->selectRaw('ledger_entries.account_id as teacher_id')
+            ->selectRaw('SUM(CASE WHEN transactions.occurred_at < ? THEN ledger_entries.amount ELSE 0 END) as opening', [$from])
+            ->selectRaw('SUM(CASE WHEN transactions.occurred_at >= ? AND transactions.type IN (?, ?) THEN ledger_entries.amount ELSE 0 END) as earned', [$from, TransactionType::TeacherEarning->value, TransactionType::EarningReversal->value])
+            ->selectRaw('SUM(CASE WHEN transactions.occurred_at >= ? AND transactions.type = ? THEN ledger_entries.amount ELSE 0 END) as paid', [$from, TransactionType::TeacherPayout->value])
+            ->selectRaw('SUM(ledger_entries.amount) as closing')
+            ->get();
+        $teacherNames = User::query()->whereIn('id', $teacherEntries->pluck('teacher_id'))->pluck('name', 'id');
+
+        $teacherEarnings = $teacherEntries
+            ->map(fn ($row) => [
+                'teacher' => $teacherNames[$row->getAttribute('teacher_id')] ?? null,
+                'teacher_id' => (int) $row->getAttribute('teacher_id'),
+                'opening' => (int) $row->getAttribute('opening'),
+                'earned' => (int) $row->getAttribute('earned'),
+                'paid' => -(int) $row->getAttribute('paid'),
+                'closing' => (int) $row->getAttribute('closing'),
+            ])
+            ->filter(fn (array $row) => $row['opening'] !== 0 || $row['earned'] !== 0 || $row['paid'] !== 0 || $row['closing'] !== 0)
+            ->sortBy('teacher')
+            ->values();
 
         $debtors = Enrollment::query()
             ->where('balance', '<', 0)

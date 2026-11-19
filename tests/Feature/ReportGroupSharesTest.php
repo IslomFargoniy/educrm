@@ -84,3 +84,33 @@ it('keeps a closed group in the report for a period it had payments in', functio
     $this->get(route('reports', ['from' => '2026-12-01', 'to' => '2026-12-31']))
         ->assertInertia(fn (AssertableInertia $page) => $page->has('groups', 0));
 });
+
+it('shows teacher money as start of period + earned − paid = end of period', function () {
+    $this->travelTo('2026-10-05 10:00:00');
+    $admin = userWithRole(Role::Superadmin);
+    $this->actingAs($admin);
+
+    $teacher = userWithRole(Role::Teacher);
+    $group = Group::factory()->priced(600_000, 12, '2026-10-01')->create(['teacher_id' => $teacher->id, 'teacher_percent' => 40, 'days' => [1, 3, 5], 'start_date' => '2026-10-05']);
+    app(LessonScheduler::class)->generate($group, CarbonImmutable::parse('2026-10-05'), CarbonImmutable::parse('2026-11-30'));
+    $cashbox = Cashbox::factory()->create(['branch_id' => $group->branch_id]);
+    $student = Student::factory()->create(['branch_id' => $group->branch_id]);
+    $enrollment = app(EnrollmentService::class)->enroll($student, $group, CarbonImmutable::parse('2026-10-05'));
+    app(FinanceService::class)->receivePayment($enrollment, $cashbox, 600_000);
+
+    // October lesson earned in October, paid out in November together with a November lesson.
+    $this->travelTo('2026-10-05 18:00:00');
+    app(AttendanceService::class)->save(Lesson::query()->where('group_id', $group->id)->whereDate('date', '2026-10-05')->firstOrFail(), [$enrollment->id => 'present'], $admin);
+    $this->travelTo('2026-11-02 18:00:00');
+    app(AttendanceService::class)->save(Lesson::query()->where('group_id', $group->id)->whereDate('date', '2026-11-02')->firstOrFail(), [$enrollment->id => 'present'], $admin);
+    app(FinanceService::class)->payTeacher($teacher->fresh(), $cashbox->fresh(), 40_000);
+
+    $this->travelTo('2026-11-19 10:00:00');
+
+    $this->get(route('reports', ['from' => '2026-11-01', 'to' => '2026-11-19']))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('teachers.0.opening', 20_000)
+            ->where('teachers.0.earned', 20_000)
+            ->where('teachers.0.paid', 40_000)
+            ->where('teachers.0.closing', 0));
+});
