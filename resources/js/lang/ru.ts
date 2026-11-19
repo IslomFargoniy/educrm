@@ -521,6 +521,7 @@ export const ru: Record<string, string> = {
     'from :name': 'из :name',
     'group default': 'по группе',
     inactive: 'неактивен',
+    ':count lessons': 'уроков: :count',
     'lesson :date': 'урок :date',
     lessons: 'уроков',
     'lessons billed': 'уроков начислено',

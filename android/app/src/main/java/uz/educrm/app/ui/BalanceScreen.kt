@@ -13,6 +13,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.SystemUpdate
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.foundation.clickable
 import kotlinx.coroutines.launch
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -42,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import uz.educrm.app.R
 import uz.educrm.app.data.BalanceResponse
 import uz.educrm.app.data.EduCrmApi
+import uz.educrm.app.data.PendingItem
 import uz.educrm.app.data.UserProfile
 import uz.educrm.app.data.readableMessage
 
@@ -69,20 +73,40 @@ fun BalanceScreen(api: EduCrmApi) {
                     Column(Modifier.padding(16.dp)) {
                         Text(stringResource(R.string.waiting_payment), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text(money(data.pending.total) + " " + stringResource(R.string.sum), fontWeight = FontWeight.ExtraBold, fontSize = 22.sp)
-                        data.pending.items.take(20).forEachIndexed { index, it ->
+                        data.pending.items.groupBy { it.student to it.group }.entries.forEachIndexed { index, (key, lessons) ->
                             HorizontalDivider(Modifier.padding(vertical = 8.dp), color = eduCrm.border)
-                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                RowNumber(index + 1)
-                                Column(Modifier.weight(1f)) {
-                                    Text(it.student, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
-                                    Text("${it.group} · ${date(it.lesson_date)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                }
-                                Text(money(it.amount), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
-                            }
+                            PendingStudentRow(index + 1, key.first, key.second, lessons)
                         }
                     }
                 }
                 HistoryList(data.history, signed = false)
+            }
+        }
+    }
+}
+
+/**
+ * One student in the waiting-for-payment list: lessons are summed, a tap shows each lesson.
+ */
+@Composable
+private fun PendingStudentRow(number: Int, student: String, group: String, lessons: List<PendingItem>) {
+    var expanded by remember { mutableStateOf(false) }
+    Column(Modifier.fillMaxWidth().clickable { expanded = !expanded }) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            RowNumber(number)
+            Column(Modifier.weight(1f)) {
+                Text(student, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                Text("$group · ${stringResource(R.string.lessons_count, lessons.size)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Text(money(lessons.sumOf { it.amount }), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
+            Icon(if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 4.dp).size(20.dp))
+        }
+        if (expanded) {
+            lessons.sortedBy { it.lesson_date }.forEach {
+                Row(Modifier.fillMaxWidth().padding(start = 26.dp, end = 24.dp, top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text(date(it.lesson_date), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+                    Text(money(it.amount), style = MaterialTheme.typography.bodySmall)
+                }
             }
         }
     }

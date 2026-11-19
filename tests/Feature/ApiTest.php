@@ -84,3 +84,18 @@ it('saves the app language of the user through the API', function () {
 
     $this->withToken($token)->putJson(route('api.me.locale'), ['locale' => 'de'])->assertUnprocessable();
 });
+
+it('shows the group days and time next to each lesson', function () {
+    $teacher = User::role(Role::Teacher->value)->first();
+    $group = Group::query()->where('teacher_id', $teacher->id)->firstOrFail();
+    $group->update(['days' => [1, 3, 5], 'start_time' => '09:00', 'end_time' => '10:30']);
+    Lesson::factory()->create(['group_id' => $group->id, 'teacher_id' => $teacher->id, 'date' => today()]);
+
+    $lesson = collect($this->withToken($teacher->createToken('test')->plainTextToken)
+        ->getJson(route('api.lessons', ['date' => today()->toDateString()]))->assertOk()->json('lessons'))
+        ->firstWhere('group', $group->name);
+
+    expect($lesson['group_days'])->toBe([1, 3, 5])
+        ->and($lesson['group_start_time'])->toBe('09:00')
+        ->and($lesson['group_end_time'])->toBe('10:30');
+});

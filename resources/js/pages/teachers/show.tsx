@@ -1,4 +1,5 @@
 import { Head } from '@inertiajs/react';
+import { ChevronDown } from 'lucide-react';
 import RowNumber from '@/components/row-number';
 import HistoryTable from '@/components/history-table';
 import type { History } from '@/components/history-table';
@@ -35,6 +36,40 @@ type Props = {
     period: { from: string; to: string };
     cashboxes: { id: number; name: string; balance: number }[];
 };
+
+type PendingItem = Props['pending']['items'][number];
+
+/**
+ * Same student in the same group → one row with the lessons summed.
+ */
+function groupPending(items: PendingItem[]) {
+    const rows = new Map<
+        string,
+        {
+            key: string;
+            student: string;
+            group: string;
+            total: number;
+            items: PendingItem[];
+        }
+    >();
+
+    for (const item of items) {
+        const key = `${item.student}|${item.group}`;
+        const row = rows.get(key) ?? {
+            key,
+            student: item.student,
+            group: item.group,
+            total: 0,
+            items: [],
+        };
+        row.total += item.amount;
+        row.items.push(item);
+        rows.set(key, row);
+    }
+
+    return [...rows.values()];
+}
 
 export default function TeacherShow({
     teacher,
@@ -108,37 +143,72 @@ export default function TeacherShow({
                         </h2>
                         <div className="rounded-xl border bg-card">
                             <ul className="divide-y text-sm">
-                                {pending.items.map((item, index) => (
-                                    <li
-                                        key={item.id}
-                                        className="flex items-center justify-between px-3 py-2"
-                                    >
-                                        <span>
-                                            <RowNumber
-                                                value={index + 1}
-                                                className="mr-2"
-                                            />
-                                            <span className="font-semibold">
-                                                {item.student}
-                                            </span>{' '}
-                                            — {item.group},{' '}
-                                            {t('lesson :date', {
-                                                date: formatDate(
-                                                    item.lesson_date,
-                                                ),
-                                            })}
-                                            {item.is_substitute && (
-                                                <span className="ml-1 text-xs text-highlight">
-                                                    ({t('substitute')})
-                                                </span>
-                                            )}
-                                        </span>
-                                        <Money
-                                            value={item.amount}
-                                            className="text-muted-foreground"
-                                        />
-                                    </li>
-                                ))}
+                                {groupPending(pending.items).map(
+                                    (row, index) => (
+                                        <li key={row.key}>
+                                            <details className="group">
+                                                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-2 hover:bg-muted/50">
+                                                    <span>
+                                                        <RowNumber
+                                                            value={index + 1}
+                                                            className="mr-2"
+                                                        />
+                                                        <span className="font-semibold">
+                                                            {row.student}
+                                                        </span>{' '}
+                                                        — {row.group},{' '}
+                                                        {t(':count lessons', {
+                                                            count: String(
+                                                                row.items
+                                                                    .length,
+                                                            ),
+                                                        })}
+                                                    </span>
+                                                    <span className="flex items-center gap-2">
+                                                        <Money
+                                                            value={row.total}
+                                                            className="font-semibold"
+                                                        />
+                                                        <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
+                                                    </span>
+                                                </summary>
+                                                <ul className="pr-9 pb-2 pl-10">
+                                                    {row.items.map((item) => (
+                                                        <li
+                                                            key={item.id}
+                                                            className="flex justify-between py-1 text-muted-foreground"
+                                                        >
+                                                            <span>
+                                                                {t(
+                                                                    'lesson :date',
+                                                                    {
+                                                                        date: formatDate(
+                                                                            item.lesson_date,
+                                                                        ),
+                                                                    },
+                                                                )}
+                                                                {item.is_substitute && (
+                                                                    <span className="ml-1 text-xs text-highlight">
+                                                                        (
+                                                                        {t(
+                                                                            'substitute',
+                                                                        )}
+                                                                        )
+                                                                    </span>
+                                                                )}
+                                                            </span>
+                                                            <Money
+                                                                value={
+                                                                    item.amount
+                                                                }
+                                                            />
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </details>
+                                        </li>
+                                    ),
+                                )}
                             </ul>
                         </div>
                     </section>

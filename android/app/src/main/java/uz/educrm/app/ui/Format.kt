@@ -82,3 +82,17 @@ private val roleLabels = mapOf(
 )
 
 fun roleLabel(role: String): String = roleLabels[role]?.localized() ?: role
+
+private val weekdayLabels = listOf(
+    Triple("Du", "Пн", "Mon"),
+    Triple("Se", "Вт", "Tue"),
+    Triple("Ch", "Ср", "Wed"),
+    Triple("Pa", "Чт", "Thu"),
+    Triple("Ju", "Пт", "Fri"),
+    Triple("Sh", "Сб", "Sat"),
+    Triple("Ya", "Вс", "Sun"),
+)
+
+/** ISO weekdays (1 = Monday) → "Du-Ch-Ju". */
+fun weekdays(days: List<Int>): String =
+    days.sorted().mapNotNull { weekdayLabels.getOrNull(it - 1)?.localized() }.joinToString("-")

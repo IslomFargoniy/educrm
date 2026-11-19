@@ -527,6 +527,7 @@ export const uz: Record<string, string> = {
     'from :name': ':name dan',
     'group default': 'guruh standarti',
     inactive: 'faol emas',
+    ':count lessons': ':count ta dars',
     'lesson :date': ':date darsi',
     lessons: 'dars',
     'lessons billed': 'dars hisoblandi',

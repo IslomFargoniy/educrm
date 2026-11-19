@@ -42,6 +42,9 @@ data class LessonItem(
     val status: String,
     val is_substitute: Boolean = false,
     val marked: Int = 0,
+    val group_days: List<Int> = emptyList(),
+    val group_start_time: String? = null,
+    val group_end_time: String? = null,
 )
 
 @Serializable

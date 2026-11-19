@@ -123,6 +123,9 @@ private fun LessonCard(number: Int, lesson: LessonItem, onClick: () -> Unit) {
                 Text(lesson.group, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold, maxLines = 1)
                 val details = listOfNotNull(lesson.teacher, lesson.room).joinToString(" · ")
                 if (details.isNotEmpty()) Text(details, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall, maxLines = 1)
+                val groupTime = listOfNotNull(lesson.group_start_time, lesson.group_end_time).joinToString("–")
+                val schedule = listOf(weekdays(lesson.group_days), groupTime).filter { it.isNotEmpty() }.joinToString(" · ")
+                if (schedule.isNotEmpty()) Text(schedule, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold, maxLines = 1)
                 if (lesson.is_substitute) Text(stringResource(R.string.substitute), color = Orange, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold)
             }
             Pill(statusText, statusColor)

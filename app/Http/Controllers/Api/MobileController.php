@@ -46,7 +46,7 @@ class MobileController extends Controller
             ->whereDate('date', $date)
             ->whereHas('group', fn ($q) => $q->whereIn('branch_id', $this->scope($request)))
             ->when($onlyOwn, fn ($q) => $q->where('teacher_id', $user->id))
-            ->with('group:id,name', 'teacher:id,name', 'room:id,name')
+            ->with('group:id,name,days,start_time,end_time', 'teacher:id,name', 'room:id,name')
             ->withCount('attendances')
             ->orderBy('start_time')
             ->get()
@@ -61,6 +61,9 @@ class MobileController extends Controller
                 'status' => $l->status->value,
                 'is_substitute' => $l->is_substitute,
                 'marked' => $l->attendances_count,
+                'group_days' => array_values(array_map('intval', $l->group->days ?? [])),
+                'group_start_time' => $l->group->start_time ? substr($l->group->start_time, 0, 5) : null,
+                'group_end_time' => $l->group->end_time ? substr($l->group->end_time, 0, 5) : null,
             ]);
 
         return response()->json(['date' => $date->toDateString(), 'lessons' => $lessons]);
