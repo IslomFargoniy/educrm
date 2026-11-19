@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * One pass of a student through a face terminal (entrance or exit).
  */
-#[Fillable(['student_id', 'device_id', 'branch_id', 'employee_no', 'event_serial', 'direction', 'scanned_at'])]
+#[Fillable(['student_id', 'device_id', 'branch_id', 'employee_no', 'event_serial', 'direction', 'scanned_at', 'photo'])]
 class StudentVisit extends Model
 {
     /**

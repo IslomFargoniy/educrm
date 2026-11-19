@@ -1,11 +1,15 @@
 <?php
 
 use App\Enums\Role;
+use App\Jobs\SendNotification;
 use App\Models\Branch;
 use App\Models\Student;
 use App\Models\User;
+use App\Services\Notifications\SmsSender;
+use App\Services\Notifications\TelegramClient;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     $this->seed(RolesAndPermissionsSeeder::class);
@@ -37,4 +41,15 @@ it('still refuses a number nobody at the center has', function () {
     $this->postJson(route('telegram.webhook', 'secret'), shareContact('998901112233'))->assertOk();
 
     expect(User::query()->where('phone', '+998901112233')->exists())->toBeFalse();
+});
+
+it('sends the terminal snapshot as a photo with the text as caption', function () {
+    Storage::fake('local');
+    Storage::disk('local')->put('visits/x.jpg', 'jpeg');
+    $parent = User::factory()->create(['telegram_chat_id' => '777']);
+
+    (new SendNotification($parent->id, 'arrived', ['student' => 'Ali', 'time' => '08:55', 'device' => 'Kirish'], true, 'visits/x.jpg'))
+        ->handle(app(TelegramClient::class), app(SmsSender::class));
+
+    Http::assertSent(fn ($request) => str_ends_with($request->url(), '/sendPhoto') && $request->isMultipart());
 });

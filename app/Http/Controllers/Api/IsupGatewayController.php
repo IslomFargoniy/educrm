@@ -8,6 +8,7 @@ use App\Models\Device;
 use App\Services\Isup\VisitRecorder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 
 /**
  * Callbacks of the ISUP gateway: device keys, online / offline, access events.
@@ -73,7 +74,8 @@ class IsupGatewayController extends Controller
         $device->forceFill(['is_online' => true, 'last_seen_at' => now()])->save();
 
         if (is_array($payload['AccessControllerEvent'] ?? null)) {
-            $visits->record($device, $payload['AccessControllerEvent'], $payload['dateTime'] ?? null, live: true);
+            $picture = $request->file('Picture') ?? $request->file('picture');
+            $visits->record($device, $payload['AccessControllerEvent'], $payload['dateTime'] ?? null, live: true, picture: $picture instanceof UploadedFile ? $picture : null);
         }
 
         return response()->json(['ok' => true]);

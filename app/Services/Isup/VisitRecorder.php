@@ -8,6 +8,8 @@ use App\Models\StudentVisit;
 use App\Services\Notifications\Notifier;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Str;
 use Throwable;
 
 /**
@@ -29,8 +31,9 @@ class VisitRecorder
     /**
      * @param  array<string, mixed>  $event  ISAPI AccessControllerEvent / AcsEvent item
      * @param  bool  $live  pushed by the device right now (not read back from its memory)
+     * @param  UploadedFile|null  $picture  snapshot the terminal took
      */
-    public function record(Device $device, array $event, ?string $dateTime, bool $live): ?StudentVisit
+    public function record(Device $device, array $event, ?string $dateTime, bool $live, ?UploadedFile $picture = null): ?StudentVisit
     {
         $employeeNo = trim((string) ($event['employeeNoString'] ?? $event['employeeNo'] ?? ''));
         $major = (int) ($event['majorEventType'] ?? $event['major'] ?? 5);
@@ -69,6 +72,9 @@ class VisitRecorder
                 'event_serial' => $serial,
                 'direction' => $device->direction,
                 'scanned_at' => $scannedAt,
+                'photo' => $student !== null && $picture !== null && $picture->isValid()
+                    ? $picture->storeAs('visits/'.$scannedAt->format('Y-m-d'), Str::random(24).'.jpg', 'local')
+                    : null,
             ]);
         } catch (UniqueConstraintViolationException) {
             return null;
@@ -97,7 +103,7 @@ class VisitRecorder
         $this->notifier->toFamily($student, $first ? 'arrived' : 'visit', [
             'time' => $visit->scanned_at->format('H:i'),
             'device' => $device->name,
-        ], telegramOnly: true);
+        ], telegramOnly: true, photo: $visit->photo ?: null);
     }
 
     private function time(mixed $value, bool $live): CarbonImmutable

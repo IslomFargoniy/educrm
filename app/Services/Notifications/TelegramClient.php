@@ -27,6 +27,22 @@ class TelegramClient
     }
 
     /**
+     * Photo (a local file) with the text as its caption.
+     */
+    public function sendPhoto(string|int $chatId, string $path, string $caption): bool
+    {
+        if (! $this->isConfigured()) {
+            return false;
+        }
+
+        $response = Http::timeout(20)
+            ->attach('photo', (string) file_get_contents($path), 'photo.jpg')
+            ->post($this->url('sendPhoto'), ['chat_id' => $chatId, 'caption' => $caption, 'parse_mode' => 'HTML']);
+
+        return $response->successful() && $response->json('ok') === true;
+    }
+
+    /**
      * @param  array<string, mixed>  $payload
      */
     public function call(string $method, array $payload): bool

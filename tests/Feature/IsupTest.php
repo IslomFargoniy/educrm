@@ -223,8 +223,9 @@ it('gives a new device a Device ID from the domain and the same text as its key,
         ->assertSessionHasErrors('isup_id');
 });
 
-it('takes live events the terminal posts to its signed path, and refuses a wrong signature', function () {
+it('takes live events the terminal posts to its signed path with the snapshot, and refuses a wrong signature', function () {
     Queue::fake();
+    Storage::fake('local');
     [$device, $enrollment] = studyingStudent();
     $event = json_encode(['dateTime' => now()->toIso8601String(), 'eventType' => 'AccessControllerEvent', 'AccessControllerEvent' => ['majorEventType' => 5, 'subEventType' => 75, 'employeeNoString' => (string) $enrollment->student_id, 'serialNo' => 7]]);
 
@@ -232,7 +233,10 @@ it('takes live events the terminal posts to its signed path, and refuses a wrong
     $this->post($device->pushPath(), ['AccessControllerEvent' => $event, 'Picture' => UploadedFile::fake()->image('p.jpg')])->assertOk();
     $this->post($device->pushPath(), ['AccessControllerEvent' => json_encode(['eventType' => 'heartBeat'])])->assertOk();
 
-    expect(StudentVisit::query()->where('student_id', $enrollment->student_id)->count())->toBe(1);
+    $visit = StudentVisit::query()->where('student_id', $enrollment->student_id)->sole();
+    expect($visit->photo)->not->toBeNull();
+    Storage::disk('local')->assertExists($visit->photo);
+    Queue::assertPushed(SendNotification::class, fn (SendNotification $job) => $job->photo === $visit->photo);
 });
 
 it('counts standing in front of the terminal as one pass', function () {

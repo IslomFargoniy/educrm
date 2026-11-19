@@ -8,6 +8,7 @@ use App\Services\Notifications\SmsSender;
 use App\Services\Notifications\TelegramClient;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 /**
@@ -22,7 +23,7 @@ class SendNotification implements ShouldQueue
     /**
      * @param  array<string, scalar>  $params
      */
-    public function __construct(public int $userId, public string $template, public array $params, public bool $telegramOnly = false) {}
+    public function __construct(public int $userId, public string $template, public array $params, public bool $telegramOnly = false, public ?string $photo = null) {}
 
     public function handle(TelegramClient $telegram, SmsSender $sms): void
     {
@@ -40,9 +41,13 @@ class SendNotification implements ShouldQueue
         }
 
         try {
-            $channel === 'telegram'
-                ? $telegram->sendMessage($user->telegram_chat_id, $text)
-                : $sms->send($user->phone, $text);
+            $photo = $this->photo !== null && Storage::disk('local')->exists($this->photo) ? Storage::disk('local')->path($this->photo) : null;
+
+            match (true) {
+                $channel === 'telegram' && $photo !== null => $telegram->sendPhoto($user->telegram_chat_id, $photo, $text),
+                $channel === 'telegram' => $telegram->sendMessage($user->telegram_chat_id, $text),
+                default => $sms->send($user->phone, $text),
+            };
             $this->log($channel, $channel === 'telegram' ? (string) $user->telegram_chat_id : (string) $user->phone, $text, 'sent');
         } catch (Throwable $e) {
             $this->log($channel, (string) $user->phone, $text, 'failed', $e->getMessage());
