@@ -13,6 +13,7 @@ use App\Models\LedgerEntry;
 use App\Models\Payment;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Services\Reports\StaffSalary;
 use Carbon\CarbonInterface;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
@@ -301,6 +302,29 @@ class FinanceService
             'expense_category_id' => $category->id,
             'note' => $note,
             'meta' => ['category' => $category->name, 'cashbox' => $cashbox->name, 'cashbox_id' => $cashbox->id],
+        ]));
+    }
+
+    /**
+     * Staff salary (fixed + KPI) paid out of a cashbox: an expense of the staff salary category, tagged with the staff member and month.
+     */
+    public function payStaff(User $staff, Cashbox $cashbox, int $amount, string $month, ?string $note = null): Transaction
+    {
+        $this->assertPositive($amount);
+        $category = ExpenseCategory::query()->firstOrCreate(['name' => StaffSalary::EXPENSE_CATEGORY]);
+
+        return DB::transaction(fn () => $this->ledger->record(TransactionType::Expense, $amount, [[$cashbox, -$amount]], [
+            'branch_id' => $cashbox->branch_id,
+            'expense_category_id' => $category->id,
+            'note' => $note,
+            'meta' => [
+                'category' => $category->name,
+                'cashbox' => $cashbox->name,
+                'cashbox_id' => $cashbox->id,
+                'staff_id' => $staff->id,
+                'staff' => $staff->name,
+                'month' => $month,
+            ],
         ]));
     }
 

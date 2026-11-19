@@ -22,6 +22,7 @@ use App\Http\Controllers\Portal\PortalController;
 use App\Http\Controllers\PreferenceController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\StaffSalaryController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentFaceController;
 use App\Http\Controllers\TeacherController;
@@ -43,6 +44,8 @@ Route::get('tma', [TelegramController::class, 'miniApp'])->name('tma');
 Route::post('tma/login', [TelegramController::class, 'miniAppLogin'])->middleware('throttle:20,1')->name('tma.login');
 
 Route::middleware(['auth'])->group(function () {
+    Route::get('staff-salaries', [StaffSalaryController::class, 'index'])->middleware('permission:reports.view')->name('staff-salaries.index');
+    Route::post('staff-salaries/{user}/pay', [StaffSalaryController::class, 'pay'])->middleware('permission:payouts.create')->name('staff-salaries.pay');
     Route::post('export/xlsx', ExportController::class)->middleware('throttle:30,1')->name('export.xlsx');
     Route::get('home', HomeController::class)->name('home');
     Route::post('branch', [PreferenceController::class, 'branch'])->name('branch.switch');

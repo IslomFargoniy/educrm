@@ -34,7 +34,7 @@ class UserController extends Controller
             ->orderBy('name')
             ->get()
             ->map(fn (User $user) => [
-                ...$user->only(['id', 'name', 'first_name', 'last_name', 'phone', 'email', 'is_active', 'balance']),
+                ...$user->only(['id', 'name', 'first_name', 'last_name', 'phone', 'email', 'is_active', 'balance', 'salary_fixed', 'kpi_first_payment']),
                 'role' => $user->getRoleNames()->first(),
                 'branch_ids' => $user->branches->pluck('id'),
                 'branches' => $user->branches->pluck('name'),
@@ -61,6 +61,8 @@ class UserController extends Controller
                 'phone' => $validated['phone'],
                 'email' => $validated['email'] ?? null,
                 'password' => $password,
+                'salary_fixed' => $validated['salary_fixed'] ?? null,
+                'kpi_first_payment' => $validated['kpi_first_payment'] ?? null,
             ]);
             $user->syncRoles([$validated['role']]);
             $user->branches()->sync($validated['branch_ids'] ?? []);
@@ -88,6 +90,8 @@ class UserController extends Controller
                 'phone' => $validated['phone'],
                 'email' => $validated['email'] ?? null,
                 'is_active' => $validated['is_active'] ?? true,
+                'salary_fixed' => $validated['salary_fixed'] ?? null,
+                'kpi_first_payment' => $validated['kpi_first_payment'] ?? null,
                 ...(! empty($validated['password']) ? ['password' => $validated['password']] : []),
             ]);
             $user->syncRoles([$validated['role']]);
@@ -139,6 +143,8 @@ class UserController extends Controller
             'is_active' => ['boolean'],
             'personal_permissions' => ['array'],
             'personal_permissions.*' => [Rule::in(self::PERSONAL_PERMISSIONS)],
+            'salary_fixed' => ['nullable', 'integer', 'min:0'],
+            'kpi_first_payment' => ['nullable', 'integer', 'min:0'],
         ]);
 
         foreach ($validated['branch_ids'] ?? [] as $branchId) {

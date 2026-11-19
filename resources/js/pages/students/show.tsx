@@ -120,6 +120,8 @@ type Props = {
         phone: string | null;
         birth_date: string | null;
         note: string | null;
+        registered_by: number | null;
+        registered_by_name: string | null;
         guardians: {
             id: number;
             name: string;
@@ -140,6 +142,7 @@ type Props = {
         branch_id: number;
         method: string;
     }[];
+    staff: { id: number; name: string }[];
 };
 
 export default function StudentShow({
@@ -151,6 +154,7 @@ export default function StudentShow({
     period,
     groups,
     cashboxes,
+    staff,
 }: Props) {
     const t = useT();
     const { can } = useCan();
@@ -178,12 +182,21 @@ export default function StudentShow({
                                 </span>
                             )}
                             {student.note && <span>{student.note}</span>}
+                            {student.registered_by_name && (
+                                <span>
+                                    {t('Taken in by')}:{' '}
+                                    {student.registered_by_name}
+                                </span>
+                            )}
                         </span>
                     }
                     actions={
                         <>
                             {can('students.update') && (
-                                <EditStudentDialog student={student} />
+                                <EditStudentDialog
+                                    student={student}
+                                    staff={staff}
+                                />
                             )}
                             {can('enrollments.manage') && (
                                 <EnrollDialog
@@ -1092,7 +1105,13 @@ function CashboxSelect({
     );
 }
 
-function EditStudentDialog({ student }: { student: Props['student'] }) {
+function EditStudentDialog({
+    student,
+    staff,
+}: {
+    student: Props['student'];
+    staff: Props['staff'];
+}) {
     const t = useT();
 
     return (
@@ -1128,6 +1147,22 @@ function EditStudentDialog({ student }: { student: Props['student'] }) {
                     </Field>
                     <Field label={t('Note')} error={errors.note}>
                         <Input name="note" defaultValue={student.note ?? ''} />
+                    </Field>
+                    <Field
+                        label={t('Taken in by (for the KPI)')}
+                        error={errors.registered_by}
+                    >
+                        <NativeSelect
+                            name="registered_by"
+                            defaultValue={student.registered_by ?? ''}
+                        >
+                            <option value="">—</option>
+                            {staff.map((s) => (
+                                <option key={s.id} value={s.id}>
+                                    {s.name}
+                                </option>
+                            ))}
+                        </NativeSelect>
                     </Field>
                 </>
             )}

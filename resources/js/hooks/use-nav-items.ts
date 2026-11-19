@@ -5,6 +5,7 @@ import {
     CalendarDays,
     ClipboardCheck,
     GraduationCap,
+    HandCoins,
     Home,
     LayoutGrid,
     ShieldCheck,
@@ -22,6 +23,7 @@ import attendance from '@/routes/attendance';
 import cashboxes from '@/routes/cashboxes';
 import groups from '@/routes/groups';
 import leads from '@/routes/leads';
+import staffSalaries from '@/routes/staff-salaries';
 import students from '@/routes/students';
 import teachers from '@/routes/teachers';
 import type { NavItem } from '@/types';
@@ -104,6 +106,11 @@ export function useNavItems(): { main: NavItem[]; settings: NavItem[] } {
             title: t('Teachers'),
             href: teachers.index(),
             icon: Users,
+        },
+        can('reports.view') && {
+            title: t('Staff salaries'),
+            href: staffSalaries.index(),
+            icon: HandCoins,
         },
         can('cashboxes.view') && {
             title: t('Cashboxes'),

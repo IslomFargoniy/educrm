@@ -7,6 +7,7 @@ import PageHeader from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import MoneyInput from '@/components/money-input';
 import { Input } from '@/components/ui/input';
 import PhoneInput from '@/components/phone-input';
 import { Label } from '@/components/ui/label';
@@ -35,6 +36,8 @@ type User = {
     branch_ids: number[];
     branches: string[];
     personal_permissions: string[];
+    salary_fixed: number | null;
+    kpi_first_payment: number | null;
 };
 
 type Props = {
@@ -228,6 +231,26 @@ function UserFields({
                     name="password"
                     type="text"
                     autoComplete="new-password"
+                />
+            </Field>
+            <Field
+                label={t('Fixed monthly salary')}
+                error={errors.salary_fixed}
+            >
+                <MoneyInput
+                    name="salary_fixed"
+                    defaultValue={user?.salary_fixed ?? undefined}
+                    min={0}
+                />
+            </Field>
+            <Field
+                label={t('KPI per new student\u2019s first payment')}
+                error={errors.kpi_first_payment}
+            >
+                <MoneyInput
+                    name="kpi_first_payment"
+                    defaultValue={user?.kpi_first_payment ?? undefined}
+                    min={0}
                 />
             </Field>
             <Field label={t('Role')} error={errors.role}>

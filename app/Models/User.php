@@ -18,7 +18,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'first_name', 'last_name', 'phone', 'email', 'password', 'locale', 'is_active', 'telegram_chat_id'])]
+#[Fillable(['name', 'first_name', 'last_name', 'phone', 'email', 'password', 'locale', 'is_active', 'telegram_chat_id', 'salary_fixed', 'kpi_first_payment'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token', 'telegram_chat_id'])]
 class User extends Authenticatable implements PasskeyUser
 {

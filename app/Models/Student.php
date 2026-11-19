@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
-#[Fillable(['full_name', 'first_name', 'last_name', 'phone', 'birth_date', 'branch_id', 'user_id', 'lead_id', 'status', 'note', 'face_photo', 'call_status', 'call_status_at', 'call_status_by'])]
+#[Fillable(['full_name', 'first_name', 'last_name', 'phone', 'birth_date', 'branch_id', 'user_id', 'lead_id', 'registered_by', 'status', 'note', 'face_photo', 'call_status', 'call_status_at', 'call_status_by'])]
 class Student extends Model
 {
     /** Call results for debt calls, shown as colour tags on the phone number. */
@@ -75,6 +75,26 @@ class Student extends Model
         $query->where(fn (Builder $q) => $q
             ->whereIn('branch_id', $branchIds)
             ->orWhereHas('enrollments.group', fn (Builder $g) => $g->whereIn('branch_id', $branchIds)));
+    }
+
+    protected static function booted(): void
+    {
+        // Whoever adds the student takes them in (counts for the staff KPI).
+        static::creating(function (Student $student): void {
+            if ($student->registered_by === null && auth()->check()) {
+                $student->setAttribute('registered_by', auth()->id());
+            }
+        });
+    }
+
+    /**
+     * Staff member who took the student in.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function registeredBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'registered_by');
     }
 
     /**

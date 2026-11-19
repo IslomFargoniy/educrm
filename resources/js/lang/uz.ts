@@ -844,4 +844,24 @@ export const uz: Record<string, string> = {
     'Student attendance': "O'quvchilar davomati",
     'Marks in the teacher’s lessons this month.':
         "Shu oy o'qituvchi darslaridagi belgilar.",
+    'Staff salaries': 'Xodimlar oyligi',
+    'Fixed salary + KPI for every new student the staff member took in who made the first payment this month. The KPI comes out of the center’s share.':
+        "Belgilangan oylik + KPI: xodim qabul qilgan yangi o'quvchilardan shu oy birinchi to'lovini qilganlar uchun. KPI markaz ulushidan ayriladi.",
+    'Staff member': 'Xodim',
+    'Fixed salary': 'Belgilangan oylik',
+    'Students taken in': "Qabul qilgan o'quvchilar",
+    'First payments': "Birinchi to'lovlar",
+    'KPI per student': "KPI (har o'quvchi)",
+    'Total salary': 'Jami oylik',
+    'Left to pay': 'Berilishi kerak',
+    'No salary is set for anyone yet. Set the fixed salary and the KPI in Settings → Users.':
+        "Hali hech kimga oylik belgilanmagan. Belgilangan oylik va KPI'ni Sozlamalar → Foydalanuvchilar bo'limida kiriting.",
+    'No first payments this month.': "Shu oyda birinchi to'lovlar yo'q.",
+    'Total :total, paid :paid, left :left':
+        'Jami :total, berildi :paid, qoldi :left',
+    'Fixed monthly salary': 'Belgilangan oylik',
+    'KPI per new student’s first payment':
+        "KPI: yangi o'quvchining birinchi to'lovi uchun",
+    'Taken in by': 'Qabul qilgan',
+    'Taken in by (for the KPI)': 'Qabul qilgan xodim (KPI uchun)',
 };

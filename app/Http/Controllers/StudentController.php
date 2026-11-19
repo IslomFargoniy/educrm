@@ -290,6 +290,8 @@ class StudentController extends Controller
         return Inertia::render('students/show', [
             'student' => [
                 ...$student->only(['id', 'full_name', 'first_name', 'last_name', 'note', 'status']),
+                'registered_by' => $student->registered_by,
+                'registered_by_name' => $student->registeredBy?->name,
                 'phone' => $request->user()->can('students.view_phone') ? $student->phone : null,
                 'birth_date' => $student->birth_date?->toDateString(),
                 'guardians' => $student->guardians->map(fn (User $g) => [
@@ -320,6 +322,8 @@ class StudentController extends Controller
             'period' => ['from' => $from->toDateString(), 'to' => $to->toDateString()],
             'groups' => Group::query()->whereIn('branch_id', $branchIds)->where('status', 'active')->orderBy('name')->get(['id', 'name', 'branch_id']),
             'cashboxes' => Cashbox::query()->whereIn('branch_id', $branchIds)->where('is_active', true)->orderBy('name')->get(['id', 'name', 'branch_id', 'method']),
+            'staff' => User::role(array_map(fn (Role $r) => $r->value, Role::staff()))->where('is_active', true)
+                ->whereHas('branches', fn (Builder $b) => $b->whereIn('branches.id', $branchIds))->orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -333,6 +337,7 @@ class StudentController extends Controller
             'phone' => ['nullable', 'regex:/^\+998\d{9}$/'],
             'birth_date' => ['nullable', 'date'],
             'note' => ['nullable', 'string', 'max:1000'],
+            'registered_by' => ['nullable', 'exists:users,id'],
         ]);
 
         if (! $request->user()->can('students.view_phone')) {

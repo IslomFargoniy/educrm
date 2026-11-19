@@ -839,4 +839,24 @@ export const ru: Record<string, string> = {
     'Student attendance': 'Посещаемость учеников',
     'Marks in the teacher’s lessons this month.':
         'Отметки на уроках преподавателя в этом месяце.',
+    'Staff salaries': 'Зарплаты сотрудников',
+    'Fixed salary + KPI for every new student the staff member took in who made the first payment this month. The KPI comes out of the center’s share.':
+        'Фиксированная зарплата + KPI за каждого нового ученика, которого принял сотрудник и который в этом месяце сделал первую оплату. KPI вычитается из доли центра.',
+    'Staff member': 'Сотрудник',
+    'Fixed salary': 'Фикс. зарплата',
+    'Students taken in': 'Принято учеников',
+    'First payments': 'Первые оплаты',
+    'KPI per student': 'KPI за ученика',
+    'Total salary': 'Итого зарплата',
+    'Left to pay': 'Осталось выплатить',
+    'No salary is set for anyone yet. Set the fixed salary and the KPI in Settings → Users.':
+        'Зарплата пока никому не задана. Укажите фикс. зарплату и KPI в Настройки → Пользователи.',
+    'No first payments this month.': 'В этом месяце первых оплат нет.',
+    'Total :total, paid :paid, left :left':
+        'Итого :total, выплачено :paid, осталось :left',
+    'Fixed monthly salary': 'Фиксированная зарплата',
+    'KPI per new student’s first payment':
+        'KPI за первую оплату нового ученика',
+    'Taken in by': 'Принял',
+    'Taken in by (for the KPI)': 'Принял сотрудник (для KPI)',
 };
