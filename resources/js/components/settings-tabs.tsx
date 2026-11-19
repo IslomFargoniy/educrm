@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import admin from '@/routes/admin';
 
 /**
- * Tabs shared by the branch settings pages: branches & rooms, courses, expense categories, Excel import.
+ * Tabs shared by the branch settings pages: branches & rooms, courses, expense categories, holidays, Excel import.
  */
 export function useSettingsTabs() {
     const t = useT();
@@ -24,6 +24,10 @@ export function useSettingsTabs() {
         can('settings.manage') && {
             title: t('Expense categories'),
             href: admin.expenseCategories.index(),
+        },
+        can('holidays.manage') && {
+            title: t('Holidays'),
+            href: admin.holidays.index(),
         },
         can('import.run') && {
             title: t('Excel import'),

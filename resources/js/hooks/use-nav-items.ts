@@ -3,7 +3,6 @@ import {
     BookOpen,
     Building2,
     CalendarDays,
-    CalendarOff,
     ClipboardCheck,
     GraduationCap,
     Home,
@@ -88,7 +87,7 @@ export function useNavItems(): { main: NavItem[]; settings: NavItem[] } {
 
     const settingsTabs = useSettingsTabs();
     const settings: NavItem[] = [
-        // Branches, courses, expense categories and Excel import share one page with tabs.
+        // Branches, courses, expense categories, holidays and Excel import share one page with tabs.
         settingsTabs.length > 0 && {
             title: t('Branches & rooms'),
             href: settingsTabs[0].href,
@@ -103,11 +102,6 @@ export function useNavItems(): { main: NavItem[]; settings: NavItem[] } {
             title: t('Roles & permissions'),
             href: admin.roles.index(),
             icon: ShieldCheck,
-        },
-        can('holidays.manage') && {
-            title: t('Holidays'),
-            href: admin.holidays.index(),
-            icon: CalendarOff,
         },
     ].filter(Boolean) as NavItem[];
 
