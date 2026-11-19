@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Role;
 use App\Models\Attendance;
 use App\Models\Student;
 use App\Models\User;
@@ -12,6 +13,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class TelegramController extends Controller
@@ -93,7 +95,8 @@ class TelegramController extends Controller
      */
     private function link(int|string $chatId, array $contact): void
     {
-        $user = User::query()->where('phone', Phone::normalize((string) ($contact['phone_number'] ?? '')))->first();
+        $phone = Phone::normalize((string) ($contact['phone_number'] ?? ''));
+        $user = $phone ? (User::query()->where('phone', $phone)->first() ?? $this->studentAccount($phone)) : null;
 
         if ($user === null || (int) ($contact['user_id'] ?? 0) !== (int) $chatId) {
             $this->telegram->sendMessage($chatId, __('This phone number is not registered at the center. Please contact the administrator.'));
@@ -106,6 +109,36 @@ class TelegramController extends Controller
         app()->setLocale($user->locale ?? 'uz');
         $this->telegram->sendMessage($chatId, __('Account linked: :name. You will receive notifications here.', ['name' => $user->name]));
         $this->sendMenu($user);
+    }
+
+    /**
+     * A student who shares their own number (the one on the student card) gets a student account for the bot.
+     */
+    private function studentAccount(string $phone): ?User
+    {
+        $students = Student::query()->where('phone', $phone)->get();
+
+        if ($students->isEmpty()) {
+            return null;
+        }
+
+        $user = $students->firstWhere('user_id', '!=', null)?->user;
+
+        if ($user === null) {
+            $first = $students->first();
+            $user = User::query()->create([
+                'name' => $first->full_name,
+                'first_name' => $first->getAttribute('first_name'),
+                'last_name' => $first->getAttribute('last_name'),
+                'phone' => $phone,
+                'password' => Str::password(16),
+            ]);
+            $user->assignRole(Role::Student->value);
+        }
+
+        Student::query()->whereKey($students->pluck('id'))->whereNull('user_id')->update(['user_id' => $user->id]);
+
+        return $user;
     }
 
     private function sendMenu(User $user): void
