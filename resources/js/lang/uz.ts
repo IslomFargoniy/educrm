@@ -791,7 +791,7 @@ export const uz: Record<string, string> = {
     'Mark the call result': "Qo'ng'iroq natijasini belgilang",
     Call: "Qo'ng'iroq qilish",
     'Clear the tag': 'Tegni olib tashlash',
-    'call.not_processed': 'Ishlanmagan',
+    'call.not_processed': 'Ishlanmagan buyurtma',
     'call.no_answer': "Telefonini ko'tarmadi",
     'call.call_back': 'Qayta telefon qilish kerak',
     'call.promised': "To'lashga va'da berdi",
@@ -824,4 +824,6 @@ export const uz: Record<string, string> = {
     'no course chosen': 'kurs tanlanmagan',
     Time: 'Vaqt',
     'Cancel the first lesson': 'Birinchi darsni bekor qilish',
+    'call.initial': 'Dastlabki holat',
+    'Back to the initial state': 'Dastlabki holatga qaytarish',
 };

@@ -786,7 +786,7 @@ export const ru: Record<string, string> = {
     'Mark the call result': 'Отметьте результат звонка',
     Call: 'Позвонить',
     'Clear the tag': 'Убрать метку',
-    'call.not_processed': 'Не обработан',
+    'call.not_processed': 'Необработанная заявка',
     'call.no_answer': 'Не взял трубку',
     'call.call_back': 'Перезвонить',
     'call.promised': 'Обещал оплатить',
@@ -819,4 +819,6 @@ export const ru: Record<string, string> = {
     'no course chosen': 'курс не выбран',
     Time: 'Время',
     'Cancel the first lesson': 'Отменить первый урок',
+    'call.initial': 'Начальное состояние',
+    'Back to the initial state': 'Вернуть в начальное состояние',
 };

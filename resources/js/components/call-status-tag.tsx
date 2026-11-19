@@ -13,12 +13,12 @@ import students from '@/routes/students';
 
 /** Colour of each call result; the label always goes with it (never colour alone). */
 export const CALL_STATUS_COLORS: Record<string, string> = {
-    not_processed: 'bg-muted-foreground/40',
-    no_answer: 'bg-[var(--series-1)]',
-    call_back: 'bg-[var(--series-2)]',
-    promised: 'bg-[var(--series-7)]',
-    paid: 'bg-success',
-    cancelled: 'bg-danger',
+    cancelled: 'bg-red-600',
+    paid: 'bg-green-600',
+    not_processed: 'bg-white border border-muted-foreground/40',
+    initial: 'bg-white border border-muted-foreground/40',
+    call_back: 'bg-red-600',
+    no_answer: 'bg-blue-700',
 };
 
 /**
@@ -89,28 +89,29 @@ export default function CallStatusTag({
                     <DropdownMenuItem
                         key={value}
                         onSelect={() => save(value)}
-                        className="gap-2"
+                        className="gap-3 py-2"
                     >
-                        <span
-                            className={cn(
-                                'size-3 rounded-full',
-                                CALL_STATUS_COLORS[value],
-                            )}
-                        />
+                        <span className="flex size-8 items-center justify-center rounded-lg bg-muted">
+                            <span
+                                className={cn(
+                                    'size-4 rounded-full',
+                                    CALL_STATUS_COLORS[value],
+                                )}
+                            />
+                        </span>
                         {t(`call.${value}`)}
                         {status === value && (
                             <Check className="ml-auto size-4" />
                         )}
                     </DropdownMenuItem>
                 ))}
-                {status && (
-                    <DropdownMenuItem
-                        onSelect={() => save(null)}
-                        className="text-muted-foreground"
-                    >
-                        {t('Clear the tag')}
-                    </DropdownMenuItem>
-                )}
+                <DropdownMenuItem
+                    onSelect={() => save(null)}
+                    disabled={!status}
+                    className="text-muted-foreground"
+                >
+                    {t('Back to the initial state')}
+                </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
     );

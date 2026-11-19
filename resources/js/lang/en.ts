@@ -107,4 +107,5 @@ export const en: Record<string, string> = {
     'call.promised': 'Promised to pay',
     'call.paid': 'Done',
     'call.cancelled': 'Cancelled',
+    'call.initial': 'Initial state',
 };

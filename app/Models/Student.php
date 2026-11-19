@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 class Student extends Model
 {
     /** Call results for debt calls, shown as colour tags on the phone number. */
-    public const CALL_STATUSES = ['not_processed', 'no_answer', 'call_back', 'promised', 'paid', 'cancelled'];
+    public const CALL_STATUSES = ['cancelled', 'paid', 'not_processed', 'initial', 'call_back', 'no_answer'];
 
     /** @use HasFactory<StudentFactory> */
     use HasFactory, HasPersonName;
