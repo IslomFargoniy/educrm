@@ -746,4 +746,12 @@ export const uz: Record<string, string> = {
         "Sahifa eskirdi. Sahifani yangilab, qayta urinib ko'ring.",
     'Something went wrong on the server. Nothing was saved — try again.':
         "Serverda xatolik yuz berdi. Hech narsa saqlanmadi — qayta urinib ko'ring.",
+    Table: 'Jadval',
+    'Bar chart': 'Ustunli grafik',
+    'Pie chart': 'Doiraviy grafik',
+    Measure: "Ko'rsatkich",
+    'Earned in the period': 'Davrda ishlangan',
+    'Leads by source': "Manba bo'yicha lidlar",
+    ':count more not shown': "Yana :count ta ko'rsatilmadi",
+    'Other (:count)': 'Boshqalar (:count)',
 };

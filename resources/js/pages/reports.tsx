@@ -3,6 +3,8 @@ import { Download } from 'lucide-react';
 import { useState } from 'react';
 import RowNumber from '@/components/row-number';
 import Money from '@/components/money';
+import { BarChart, PieChart } from '@/components/report-chart';
+import type { ChartItem } from '@/components/report-chart';
 import PageHeader from '@/components/page-header';
 import PeriodFilter from '@/components/period-filter';
 import ReportFilters from '@/components/report-filters';
@@ -60,6 +62,7 @@ type Props = {
         revenue: number;
         teacher_share: number;
         center_share: number;
+        debt: number;
     }[];
     leadSources: (Funnel & { source: string })[];
     leadCourses: (Funnel & { course: string | null })[];
@@ -105,6 +108,13 @@ type Funnel = {
     rejected: number;
 };
 
+const metricLabels = {
+    income: 'Payments received',
+    revenue: 'Lesson revenue',
+    charged: 'To be received',
+    debt: 'Debt',
+} as const;
+
 export default function Reports({
     period,
     totals,
@@ -142,6 +152,78 @@ export default function Reports({
         | 'leads'
         | 'visits'
     >('finance');
+    const [view, setView] = useState<'table' | 'bar' | 'pie'>('table');
+    const [metric, setMetric] = useState<
+        'income' | 'revenue' | 'debt' | 'charged'
+    >('income');
+    const chartable = tab !== 'visits';
+    const metricOf = (row: {
+        income: number;
+        revenue: number;
+        debt: number;
+        charged: number;
+    }) => row[metric];
+    const chart: { items: ChartItem[]; money: boolean; title: string } =
+        (() => {
+            switch (tab) {
+                case 'finance':
+                    return {
+                        items: expenses.map((e) => ({
+                            label: e.category,
+                            value: e.total,
+                        })),
+                        money: true,
+                        title: t('Expenses by category'),
+                    };
+                case 'teachers':
+                    return {
+                        items: teacherRows.map((r) => ({
+                            label: r.teacher ?? '—',
+                            value: r.earned,
+                        })),
+                        money: true,
+                        title: t('Earned in the period'),
+                    };
+                case 'debtors':
+                    return {
+                        items: debtors.map((d) => ({
+                            label: `${d.student} · ${d.group}`,
+                            value: d.debt,
+                        })),
+                        money: true,
+                        title: t('Debt'),
+                    };
+                case 'groups':
+                    return {
+                        items: groups.map((g) => ({
+                            label: g.group,
+                            value: metricOf(g),
+                        })),
+                        money: true,
+                        title: t(metricLabels[metric]),
+                    };
+                case 'courses':
+                    return {
+                        items: courses.map((c) => ({
+                            label: c.course ?? t('No course'),
+                            value: metricOf(c),
+                        })),
+                        money: true,
+                        title: t(metricLabels[metric]),
+                    };
+                case 'leads':
+                    return {
+                        items: leadSources.map((l) => ({
+                            label: t(`source.${l.source}`),
+                            value: l.total,
+                        })),
+                        money: false,
+                        title: t('Leads by source'),
+                    };
+                default:
+                    return { items: [], money: true, title: '' };
+            }
+        })();
     const sum = (type: string) => totals[type]?.total ?? 0;
     const income = sum('student_payment');
     const maxExpense = Math.max(1, ...expenses.map((e) => e.total));
@@ -222,7 +304,69 @@ export default function Reports({
                     ))}
                 </div>
 
-                {tab === 'finance' && (
+                {chartable && (
+                    <div className="flex flex-wrap items-center gap-2">
+                        <div className="inline-flex rounded-lg border bg-card p-0.5">
+                            {(
+                                [
+                                    ['table', 'Table'],
+                                    ['bar', 'Bar chart'],
+                                    ['pie', 'Pie chart'],
+                                ] as const
+                            ).map(([value, label]) => (
+                                <button
+                                    key={value}
+                                    type="button"
+                                    onClick={() => setView(value)}
+                                    className={cn(
+                                        'rounded-md px-3 py-1 text-xs font-semibold',
+                                        view === value
+                                            ? 'bg-primary text-primary-foreground'
+                                            : 'text-muted-foreground hover:text-foreground',
+                                    )}
+                                >
+                                    {t(label)}
+                                </button>
+                            ))}
+                        </div>
+                        {view !== 'table' &&
+                            (tab === 'groups' || tab === 'courses') && (
+                                <select
+                                    value={metric}
+                                    onChange={(e) =>
+                                        setMetric(
+                                            e.target.value as typeof metric,
+                                        )
+                                    }
+                                    className="h-8 rounded-md border bg-card px-2 text-xs font-semibold"
+                                    aria-label={t('Measure')}
+                                >
+                                    {(
+                                        Object.keys(
+                                            metricLabels,
+                                        ) as (keyof typeof metricLabels)[]
+                                    ).map((key) => (
+                                        <option key={key} value={key}>
+                                            {t(metricLabels[key])}
+                                        </option>
+                                    ))}
+                                </select>
+                            )}
+                    </div>
+                )}
+
+                {chartable && view !== 'table' && (
+                    <section className="space-y-3 rounded-xl border bg-card p-4">
+                        <h3 className="text-sm font-bold">{chart.title}</h3>
+                        {view === 'bar' ? (
+                            <BarChart items={chart.items} money={chart.money} />
+                        ) : (
+                            <PieChart items={chart.items} money={chart.money} />
+                        )}
+                    </section>
+                )}
+
+                {view === 'table' && tab === 'finance' && (
                     <section className="space-y-2 rounded-xl border bg-card p-4">
                         {expenses.length === 0 && (
                             <p className="text-sm text-muted-foreground">
@@ -258,7 +402,7 @@ export default function Reports({
                     </section>
                 )}
 
-                {tab === 'teachers' && (
+                {view === 'table' && tab === 'teachers' && (
                     <div className="space-y-2">
                         <p className="text-sm text-muted-foreground">
                             {t(
@@ -298,7 +442,7 @@ export default function Reports({
                     </div>
                 )}
 
-                {tab === 'debtors' && (
+                {view === 'table' && tab === 'debtors' && (
                     <div className="space-y-2">
                         <div className="flex justify-between text-sm">
                             <span>
@@ -354,7 +498,7 @@ export default function Reports({
                     </div>
                 )}
 
-                {tab === 'groups' && (
+                {view === 'table' && tab === 'groups' && (
                     <div className="space-y-2">
                         <p className="text-sm text-muted-foreground">
                             {t(
@@ -427,7 +571,7 @@ export default function Reports({
                     </div>
                 )}
 
-                {tab === 'courses' && (
+                {view === 'table' && tab === 'courses' && (
                     <div className="space-y-2">
                         <p className="text-sm text-muted-foreground">
                             {t(
@@ -536,7 +680,7 @@ export default function Reports({
                     </div>
                 )}
 
-                {tab === 'leads' && (
+                {view === 'table' && tab === 'leads' && (
                     <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
                             {[

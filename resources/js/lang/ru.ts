@@ -740,4 +740,12 @@ export const ru: Record<string, string> = {
         'Страница устарела. Обновите страницу и повторите.',
     'Something went wrong on the server. Nothing was saved — try again.':
         'Ошибка на сервере. Ничего не сохранено — попробуйте ещё раз.',
+    Table: 'Таблица',
+    'Bar chart': 'Столбчатая',
+    'Pie chart': 'Круговая',
+    Measure: 'Показатель',
+    'Earned in the period': 'Заработано за период',
+    'Leads by source': 'Лиды по источникам',
+    ':count more not shown': 'Ещё :count не показано',
+    'Other (:count)': 'Прочие (:count)',
 };
