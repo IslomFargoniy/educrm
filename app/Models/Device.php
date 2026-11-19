@@ -42,7 +42,8 @@ class Device extends Model
     {
         static::creating(function (Device $device): void {
             $device->isup_id ??= self::nextIsupId();
-            $device->isup_key ??= self::newKey();
+            // Terminals refuse a digits-only key; the Device ID (letters and digits) is easy to type twice.
+            $device->isup_key ??= (string) config('isup.default_key') ?: $device->isup_id;
         });
     }
 
@@ -59,27 +60,6 @@ class Device extends Model
         }
 
         return $prefix.$number;
-    }
-
-    /**
-     * ISUP key typed into the terminal: the center's common key when set (ISUP_DEFAULT_KEY), otherwise a random easy one.
-     */
-    public static function newKey(): string
-    {
-        $default = (string) config('isup.default_key');
-
-        if ($default !== '') {
-            return $default;
-        }
-
-        $letters = 'abcdefghjkmnpqrstuvwxyz';
-        $key = '';
-
-        for ($i = 0; $i < 4; $i++) {
-            $key .= $letters[random_int(0, strlen($letters) - 1)];
-        }
-
-        return $key.random_int(1000, 9999);
     }
 
     /**

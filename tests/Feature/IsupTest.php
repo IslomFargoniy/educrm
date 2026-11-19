@@ -185,16 +185,13 @@ it('lets an admin add a device and shows what to type into it', function () {
         ->where('gatewayRunning', true));
 });
 
-it('gives a new device a short Device ID and an easy key, and lets the admin type their own', function () {
+it('gives a new device a Device ID from the domain and the same text as its key, and lets the admin type their own', function () {
     $this->actingAs(userWithRole(Role::Superadmin));
-    config(['isup.device_id_prefix' => 'crmmensalcuz', 'isup.default_key' => '11221122']);
+    config(['isup.device_id_prefix' => 'crmmensalcuz', 'isup.default_key' => null]);
     $device = Device::factory()->create();
 
     expect($device->isup_id)->toBe('crmmensalcuz'.$device->id)
-        ->and($device->isup_key)->toBe('11221122');
-
-    config(['isup.default_key' => null]);
-    expect(Device::factory()->create()->isup_key)->toMatch('/^[a-z]{4}\d{4}$/');
+        ->and($device->isup_key)->toBe($device->isup_id);
 
     $this->put(route('admin.devices.update', $device), ['branch_id' => $device->branch_id, 'name' => 'Kirish', 'direction' => 'in', 'isup_id' => 'filial1', 'isup_key' => 'mensa2026'])
         ->assertSessionHasNoErrors();
