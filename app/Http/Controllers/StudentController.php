@@ -38,7 +38,7 @@ class StudentController extends Controller
     {
         $branchIds = $this->branchIds();
         $filters = $request->only(['q', 'group_id', 'status', 'category', 'teacher_id', 'course_id', 'call_status']);
-        $category = in_array($filters['category'] ?? null, ['new', 'active', 'archive', 'ending', 'debtors'], true) ? $filters['category'] : null;
+        $category = in_array($filters['category'] ?? null, ['new', 'active', 'archive', 'debtors'], true) ? $filters['category'] : null;
         $categories = $this->categoryScopes($branchIds);
 
         $students = Student::query()
@@ -138,7 +138,6 @@ class StudentController extends Controller
      *  new     — studying, came to at least two lessons, nothing paid yet;
      *  active  — studying and has paid;
      *  archive — no group any more (graduated, left or removed);
-     *  ending  — studying, the money left does not cover this month's remaining lessons;
      *  debtors — owe money in some group.
      *
      * @param  list<int>  $branchIds
@@ -155,52 +154,8 @@ class StudentController extends Controller
             'active' => fn (Builder $q) => $q->whereHas('enrollments', fn (Builder $e) => $studying($e)
                 ->whereHas('payments', fn (Builder $p) => $p->whereNull('reversed_at'))),
             'archive' => fn (Builder $q) => $q->whereHas('enrollments')->whereDoesntHave('enrollments', fn (Builder $e) => $e->whereIn('status', ['active', 'trial'])),
-            'ending' => fn (Builder $q) => $q->whereIn('id', $this->subscriptionEndingStudentIds($branchIds)),
             'debtors' => fn (Builder $q) => $q->whereHas('enrollments', fn (Builder $e) => $e->where('balance', '<', 0)->whereHas('group', fn (Builder $g) => $g->whereIn('branch_id', $branchIds))),
         ];
-    }
-
-    /**
-     * Studying students whose money left (0 or more) is less than the cost of this month's remaining lessons.
-     *
-     * @param  list<int>  $branchIds
-     * @return list<int>
-     */
-    private function subscriptionEndingStudentIds(array $branchIds): array
-    {
-        static $cache = [];
-        $key = implode(',', $branchIds);
-
-        if (isset($cache[$key])) {
-            return $cache[$key];
-        }
-
-        $remaining = DB::table('lessons')
-            ->where('status', 'planned')
-            ->whereBetween('date', [today()->toDateString(), today()->endOfMonth()->toDateString()])
-            ->groupBy('group_id')
-            ->pluck(DB::raw('COUNT(*) as n'), 'group_id');
-
-        $ids = Enrollment::query()
-            ->whereIn('status', ['active', 'trial'])
-            ->where('balance', '>=', 0)
-            ->whereHas('group', fn (Builder $g) => $g->whereIn('branch_id', $branchIds))
-            ->with('group')
-            ->get()
-            ->filter(function (Enrollment $e) use ($remaining) {
-                $lessons = (int) ($remaining[$e->group_id] ?? 0);
-                $price = $e->group->priceFor(today());
-
-                if ($lessons === 0 || $price === null || $price->lessons_per_month === 0) {
-                    return false;
-                }
-
-                return $e->balance < intdiv($e->discountedMonthlyPrice($price->monthly_price), $price->lessons_per_month) * $lessons;
-            })
-            ->pluck('student_id')->unique()->map(fn ($id) => (int) $id)->values()->all();
-        $ids = array_values($ids);
-
-        return $cache[$key] = $ids;
     }
 
     public function store(Request $request, EnrollmentService $enrollments): RedirectResponse

@@ -70,10 +70,6 @@ export function useNavItems(): { main: NavItem[]; settings: NavItem[] } {
                     href: students.index({ query: { category: 'archive' } })
                         .url,
                 },
-                {
-                    title: t('Subscription ends this month'),
-                    href: students.index({ query: { category: 'ending' } }).url,
-                },
                 { title: t('All students'), href: students.index().url },
                 { title: t('Parents'), href: students.parents().url },
             ],

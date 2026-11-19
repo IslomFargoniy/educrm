@@ -41,13 +41,12 @@ type Student = {
     left: { left_at: string | null; leave_reason: string | null } | null;
 };
 
-type Category = 'new' | 'active' | 'debtors' | 'ending' | 'archive';
+type Category = 'new' | 'active' | 'debtors' | 'archive';
 
 const CATEGORY_TITLES: Record<Category, string> = {
     new: 'New students',
     active: 'Active students',
     debtors: 'Debtors',
-    ending: 'Subscription ends this month',
     archive: 'Archived students',
 };
 
@@ -55,7 +54,6 @@ const CATEGORY_HINTS: Record<Category, string> = {
     new: 'Came to two lessons or more and have not paid yet.',
     active: 'Studying and have paid.',
     debtors: 'Owe money in a group.',
-    ending: "The money left does not cover this month's remaining lessons.",
     archive: 'No group any more: graduated, left or removed.',
 };
 
@@ -118,14 +116,10 @@ export default function StudentsIndex({
 
                 <div className="flex flex-wrap gap-1.5">
                     {(
-                        [
-                            undefined,
-                            'new',
-                            'active',
-                            'debtors',
-                            'ending',
-                            'archive',
-                        ] as (Category | undefined)[]
+                        [undefined, 'new', 'active', 'debtors', 'archive'] as (
+                            | Category
+                            | undefined
+                        )[]
                     ).map((key) => (
                         <button
                             key={key ?? 'all'}
