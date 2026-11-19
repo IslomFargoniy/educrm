@@ -177,6 +177,38 @@ class MobileController extends Controller
     }
 
     /**
+     * Students of the signed-in teacher's groups with their balance (debtors first).
+     */
+    public function myStudents(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+        abort_unless($user->can('students.view_debt'), 403);
+
+        $rows = Enrollment::query()
+            ->whereIn('status', ['trial', 'active'])
+            ->whereHas('group', fn ($q) => $q->where('teacher_id', $user->id)->where('status', 'active'))
+            ->with('student:id,full_name,phone', 'group:id,name')
+            ->get()
+            ->map(fn (Enrollment $e) => [
+                'enrollment_id' => $e->id,
+                'student' => $e->student->full_name,
+                'phone' => $user->can('students.view_phone') ? $e->student->phone : null,
+                'group' => $e->group->name,
+                'status' => $e->status->value,
+                'balance' => $e->balance,
+            ])
+            ->sortBy([['balance', 'asc'], ['student', 'asc']])
+            ->values();
+
+        return response()->json([
+            'debt' => (int) -$rows->where('balance', '<', 0)->sum('balance'),
+            'debtors' => $rows->where('balance', '<', 0)->count(),
+            'students' => $rows,
+        ]);
+    }
+
+    /**
      * The signed-in teacher's balance, history and lessons waiting for payment.
      */
     public function myBalance(Request $request): JsonResponse

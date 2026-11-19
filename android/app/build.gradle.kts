@@ -20,8 +20,8 @@ android {
         applicationId = "uz.educrm.app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 15
-        versionName = "1.4.5"
+        versionCode = 16
+        versionName = "1.4.6"
         buildConfigField("String", "API_URL", "\"https://crm.mensalc.uz/api/v1/\"")
     }
 

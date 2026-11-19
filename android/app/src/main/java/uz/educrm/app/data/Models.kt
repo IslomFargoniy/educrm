@@ -170,3 +170,9 @@ data class NewLeadResponse(val lead: CreatedPerson)
 
 @Serializable
 data class LocaleRequest(val locale: String)
+
+@Serializable
+data class MyStudent(val enrollment_id: Int, val student: String, val phone: String? = null, val group: String, val status: String, val balance: Long)
+
+@Serializable
+data class MyStudentsResponse(val debt: Long = 0, val debtors: Int = 0, val students: List<MyStudent> = emptyList())

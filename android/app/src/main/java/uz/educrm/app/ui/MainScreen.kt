@@ -39,7 +39,7 @@ fun MainScreen(api: EduCrmApi, user: UserProfile, themeMode: ThemeMode, onThemeC
     val nav = rememberNavController()
     val isTeacher = user.roles.contains("teacher")
     val tabs = listOfNotNull(
-        Tab("lessons", R.string.lessons, Icons.Filled.EventNote),
+        Tab("lessons", R.string.groups_tab, Icons.Filled.EventNote),
         if (user.can("students.view")) Tab("students", R.string.students, Icons.Filled.People) else null,
         if (isTeacher) Tab("balance", R.string.my_balance, Icons.Filled.AccountBalanceWallet) else null,
         if (isTeacher) Tab("debts", R.string.debts, Icons.Filled.MoneyOff) else null,

@@ -99,3 +99,16 @@ it('shows the group days and time next to each lesson', function () {
         ->and($lesson['group_start_time'])->toBe('09:00')
         ->and($lesson['group_end_time'])->toBe('10:30');
 });
+
+it('lists the students of the teacher\'s groups with their debts, debtors first', function () {
+    $teacher = User::role(Role::Teacher->value)->first();
+    $group = Group::query()->where('teacher_id', $teacher->id)->where('status', 'active')->firstOrFail();
+
+    $response = $this->withToken($teacher->createToken('test')->plainTextToken)->getJson(route('api.me.students'))->assertOk();
+
+    $students = collect($response->json('students'));
+    expect($students)->not->toBeEmpty()
+        ->and($students->pluck('group')->unique()->all())->toContain($group->name)
+        ->and($students->pluck('balance')->all())->toBe($students->pluck('balance')->sort()->values()->all())
+        ->and($response->json('debt'))->toBe((int) -$students->where('balance', '<', 0)->sum('balance'));
+});

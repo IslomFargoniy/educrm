@@ -92,4 +92,11 @@
     <string name="income_this_month">Tushum — shu oy darslari</string>
     <string name="paid_out_this_month">Berilgan — shu oy</string>
     <string name="earlier_debts_paid">Oldingi oylar qarzi yopildi</string>
+    <string name="tab_share_waiting">Ulush kutilmoqda</string>
+    <string name="tab_student_debts">O\'quvchilar qarzi</string>
+    <string name="share_waiting_hint">Darslaringiz uchun ulushingiz — o\'quvchilar to\'lagach balansga tushadi</string>
+    <string name="students_debt_total">O\'quvchilarning jami qarzi</string>
+    <string name="debtors_of_students">%2$d ta o\'quvchidan %1$d tasi qarzdor</string>
+    <string name="only_debtors">Faqat qarzdorlar</string>
+    <string name="groups_tab">Guruhlar</string>
 </resources>

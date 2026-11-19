@@ -30,6 +30,7 @@ interface EduCrmApi {
     @GET("cashboxes") suspend fun cashboxes(): CashboxesResponse
     @POST("enrollments/{id}/payments") suspend fun pay(@Path("id") enrollmentId: Int, @Body body: PaymentRequest): PaymentResponse
     @GET("me/balance") suspend fun myBalance(): BalanceResponse
+    @GET("me/students") suspend fun myStudents(): MyStudentsResponse
     @GET("form-options") suspend fun formOptions(): FormOptions
     @PUT("me/locale") suspend fun updateLocale(@Body body: LocaleRequest): OkResponse
     @POST("students") suspend fun createStudent(@Body body: NewStudentRequest): NewStudentResponse
