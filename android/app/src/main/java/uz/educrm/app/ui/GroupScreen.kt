@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -145,55 +147,84 @@ private fun MarksStrip(enrollmentId: Int, lessons: List<GroupLesson>) {
     }
 }
 
+/**
+ * Attendance journal like the web: one row per student, one column per lesson (oldest on the left).
+ */
 @Composable
 private fun AttendanceTab(students: List<GroupStudent>, lessons: List<GroupLesson>) {
     if (lessons.isEmpty()) {
         EmptyState(stringResource(R.string.no_lessons))
         return
     }
-    val names = students.associate { it.enrollment_id.toString() to it.full_name }
+    val columns = lessons.reversed()
+    val scroll = rememberScrollState(Int.MAX_VALUE)
+    val nameWidth = 128.dp
+    val cell = 34.dp
+
     EduCrmCard {
-        Column(Modifier.padding(vertical = 6.dp)) {
-            lessons.forEachIndexed { index, lesson ->
-                if (index > 0) HorizontalDivider(Modifier.padding(horizontal = 14.dp), color = eduCrm.border)
-                LessonMarksRow(index + 1, lesson, names)
+        Column(Modifier.padding(vertical = 8.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.students), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(nameWidth).padding(start = 12.dp))
+                Row(Modifier.horizontalScroll(scroll).padding(end = 8.dp)) {
+                    columns.forEach { lesson ->
+                        Column(Modifier.width(cell), horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(lesson.date.substring(8, 10), fontWeight = FontWeight.Bold, fontSize = 12.sp, color = if (lesson.status == "cancelled") eduCrm.danger else MaterialTheme.colorScheme.onSurface)
+                            Text(lesson.date.substring(5, 7), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                }
+            }
+            students.forEachIndexed { index, s ->
+                HorizontalDivider(Modifier.padding(vertical = 4.dp), color = eduCrm.border)
+                val key = s.enrollment_id.toString()
+                val present = columns.count { it.marks[key] == "present" }
+                val marked = columns.count { it.marks[key] != null }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.width(nameWidth).padding(start = 12.dp, end = 6.dp)) {
+                        Text("${index + 1}. ${s.full_name}", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                        Text("$present/$marked", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Row(Modifier.horizontalScroll(scroll).padding(end = 8.dp)) {
+                        columns.forEach { lesson ->
+                            val status = lesson.marks[key]
+                            Box(Modifier.width(cell).padding(3.dp), contentAlignment = Alignment.Center) {
+                                Box(
+                                    Modifier.size(26.dp).clip(RoundedCornerShape(7.dp))
+                                        .background(if (status == null) Color.Transparent else markColor(status).copy(alpha = 0.18f))
+                                        .border(1.dp, if (status == null) eduCrm.border else markColor(status), RoundedCornerShape(7.dp)),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Text(
+                                        when (status) {
+                                            "present" -> "✓"
+                                            "absent" -> "✗"
+                                            "excused" -> stringResource(R.string.excused).take(1)
+                                            else -> if (lesson.status == "cancelled") "—" else ""
+                                        },
+                                        color = if (status == null) MaterialTheme.colorScheme.onSurfaceVariant else markColor(status),
+                                        fontWeight = FontWeight.ExtraBold,
+                                        fontSize = 13.sp,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Row(Modifier.padding(start = 12.dp, top = 10.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                Legend("✓", stringResource(R.string.present), eduCrm.success)
+                Legend("✗", stringResource(R.string.absent), eduCrm.danger)
+                Legend(stringResource(R.string.excused).take(1), stringResource(R.string.excused), eduCrm.info)
             }
         }
     }
 }
 
 @Composable
-private fun LessonMarksRow(number: Int, lesson: GroupLesson, names: Map<String, String>) {
-    var expanded by remember { mutableStateOf(false) }
-    val present = lesson.marks.values.count { it == "present" }
-    val absent = lesson.marks.values.count { it == "absent" }
-    val excused = lesson.marks.values.count { it == "excused" }
-    Column(Modifier.fillMaxWidth().clickable(enabled = lesson.marks.isNotEmpty()) { expanded = !expanded }.padding(horizontal = 14.dp, vertical = 10.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            RowNumber(number)
-            Column(Modifier.weight(1f)) {
-                Text("${date(lesson.date)} · ${lesson.start_time}", fontWeight = FontWeight.SemiBold)
-                when {
-                    lesson.status == "cancelled" -> Text(stringResource(R.string.status_cancelled), color = eduCrm.danger, style = MaterialTheme.typography.bodySmall)
-                    lesson.marks.isEmpty() -> Text(stringResource(R.string.not_marked), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
-                    else -> Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Text("${stringResource(R.string.present)}: $present", color = eduCrm.success, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold)
-                        if (absent > 0) Text("${stringResource(R.string.absent)}: $absent", color = eduCrm.danger, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold)
-                        if (excused > 0) Text("${stringResource(R.string.excused)}: $excused", color = eduCrm.info, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold)
-                    }
-                }
-            }
-            if (lesson.marks.isNotEmpty()) Icon(if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        if (expanded) {
-            lesson.marks.entries.sortedBy { names[it.key].orEmpty() }.forEach { (enrollmentId, status) ->
-                Row(Modifier.fillMaxWidth().padding(start = 26.dp, top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(9.dp).clip(CircleShape).background(markColor(status)))
-                    Text(names[enrollmentId] ?: "#$enrollmentId", style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f).padding(start = 8.dp))
-                    Text(markLabel(status), style = MaterialTheme.typography.bodySmall, color = markColor(status), fontWeight = FontWeight.SemiBold)
-                }
-            }
-        }
+private fun Legend(mark: String, label: String, color: Color) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(mark, color = color, fontWeight = FontWeight.ExtraBold, fontSize = 13.sp)
+        Text(" $label", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -202,11 +233,4 @@ private fun markColor(status: String): Color = when (status) {
     "present" -> eduCrm.success
     "absent" -> eduCrm.danger
     else -> eduCrm.info
-}
-
-@Composable
-private fun markLabel(status: String): String = when (status) {
-    "present" -> stringResource(R.string.present)
-    "absent" -> stringResource(R.string.absent)
-    else -> stringResource(R.string.excused)
 }
