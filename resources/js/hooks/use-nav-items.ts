@@ -5,18 +5,16 @@ import {
     CalendarDays,
     CalendarOff,
     ClipboardCheck,
-    FileSpreadsheet,
     GraduationCap,
     Home,
     LayoutGrid,
     ShieldCheck,
-    Tags,
-    Library,
     UserCog,
     UserPlus,
     Users,
     Wallet,
 } from 'lucide-react';
+import { useSettingsTabs } from '@/components/settings-tabs';
 import { useCan } from '@/hooks/use-can';
 import { useT } from '@/lib/i18n';
 import { dashboard, portal, reports, schedule } from '@/routes';
@@ -88,10 +86,12 @@ export function useNavItems(): { main: NavItem[]; settings: NavItem[] } {
         isPortalUser && { title: t('My children'), href: portal(), icon: Home },
     ].filter(Boolean) as NavItem[];
 
+    const settingsTabs = useSettingsTabs();
     const settings: NavItem[] = [
-        can('rooms.manage') && {
+        // Branches, courses, expense categories and Excel import share one page with tabs.
+        settingsTabs.length > 0 && {
             title: t('Branches & rooms'),
-            href: admin.branches.index(),
+            href: settingsTabs[0].href,
             icon: Building2,
         },
         can('users.manage') && {
@@ -108,21 +108,6 @@ export function useNavItems(): { main: NavItem[]; settings: NavItem[] } {
             title: t('Holidays'),
             href: admin.holidays.index(),
             icon: CalendarOff,
-        },
-        can('settings.manage') && {
-            title: t('Courses'),
-            href: admin.courses.index(),
-            icon: Library,
-        },
-        can('settings.manage') && {
-            title: t('Expense categories'),
-            href: admin.expenseCategories.index(),
-            icon: Tags,
-        },
-        can('import.run') && {
-            title: t('Excel import'),
-            href: admin.import.index(),
-            icon: FileSpreadsheet,
         },
     ].filter(Boolean) as NavItem[];
 

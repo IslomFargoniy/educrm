@@ -1,6 +1,7 @@
 import { Form, Head, router } from '@inertiajs/react';
 import { Download, KeyRound, Upload } from 'lucide-react';
 import Money from '@/components/money';
+import SettingsTabs from '@/components/settings-tabs';
 import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -75,6 +76,7 @@ export default function Import({
         <>
             <Head title={t('Excel import')} />
             <div className="flex flex-col gap-5 p-4 md:p-6">
+                <SettingsTabs />
                 <PageHeader
                     title={t('Excel import')}
                     description={t(

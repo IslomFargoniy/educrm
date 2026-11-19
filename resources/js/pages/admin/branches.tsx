@@ -4,6 +4,7 @@ import RowNumber from '@/components/row-number';
 import Field from '@/components/field';
 import FormDialog from '@/components/form-dialog';
 import Money from '@/components/money';
+import SettingsTabs from '@/components/settings-tabs';
 import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,6 +46,7 @@ export default function Branches({
         <>
             <Head title={t('Branches & rooms')} />
             <div className="flex flex-col gap-5 p-4 md:p-6">
+                <SettingsTabs />
                 <PageHeader
                     title={t('Branches & rooms')}
                     actions={
