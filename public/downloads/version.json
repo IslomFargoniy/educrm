@@ -1,6 +1,6 @@
 {
-    "versionCode": 6,
-    "versionName": "1.2.0",
+    "versionCode": 7,
+    "versionName": "1.2.1",
     "apk": "educrm.apk",
-    "notes": "Yangilanish endi ilovaning ichida yuklanadi va o'rnatiladi; Profilda «Yangilanishni tekshirish» tugmasi"
+    "notes": "Sinov yangilanishi: ilova ichidan yangilash tekshiruvi"
 }
