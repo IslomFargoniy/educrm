@@ -6,6 +6,7 @@ use App\Enums\ChargeStatus;
 use App\Enums\LeadStatus;
 use App\Enums\Role;
 use App\Models\Cashbox;
+use App\Models\Course;
 use App\Models\Device;
 use App\Models\Enrollment;
 use App\Models\Group;
@@ -36,10 +37,13 @@ class StudentController extends Controller
     public function index(Request $request): Response
     {
         $branchIds = $this->branchIds();
-        $filters = $request->only(['q', 'group_id', 'status']);
+        $filters = $request->only(['q', 'group_id', 'status', 'category', 'teacher_id', 'course_id', 'call_status']);
+        $category = in_array($filters['category'] ?? null, ['new', 'active', 'archive', 'ending', 'debtors'], true) ? $filters['category'] : null;
+        $categories = $this->categoryScopes($branchIds);
 
         $students = Student::query()
             ->inBranches($branchIds)
+            ->when($category, fn (Builder $q, string $key) => $categories[$key]($q))
             ->when($filters['q'] ?? null, fn (Builder $q, string $term) => $q->where(fn (Builder $w) => $w
                 ->where('full_name', 'like', "%{$term}%")
                 ->orWhere('phone', 'like', '%'.preg_replace('/\D+/', '', $term).'%')))
@@ -47,7 +51,11 @@ class StudentController extends Controller
             ->when(($filters['status'] ?? null) === 'debtor', fn (Builder $q) => $q->whereHas('enrollments', fn (Builder $e) => $e->where('balance', '<', 0)))
             ->when(($filters['status'] ?? null) === 'studying', fn (Builder $q) => $q->whereHas('enrollments', fn (Builder $e) => $e->whereIn('status', ['active', 'trial'])))
             ->when(($filters['status'] ?? null) === 'left', fn (Builder $q) => $q->whereDoesntHave('enrollments', fn (Builder $e) => $e->whereIn('status', ['active', 'trial'])))
+            ->when($filters['teacher_id'] ?? null, fn (Builder $q, $id) => $q->whereHas('enrollments', fn (Builder $e) => $e->whereIn('status', ['active', 'trial'])->whereHas('group', fn (Builder $g) => $g->where('teacher_id', $id))))
+            ->when($filters['course_id'] ?? null, fn (Builder $q, $id) => $q->whereHas('enrollments', fn (Builder $e) => $e->whereIn('status', ['active', 'trial'])->whereHas('group', fn (Builder $g) => $g->where('course_id', $id))))
+            ->when($filters['call_status'] ?? null, fn (Builder $q, string $status) => $status === 'none' ? $q->whereNull('call_status') : $q->where('call_status', $status))
             ->with(['enrollments' => fn ($q) => $q->whereHas('group', fn ($g) => $g->whereIn('branch_id', $branchIds))->with('group:id,name')])
+            ->when($category === 'debtors', fn (Builder $q) => $q->orderBy(Enrollment::query()->selectRaw('COALESCE(SUM(balance), 0)')->whereColumn('enrollments.student_id', 'students.id')))
             ->orderBy('full_name')
             ->paginate(30)
             ->withQueryString()
@@ -58,13 +66,141 @@ class StudentController extends Controller
                 'groups' => $student->enrollments->filter(fn (Enrollment $e) => $e->status->isStudying())
                     ->map(fn (Enrollment $e) => ['name' => $e->group->name, 'status' => $e->status->value])->values(),
                 'balance' => (int) $student->enrollments->sum('balance'),
+                'call_status' => $student->call_status,
+                'call_status_at' => $student->call_status_at?->toIso8601String(),
+                'left' => $category === 'archive'
+                    ? $student->enrollments->sortByDesc('left_at')->first()?->only(['left_at', 'leave_reason'])
+                    : null,
             ]);
 
         return Inertia::render('students/index', [
             'students' => $students,
             'filters' => $filters,
+            'counts' => collect($categories)->map(fn ($scope) => $scope(Student::query()->inBranches($branchIds))->count()),
+            'debtTotals' => $category === 'debtors' ? [
+                'debt' => (int) -Enrollment::query()->where('balance', '<', 0)->whereHas('group', fn (Builder $g) => $g->whereIn('branch_id', $branchIds))->sum('balance'),
+                'credit' => (int) Enrollment::query()->where('balance', '>', 0)->whereIn('status', ['active', 'trial'])->whereHas('group', fn (Builder $g) => $g->whereIn('branch_id', $branchIds))->sum('balance'),
+            ] : null,
+            'teachers' => User::role(Role::Teacher->value)->whereHas('branches', fn (Builder $b) => $b->whereIn('branches.id', $branchIds))->orderBy('name')->get(['id', 'name']),
+            'courses' => Course::query()->orderBy('name')->get(['id', 'name']),
+            'callStatuses' => Student::CALL_STATUSES,
             'groups' => Group::query()->whereIn('branch_id', $branchIds)->where('status', 'active')->orderBy('name')->get(['id', 'name']),
         ]);
+    }
+
+    /**
+     * Colour tag with the result of the last call about the debt.
+     */
+    public function callStatus(Request $request, Student $student): RedirectResponse
+    {
+        $this->authorizeStudent($request, $student);
+        $validated = $request->validate(['call_status' => ['nullable', Rule::in(Student::CALL_STATUSES)]]);
+        $student->update([
+            'call_status' => $validated['call_status'] ?? null,
+            'call_status_at' => now(),
+            'call_status_by' => $request->user()->id,
+        ]);
+
+        return back();
+    }
+
+    /**
+     * Parents (guardians) of the branch's students with their children and whether Telegram is linked.
+     */
+    public function parents(Request $request): Response
+    {
+        $branchIds = $this->branchIds();
+        $term = trim((string) $request->input('q'));
+
+        $parents = User::query()
+            ->whereHas('children', fn (Builder $q) => $q->inBranches($branchIds))
+            ->when($term !== '', fn (Builder $q) => $q->where(fn (Builder $w) => $w
+                ->where('name', 'like', "%{$term}%")
+                ->orWhere('phone', 'like', '%'.preg_replace('/\D+/', '', $term).'%')
+                ->orWhereHas('children', fn (Builder $c) => $c->where('full_name', 'like', "%{$term}%"))))
+            ->with(['children' => fn ($q) => $q->inBranches($branchIds)->select('students.id', 'students.full_name')])
+            ->orderBy('name')
+            ->paginate(30)
+            ->withQueryString()
+            ->through(fn (User $parent) => [
+                'id' => $parent->id,
+                'name' => $parent->name,
+                'phone' => $request->user()->can('students.view_phone') ? $parent->phone : null,
+                'telegram' => $parent->telegram_chat_id !== null,
+                'children' => $parent->children->map(fn (Student $c) => ['id' => $c->id, 'full_name' => $c->full_name, 'relation' => data_get($c, 'pivot.relation')])->values(),
+            ]);
+
+        return Inertia::render('students/parents', ['parents' => $parents, 'filters' => ['q' => $term]]);
+    }
+
+    /**
+     * Student categories of the menu:
+     *  new     — studying, came to at least two lessons, nothing paid yet;
+     *  active  — studying and has paid;
+     *  archive — no group any more (graduated, left or removed);
+     *  ending  — studying, the money left does not cover this month's remaining lessons;
+     *  debtors — owe money in some group.
+     *
+     * @param  list<int>  $branchIds
+     * @return array<string, \Closure(Builder<Student>): Builder<Student>>
+     */
+    private function categoryScopes(array $branchIds): array
+    {
+        $studying = fn (Builder $e) => $e->whereIn('status', ['active', 'trial'])->whereHas('group', fn (Builder $g) => $g->whereIn('branch_id', $branchIds));
+
+        return [
+            'new' => fn (Builder $q) => $q->whereHas('enrollments', fn (Builder $e) => $studying($e)
+                ->whereHas('attendances', fn (Builder $a) => $a->where('status', 'present'), '>=', 2)
+                ->whereDoesntHave('payments', fn (Builder $p) => $p->whereNull('reversed_at'))),
+            'active' => fn (Builder $q) => $q->whereHas('enrollments', fn (Builder $e) => $studying($e)
+                ->whereHas('payments', fn (Builder $p) => $p->whereNull('reversed_at'))),
+            'archive' => fn (Builder $q) => $q->whereHas('enrollments')->whereDoesntHave('enrollments', fn (Builder $e) => $e->whereIn('status', ['active', 'trial'])),
+            'ending' => fn (Builder $q) => $q->whereIn('id', $this->subscriptionEndingStudentIds($branchIds)),
+            'debtors' => fn (Builder $q) => $q->whereHas('enrollments', fn (Builder $e) => $e->where('balance', '<', 0)->whereHas('group', fn (Builder $g) => $g->whereIn('branch_id', $branchIds))),
+        ];
+    }
+
+    /**
+     * Studying students whose money left (0 or more) is less than the cost of this month's remaining lessons.
+     *
+     * @param  list<int>  $branchIds
+     * @return list<int>
+     */
+    private function subscriptionEndingStudentIds(array $branchIds): array
+    {
+        static $cache = [];
+        $key = implode(',', $branchIds);
+
+        if (isset($cache[$key])) {
+            return $cache[$key];
+        }
+
+        $remaining = DB::table('lessons')
+            ->where('status', 'planned')
+            ->whereBetween('date', [today()->toDateString(), today()->endOfMonth()->toDateString()])
+            ->groupBy('group_id')
+            ->pluck(DB::raw('COUNT(*) as n'), 'group_id');
+
+        $ids = Enrollment::query()
+            ->whereIn('status', ['active', 'trial'])
+            ->where('balance', '>=', 0)
+            ->whereHas('group', fn (Builder $g) => $g->whereIn('branch_id', $branchIds))
+            ->with('group')
+            ->get()
+            ->filter(function (Enrollment $e) use ($remaining) {
+                $lessons = (int) ($remaining[$e->group_id] ?? 0);
+                $price = $e->group->priceFor(today());
+
+                if ($lessons === 0 || $price === null || $price->lessons_per_month === 0) {
+                    return false;
+                }
+
+                return $e->balance < intdiv($e->discountedMonthlyPrice($price->monthly_price), $price->lessons_per_month) * $lessons;
+            })
+            ->pluck('student_id')->unique()->map(fn ($id) => (int) $id)->values()->all();
+        $ids = array_values($ids);
+
+        return $cache[$key] = $ids;
     }
 
     public function store(Request $request, EnrollmentService $enrollments): RedirectResponse

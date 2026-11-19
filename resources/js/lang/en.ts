@@ -101,4 +101,10 @@ export const en: Record<string, string> = {
     'leave.graduated': 'Graduated',
     'leave.dropped': 'Left on own',
     'leave.expelled': 'Removed from the group',
+    'call.not_processed': 'Not processed',
+    'call.no_answer': 'Did not answer',
+    'call.call_back': 'Call back',
+    'call.promised': 'Promised to pay',
+    'call.paid': 'Done',
+    'call.cancelled': 'Cancelled',
 };

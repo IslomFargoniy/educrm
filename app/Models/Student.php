@@ -13,9 +13,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
-#[Fillable(['full_name', 'first_name', 'last_name', 'phone', 'birth_date', 'branch_id', 'user_id', 'lead_id', 'status', 'note', 'face_photo'])]
+#[Fillable(['full_name', 'first_name', 'last_name', 'phone', 'birth_date', 'branch_id', 'user_id', 'lead_id', 'status', 'note', 'face_photo', 'call_status', 'call_status_at', 'call_status_by'])]
 class Student extends Model
 {
+    /** Call results for debt calls, shown as colour tags on the phone number. */
+    public const CALL_STATUSES = ['not_processed', 'no_answer', 'call_back', 'promised', 'paid', 'cancelled'];
+
     /** @use HasFactory<StudentFactory> */
     use HasFactory, HasPersonName;
 
@@ -24,7 +27,7 @@ class Student extends Model
      */
     protected function casts(): array
     {
-        return ['birth_date' => 'date'];
+        return ['birth_date' => 'date', 'call_status_at' => 'datetime'];
     }
 
     /**

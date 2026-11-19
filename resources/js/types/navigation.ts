@@ -13,4 +13,6 @@ export type NavItem = {
     href: NonNullable<InertiaLinkProps['href']>;
     icon?: LucideIcon | null;
     isActive?: boolean;
+    /** Sub-pages shown under the item in the sidebar (e.g. student categories). */
+    children?: { title: string; href: string }[];
 };

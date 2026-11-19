@@ -42,7 +42,7 @@ class GroupController extends Controller
             ->get()
             ->map(fn (Group $group) => [
                 ...$group->only(['id', 'name', 'subject', 'days', 'teacher_percent', 'status', 'course_id', 'teacher_id', 'room_id']),
-                'start_date' => $group->start_date?->toDateString(),
+                'start_date' => $group->start_date->toDateString(),
                 'end_date' => $group->end_date?->toDateString(),
                 'frozen_count' => $group->frozen_count,
                 'start_time' => substr($group->start_time, 0, 5),

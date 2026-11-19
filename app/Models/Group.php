@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property-read int|null $students_count
+ * @property-read int|null $frozen_count
  */
 #[Fillable(['branch_id', 'name', 'subject', 'course_id', 'teacher_id', 'room_id', 'teacher_percent', 'days', 'start_time', 'end_time', 'start_date', 'end_date', 'status'])]
 class Group extends Model

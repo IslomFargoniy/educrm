@@ -51,6 +51,32 @@ export function useNavItems(): { main: NavItem[]; settings: NavItem[] } {
             title: t('Students'),
             href: students.index(),
             icon: GraduationCap,
+            children: [
+                {
+                    title: t('New students'),
+                    href: students.index({ query: { category: 'new' } }).url,
+                },
+                {
+                    title: t('Active students'),
+                    href: students.index({ query: { category: 'active' } }).url,
+                },
+                {
+                    title: t('Debtors'),
+                    href: students.index({ query: { category: 'debtors' } })
+                        .url,
+                },
+                {
+                    title: t('Archived students'),
+                    href: students.index({ query: { category: 'archive' } })
+                        .url,
+                },
+                {
+                    title: t('Subscription ends this month'),
+                    href: students.index({ query: { category: 'ending' } }).url,
+                },
+                { title: t('All students'), href: students.index().url },
+                { title: t('Parents'), href: students.parents().url },
+            ],
         },
         (can('groups.view') || isTeacher) && {
             title: t('Groups'),

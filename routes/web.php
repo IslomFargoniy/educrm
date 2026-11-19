@@ -53,6 +53,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware('permission:students.view')->group(function () {
         Route::get('students', [StudentController::class, 'index'])->name('students.index');
+        Route::get('parents', [StudentController::class, 'parents'])->name('students.parents');
+        Route::patch('students/{student}/call-status', [StudentController::class, 'callStatus'])->middleware('permission:students.view_debt')->name('students.call-status');
         Route::get('students/{student}', [StudentController::class, 'show'])->name('students.show');
     });
     Route::post('students', [StudentController::class, 'store'])->middleware('permission:students.create')->name('students.store');
