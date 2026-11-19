@@ -43,7 +43,7 @@ class Device extends Model
         static::creating(function (Device $device): void {
             $device->isup_id ??= self::nextIsupId();
             // Terminals refuse a digits-only key; the Device ID (letters and digits) is easy to type twice.
-            $device->isup_key ??= (string) config('isup.default_key') ?: $device->isup_id;
+            $device->isup_key ??= (string) config('isup.default_key') ?: self::keyFor($device->isup_id);
         });
     }
 
@@ -55,11 +55,19 @@ class Device extends Model
         $prefix = (string) config('isup.device_id_prefix');
         $number = (int) self::query()->max('id') + 1;
 
-        while (self::query()->where('isup_id', $prefix.$number)->exists()) {
+        while (self::query()->where('isup_id', substr($prefix, 0, 32 - strlen((string) $number)).$number)->exists()) {
             $number++;
         }
 
-        return $prefix.$number;
+        return substr($prefix, 0, 32 - strlen((string) $number)).$number;
+    }
+
+    /**
+     * Key made from the Device ID: terminals take 8 to 16 characters.
+     */
+    public static function keyFor(string $isupId): string
+    {
+        return str_pad(substr($isupId, -16), 8, '0', STR_PAD_LEFT);
     }
 
     /**

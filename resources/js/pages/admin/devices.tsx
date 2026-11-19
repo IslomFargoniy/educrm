@@ -294,8 +294,8 @@ function DeviceDetails({
                                 name="isup_key"
                                 defaultValue={device.isup_key}
                                 required
-                                pattern="[A-Za-z0-9]{8,32}"
-                                title={t('8 or more letters and digits')}
+                                pattern="[A-Za-z0-9]{8,16}"
+                                title={t('8 to 16 letters and digits')}
                                 className="font-mono"
                             />
                         </label>

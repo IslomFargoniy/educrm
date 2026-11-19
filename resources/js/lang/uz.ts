@@ -688,5 +688,5 @@ export const uz: Record<string, string> = {
     'From the face terminals: for each day, when the student first came in and last went out.':
         "Face ID qurilmalaridan: har kuni o'quvchi birinchi marta qachon kirgani va oxirgi marta qachon chiqqani.",
     Passes: "O'tishlar",
-    '8 or more letters and digits': 'Kamida 8 ta harf va raqam',
+    '8 to 16 letters and digits': '8–16 ta harf va raqam',
 };

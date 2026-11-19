@@ -69,7 +69,7 @@ class DeviceController extends Controller
         $this->authorizeBranch($device->branch_id);
         $validated = $this->validated($request) + $request->validate([
             'isup_id' => ['sometimes', 'required', 'string', 'regex:/^[A-Za-z0-9]{1,32}$/', Rule::unique('devices', 'isup_id')->ignore($device->id)],
-            'isup_key' => ['sometimes', 'required', 'string', 'regex:/^[A-Za-z0-9]{8,32}$/'],
+            'isup_key' => ['sometimes', 'required', 'string', 'regex:/^[A-Za-z0-9]{8,16}$/'],
         ]) + ['is_active' => $request->boolean('is_active', true)];
         $this->authorizeBranch((int) $validated['branch_id']);
         $device->update($validated);

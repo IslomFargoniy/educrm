@@ -193,6 +193,11 @@ it('gives a new device a Device ID from the domain and the same text as its key,
     expect($device->isup_id)->toBe('crmmensalcuz'.$device->id)
         ->and($device->isup_key)->toBe($device->isup_id);
 
+    config(['isup.device_id_prefix' => 'markaz.oquv-uz.example.com']);
+    $long = Device::factory()->create();
+    expect(strlen($long->isup_id))->toBeLessThanOrEqual(32)
+        ->and(strlen($long->isup_key))->toBeBetween(8, 16);
+
     $this->put(route('admin.devices.update', $device), ['branch_id' => $device->branch_id, 'name' => 'Kirish', 'direction' => 'in', 'isup_id' => 'filial1', 'isup_key' => 'mensa2026'])
         ->assertSessionHasNoErrors();
     expect($device->fresh())->isup_id->toBe('filial1')->isup_key->toBe('mensa2026');
