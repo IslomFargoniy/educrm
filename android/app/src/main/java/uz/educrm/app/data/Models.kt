@@ -187,7 +187,7 @@ data class MyStudentsResponse(val debt: Long = 0, val debtors: Int = 0, val stud
 data class GroupInfo(val id: Int, val name: String, val teacher: String? = null, val days: List<Int> = emptyList(), val start_time: String? = null, val end_time: String? = null)
 
 @Serializable
-data class GroupStudent(val enrollment_id: Int, val full_name: String, val phone: String? = null, val balance: Long? = null, val status: String = "active", val frozen: Boolean = false)
+data class GroupStudent(val enrollment_id: Int, val student_id: Int = 0, val full_name: String, val photo: String? = null, val can_photo: Boolean = false, val phone: String? = null, val balance: Long? = null, val status: String = "active", val frozen: Boolean = false)
 
 @Serializable
 data class GroupLesson(val id: Int, val date: String, val start_time: String, val status: String, val marks: Map<String, String> = emptyMap())

@@ -19,6 +19,7 @@ use App\Services\CoverageService;
 use App\Services\EnrollmentService;
 use App\Services\FinanceService;
 use App\Services\Isup\Arrivals;
+use App\Services\Isup\FacePhoto;
 use App\Support\Phone;
 use App\Support\Presenters\History;
 use Illuminate\Http\JsonResponse;
@@ -26,6 +27,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\Rule;
 
 /**
@@ -118,9 +120,21 @@ class MobileController extends Controller
     }
 
     /**
+     * Face photo for the terminals, taken in the app (teachers: students of own groups).
+     */
+    public function storeFace(Request $request, Student $student, FacePhoto $faces): JsonResponse
+    {
+        abort_unless($faces->canManage($request->user(), $student), 403);
+        $request->validate(['photo' => ['required', 'image', 'max:10240']]);
+        $faces->save($student, $request->file('photo'));
+
+        return response()->json(['ok' => true]);
+    }
+
+    /**
      * Group card for the app: students with phone and balance, and the attendance of recent lessons.
      */
-    public function group(Request $request, Group $group): JsonResponse
+    public function group(Request $request, Group $group, FacePhoto $faces): JsonResponse
     {
         $user = $request->user();
         $this->authorizeBranch($group->branch_id);
@@ -134,7 +148,7 @@ class MobileController extends Controller
             ->get(['id', 'group_id', 'date', 'start_time', 'status']);
 
         $enrollments = $group->enrollments()
-            ->with('student:id,full_name,phone', 'freezes')
+            ->with('student:id,full_name,phone,branch_id,face_photo', 'freezes')
             ->get()
             ->filter(fn (Enrollment $e) => $e->status->isStudying() || $lessons->contains(fn (Lesson $l) => $l->attendances->contains('enrollment_id', $e->id)))
             ->sortBy('student.full_name')
@@ -151,7 +165,12 @@ class MobileController extends Controller
             ],
             'students' => $enrollments->map(fn (Enrollment $e) => [
                 'enrollment_id' => $e->id,
+                'student_id' => $e->student_id,
                 'full_name' => $e->student->full_name,
+                'photo' => $e->student->face_photo !== null
+                    ? rtrim((string) config('app.url'), '/').URL::temporarySignedRoute('isup.face', now()->addHours(2), ['student' => $e->student_id, 'v' => md5($e->student->face_photo)], absolute: false)
+                    : null,
+                'can_photo' => $faces->canManage($user, $e->student),
                 'phone' => $user->can('students.view_phone') ? $e->student->phone : null,
                 'balance' => $user->can('students.view_debt') || $user->can('students.view_payments') ? $e->balance : null,
                 'status' => $e->status->value,

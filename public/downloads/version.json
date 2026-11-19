@@ -1,6 +1,6 @@
 {
-    "versionCode": 22,
-    "versionName": "1.5.2",
+    "versionCode": 23,
+    "versionName": "1.5.3",
     "apk": "educrm.apk",
-    "notes": "Guruh davomati o'quvchilar bo'yicha jadval"
+    "notes": "O'qituvchi o'quvchiga Face ID rasmini yuklaydi (guruhni bosib turing)"
 }

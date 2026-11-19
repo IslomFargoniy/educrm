@@ -110,4 +110,10 @@
     <string name="not_marked">Не отмечено</string>
     <string name="long_press_hint">Удерживайте урок, чтобы открыть группу</string>
     <string name="cannot_mark_future">Этот урок ещё не прошёл. Посещаемость отмечается в день урока.</string>
+    <string name="photo_sent">Фото сохранено и отправляется на устройства Face ID</string>
+    <string name="photo_failed">Не удалось загрузить фото</string>
+    <string name="photo_hint">Лицо прямо в камеру, при хорошем свете, без очков и головного убора.</string>
+    <string name="camera">Камера</string>
+    <string name="gallery">Галерея</string>
+    <string name="no_face_photo">Нет фото Face ID — нажмите на фото</string>
 </resources>

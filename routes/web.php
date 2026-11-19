@@ -56,9 +56,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('students/{student}', [StudentController::class, 'show'])->name('students.show');
     });
     Route::post('students', [StudentController::class, 'store'])->middleware('permission:students.create')->name('students.store');
-    Route::post('students/{student}/face', [StudentFaceController::class, 'store'])->middleware('permission:students.update')->name('students.face.store');
-    Route::delete('students/{student}/face', [StudentFaceController::class, 'destroy'])->middleware('permission:students.update')->name('students.face.destroy');
-    Route::get('students/{student}/face', [StudentFaceController::class, 'show'])->middleware('permission:students.update')->name('students.face.show');
+    Route::post('students/{student}/face', [StudentFaceController::class, 'store'])->middleware('permission:students.update|students.face')->name('students.face.store');
+    Route::delete('students/{student}/face', [StudentFaceController::class, 'destroy'])->middleware('permission:students.update|students.face')->name('students.face.destroy');
+    Route::get('students/{student}/face', [StudentFaceController::class, 'show'])->middleware('permission:students.update|students.face')->name('students.face.show');
     Route::patch('students/{student}', [StudentController::class, 'update'])->middleware('permission:students.update')->name('students.update');
     Route::post('students/{student}/guardians', [StudentController::class, 'storeGuardian'])->middleware('permission:students.update')->name('students.guardians.store');
     Route::delete('students/{student}/guardians/{guardian}', [StudentController::class, 'destroyGuardian'])->middleware('permission:students.update')->name('students.guardians.destroy');

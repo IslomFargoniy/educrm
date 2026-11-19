@@ -111,4 +111,10 @@
     <string name="not_marked">Davomat qilinmagan</string>
     <string name="long_press_hint">Guruh ma\'lumoti uchun darsni bosib turing</string>
     <string name="cannot_mark_future">Bu dars hali bo\'lmagan. Davomat dars kuni qilinadi.</string>
+    <string name="photo_sent">Rasm saqlandi va Face ID qurilmalariga yuborilmoqda</string>
+    <string name="photo_failed">Rasmni yuklab bo\'lmadi</string>
+    <string name="photo_hint">Yuz kameraga to\'g\'ri qarasin, yorug\' joyda, ko\'zoynak va bosh kiyimsiz.</string>
+    <string name="camera">Kamera</string>
+    <string name="gallery">Galereya</string>
+    <string name="no_face_photo">Face ID rasmi yo\'q — rasmni bosing</string>
 </resources>

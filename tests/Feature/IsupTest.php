@@ -267,3 +267,24 @@ it('points the terminal HTTPS event host at the CRM', function () {
     Http::assertSent(fn (HttpRequest $r) => $r['method'] === 'PUT' && $r['url'] === '/ISAPI/Event/notification/httpHosts/2'
         && str_contains($r['body'], '<hostName>crm.example.uz</hostName>') && str_contains($r['body'], $device->pushPath()));
 });
+
+it('lets a teacher add the face photo of a student of own group from the app, not of others', function () {
+    Queue::fake();
+    Storage::fake('local');
+    $teacher = userWithRole(Role::Teacher);
+    [$device, $enrollment, $group] = studyingStudent();
+    $group->update(['teacher_id' => $teacher->id]);
+    $teacher->branches()->attach($device->branch_id);
+    $stranger = Student::factory()->create(['branch_id' => $device->branch_id]);
+    $token = $teacher->createToken('test')->plainTextToken;
+
+    $this->withToken($token)->post(route('api.students.face', $enrollment->student_id), ['photo' => UploadedFile::fake()->image('f.jpg', 800, 800)], ['Accept' => 'application/json'])->assertOk();
+    $this->withToken($token)->post(route('api.students.face', $stranger->id), ['photo' => UploadedFile::fake()->image('f.jpg', 800, 800)], ['Accept' => 'application/json'])->assertForbidden();
+
+    expect($enrollment->student->fresh()->face_photo)->not->toBeNull();
+    Queue::assertPushed(SyncStudentFace::class);
+
+    $student = collect($this->withToken($token)->getJson(route('api.groups.show', $group))->assertOk()->json('students'))->firstWhere('enrollment_id', $enrollment->id);
+    expect($student['can_photo'])->toBeTrue()->and($student['photo'])->toContain('/isup/faces/'.$enrollment->student_id);
+    $this->get(parse_url($student['photo'], PHP_URL_PATH).'?'.parse_url($student['photo'], PHP_URL_QUERY))->assertOk();
+});

@@ -110,4 +110,10 @@
     <string name="not_marked">Not marked</string>
     <string name="long_press_hint">Press and hold a lesson to open its group</string>
     <string name="cannot_mark_future">This lesson has not happened yet. Attendance is marked on the lesson day.</string>
+    <string name="photo_sent">Photo saved and being sent to the Face ID devices</string>
+    <string name="photo_failed">Could not upload the photo</string>
+    <string name="photo_hint">Face straight at the camera, good light, no glasses or cap.</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="no_face_photo">No Face ID photo — tap the picture</string>
 </resources>

@@ -25,6 +25,7 @@ interface EduCrmApi {
     @GET("lessons") suspend fun lessons(@Query("date") date: String): LessonsResponse
     @GET("lessons/{id}") suspend fun lesson(@Path("id") id: Int): LessonResponse
     @GET("groups/{id}") suspend fun group(@Path("id") id: Int): GroupResponse
+    @retrofit2.http.Multipart @POST("students/{id}/face") suspend fun uploadFace(@Path("id") studentId: Int, @retrofit2.http.Part photo: okhttp3.MultipartBody.Part): OkResponse
     @POST("lessons/{id}/attendance") suspend fun saveAttendance(@Path("id") id: Int, @Body body: AttendanceRequest): OkResponse
     @GET("students") suspend fun students(@Query("q") query: String): StudentsResponse
     @GET("students/{id}") suspend fun student(@Path("id") id: Int): StudentResponse

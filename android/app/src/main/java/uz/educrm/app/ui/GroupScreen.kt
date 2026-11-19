@@ -20,6 +20,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import uz.educrm.app.R
 import uz.educrm.app.data.EduCrmApi
 import uz.educrm.app.data.GroupLesson
@@ -99,15 +101,63 @@ fun GroupScreen(api: EduCrmApi, groupId: Int, onBack: () -> Unit) {
         )
         LoadBox(state, { reload++ }) { data ->
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(contentPadding()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                if (tab == 0) StudentsTab(data.students, data.lessons) else AttendanceTab(data.students, data.lessons)
+                if (tab == 0) StudentsTab(api, data.students, data.lessons) { reload++ } else AttendanceTab(data.students, data.lessons)
             }
         }
     }
 }
 
 @Composable
-private fun StudentsTab(students: List<GroupStudent>, lessons: List<GroupLesson>) {
+private fun StudentsTab(api: EduCrmApi, students: List<GroupStudent>, lessons: List<GroupLesson>, onChanged: () -> Unit) {
     val uri = LocalUriHandler.current
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    var target by remember { mutableStateOf<GroupStudent?>(null) }
+    var cameraUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    var uploading by remember { mutableStateOf<Int?>(null) }
+    var message by remember { mutableStateOf<String?>(null) }
+    val savedText = stringResource(R.string.photo_sent)
+    val failedText = stringResource(R.string.photo_failed)
+
+    fun upload(picked: android.net.Uri?) {
+        val student = target ?: return
+        if (picked == null) return
+        uploading = student.enrollment_id
+        scope.launch {
+            val part = facePart(context, picked)
+            message = if (part != null && runCatching { api.uploadFace(student.student_id, part) }.isSuccess) savedText else failedText
+            uploading = null
+            target = null
+            onChanged()
+        }
+    }
+
+    val takePicture = androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.TakePicture()) { ok -> upload(if (ok) cameraUri else null) }
+    val pickImage = androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.GetContent()) { picked -> upload(picked) }
+
+    target?.let { student ->
+        if (uploading == null) {
+            androidx.compose.material3.AlertDialog(
+                onDismissRequest = { target = null },
+                title = { Text(student.full_name) },
+                text = { Text(stringResource(R.string.photo_hint)) },
+                confirmButton = {
+                    androidx.compose.material3.TextButton({
+                        val newUri = newCameraUri(context)
+                        cameraUri = newUri
+                        takePicture.launch(newUri)
+                    }) { Text(stringResource(R.string.camera)) }
+                },
+                dismissButton = {
+                    androidx.compose.material3.TextButton({ pickImage.launch("image/*") }) { Text(stringResource(R.string.gallery)) }
+                },
+            )
+        }
+    }
+
+    message?.let {
+        Text(it, color = if (it == savedText) eduCrm.success else eduCrm.danger, fontWeight = FontWeight.SemiBold)
+    }
     val debt = students.mapNotNull { it.balance }.filter { it < 0 }.sum()
     EduCrmCard {
         Column(Modifier.padding(16.dp)) {
@@ -117,8 +167,24 @@ private fun StudentsTab(students: List<GroupStudent>, lessons: List<GroupLesson>
                 HorizontalDivider(Modifier.padding(vertical = 8.dp), color = eduCrm.border)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     RowNumber(index + 1)
+                    Box(
+                        Modifier.padding(end = 10.dp).size(46.dp).clip(CircleShape).clickable(enabled = s.can_photo && uploading == null) { target = s },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        if (uploading == s.enrollment_id) {
+                            androidx.compose.material3.CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp)
+                        } else {
+                            RemotePhoto(s.photo, 46) { Initials(s.full_name, size = 46) }
+                            if (s.can_photo) {
+                                Box(Modifier.align(Alignment.BottomEnd).size(18.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) {
+                                    Icon(Icons.Filled.PhotoCamera, contentDescription = stringResource(R.string.camera), tint = Color.White, modifier = Modifier.size(12.dp))
+                                }
+                            }
+                        }
+                    }
                     Column(Modifier.weight(1f)) {
                         Text(s.full_name, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                        if (s.photo == null && s.can_photo) Text(stringResource(R.string.no_face_photo), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         val tags = listOfNotNull(
                             if (s.status == "trial") stringResource(R.string.trial) else null,
                             if (s.frozen) stringResource(R.string.frozen) else null,

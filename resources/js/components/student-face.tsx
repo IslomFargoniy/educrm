@@ -88,7 +88,7 @@ export default function StudentFace({
                         <ScanFace className="size-12 text-muted-foreground" />
                     )}
                 </div>
-                {can('students.update') && (
+                {(can('students.update') || can('students.face')) && (
                     <div className="flex flex-wrap justify-center gap-1">
                         <input
                             ref={input}
