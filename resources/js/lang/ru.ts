@@ -171,6 +171,9 @@ export const ru: Record<string, string> = {
     Later: 'Позже',
     'Lead sources': 'Источники лидов',
     'In cashbox: :amount': 'В кассе: :amount',
+    'Teacher salaries are paid on the Teachers page, not as an expense.':
+        'Зарплата преподавателей выдаётся на странице «Преподаватели», а не как расход.',
+    'Teacher salaries': 'Зарплаты преподавателей',
     Leads: 'Лиды',
     Lessons: 'Уроки',
     'Leaves the group': 'Уходит из группы',

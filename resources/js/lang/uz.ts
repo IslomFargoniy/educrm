@@ -175,6 +175,9 @@ export const uz: Record<string, string> = {
     Later: 'Keyinroq',
     'Lead sources': 'Lid manbalari',
     'In cashbox: :amount': 'Kassada: :amount',
+    'Teacher salaries are paid on the Teachers page, not as an expense.':
+        "O'qituvchilar oyligi xarajat sifatida emas, «O'qituvchilar» sahifasidan beriladi.",
+    'Teacher salaries': "O'qituvchilar oyligi",
     Leads: 'Lidlar',
     Lessons: 'Darslar',
     'Leaves the group': 'Guruhdan chiqadi',

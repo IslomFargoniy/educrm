@@ -17,7 +17,7 @@ use Inertia\Response;
 
 class TeacherController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $branchIds = $this->branchIds();
 
@@ -35,7 +35,12 @@ class TeacherController extends Controller
                 'is_active' => $teacher->is_active,
             ]);
 
-        return Inertia::render('teachers/index', ['teachers' => $teachers]);
+        return Inertia::render('teachers/index', [
+            'teachers' => $teachers,
+            'cashboxes' => $request->user()->can('payouts.create')
+                ? Cashbox::query()->whereIn('branch_id', $branchIds)->where('is_active', true)->get(['id', 'name', 'balance'])
+                : [],
+        ]);
     }
 
     public function show(Request $request, User $teacher): Response

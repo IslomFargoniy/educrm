@@ -2,6 +2,9 @@ import { Head, Link } from '@inertiajs/react';
 import EmptyState from '@/components/empty-state';
 import Money from '@/components/money';
 import PageHeader from '@/components/page-header';
+import PayoutDialog from '@/components/payout-dialog';
+import type { PayoutCashbox } from '@/components/payout-dialog';
+import { Button } from '@/components/ui/button';
 import {
     Table,
     TableBody,
@@ -10,6 +13,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useCan } from '@/hooks/use-can';
 import { formatPhone } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import teachers from '@/routes/teachers';
@@ -26,10 +30,14 @@ type Teacher = {
 
 export default function TeachersIndex({
     teachers: list,
+    cashboxes,
 }: {
     teachers: Teacher[];
+    cashboxes: PayoutCashbox[];
 }) {
     const t = useT();
+    const { can } = useCan();
+    const canPay = can('payouts.create') && cashboxes.length > 0;
 
     return (
         <>
@@ -58,6 +66,7 @@ export default function TeachersIndex({
                                     <TableHead className="text-right">
                                         {t('Waiting for payment')}
                                     </TableHead>
+                                    {canPay && <TableHead />}
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -90,6 +99,26 @@ export default function TeachersIndex({
                                         <TableCell className="text-right text-muted-foreground">
                                             <Money value={teacher.pending} />
                                         </TableCell>
+                                        {canPay && (
+                                            <TableCell className="text-right">
+                                                {teacher.balance > 0 && (
+                                                    <PayoutDialog
+                                                        teacher={teacher}
+                                                        cashboxes={cashboxes}
+                                                        trigger={
+                                                            <Button
+                                                                size="sm"
+                                                                className="bg-highlight text-highlight-foreground hover:bg-highlight/90"
+                                                            >
+                                                                {t(
+                                                                    'Pay salary',
+                                                                )}
+                                                            </Button>
+                                                        }
+                                                    />
+                                                )}
+                                            </TableCell>
+                                        )}
                                     </TableRow>
                                 ))}
                             </TableBody>

@@ -1,22 +1,15 @@
 import { Head } from '@inertiajs/react';
-import { HandCoins } from 'lucide-react';
-import { useState } from 'react';
-import Field from '@/components/field';
-import FormDialog from '@/components/form-dialog';
 import HistoryTable from '@/components/history-table';
 import type { History } from '@/components/history-table';
 import Money from '@/components/money';
 import PageHeader from '@/components/page-header';
+import PayoutDialog from '@/components/payout-dialog';
 import PeriodFilter from '@/components/period-filter';
 import StatCard from '@/components/stat-card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { NativeSelect } from '@/components/ui/native-select';
 import { useCan } from '@/hooks/use-can';
 import { formatDate, formatMoney, formatPhone } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import teachers from '@/routes/teachers';
-import payouts from '@/routes/teachers/payouts';
 
 type Props = {
     teacher: {
@@ -50,14 +43,6 @@ export default function TeacherShow({
     cashboxes,
 }: Props) {
     const t = useT();
-    const [payoutBoxId, setPayoutBoxId] = useState(cashboxes[0]?.id);
-    const payoutBoxBalance =
-        cashboxes.find((c) => c.id === payoutBoxId)?.balance ?? 0;
-    // Suggest the whole salary, but never more than the chosen cashbox holds.
-    const suggestedPayout = Math.max(
-        0,
-        Math.min(teacher.balance, payoutBoxBalance),
-    );
     const { can } = useCan();
 
     return (
@@ -77,82 +62,10 @@ export default function TeacherShow({
                     actions={
                         can('payouts.create') &&
                         cashboxes.length > 0 && (
-                            <FormDialog
-                                title={t('Pay salary')}
-                                description={t(
-                                    'Available on balance: :amount',
-                                    { amount: formatMoney(teacher.balance) },
-                                )}
-                                form={payouts.store.form(teacher.id)}
-                                submitLabel={t('Pay')}
-                                trigger={
-                                    <Button className="bg-highlight text-highlight-foreground hover:bg-highlight/90">
-                                        <HandCoins />
-                                        {t('Pay salary')}
-                                    </Button>
-                                }
-                            >
-                                {(errors) => (
-                                    <>
-                                        <Field
-                                            label={t('Cashbox')}
-                                            error={errors.cashbox_id}
-                                        >
-                                            <NativeSelect
-                                                name="cashbox_id"
-                                                value={payoutBoxId}
-                                                onChange={(e) =>
-                                                    setPayoutBoxId(
-                                                        Number(e.target.value),
-                                                    )
-                                                }
-                                            >
-                                                {cashboxes.map((c) => (
-                                                    <option
-                                                        key={c.id}
-                                                        value={c.id}
-                                                    >
-                                                        {c.name} —{' '}
-                                                        {formatMoney(c.balance)}
-                                                    </option>
-                                                ))}
-                                            </NativeSelect>
-                                        </Field>
-                                        <Field
-                                            label={t('Amount')}
-                                            error={errors.amount}
-                                            hint={t('In cashbox: :amount', {
-                                                amount: formatMoney(
-                                                    payoutBoxBalance,
-                                                ),
-                                            })}
-                                        >
-                                            <Input
-                                                key={payoutBoxId}
-                                                name="amount"
-                                                type="number"
-                                                min={1}
-                                                max={Math.min(
-                                                    teacher.balance,
-                                                    payoutBoxBalance,
-                                                )}
-                                                defaultValue={
-                                                    suggestedPayout > 0
-                                                        ? suggestedPayout
-                                                        : undefined
-                                                }
-                                                required
-                                            />
-                                        </Field>
-                                        <Field
-                                            label={t('Note')}
-                                            error={errors.note}
-                                        >
-                                            <Input name="note" />
-                                        </Field>
-                                    </>
-                                )}
-                            </FormDialog>
+                            <PayoutDialog
+                                teacher={teacher}
+                                cashboxes={cashboxes}
+                            />
                         )
                     }
                 />

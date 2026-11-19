@@ -1,4 +1,10 @@
-import { ArrowLeftRight, MinusCircle, PiggyBank } from 'lucide-react';
+import { Link } from '@inertiajs/react';
+import {
+    ArrowLeftRight,
+    HandCoins,
+    MinusCircle,
+    PiggyBank,
+} from 'lucide-react';
 import { useState } from 'react';
 import Field from '@/components/field';
 import FormDialog from '@/components/form-dialog';
@@ -11,6 +17,7 @@ import { useCan } from '@/hooks/use-can';
 import { formatMoney } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import cashboxTransfers from '@/routes/cashbox-transfers';
+import teachers from '@/routes/teachers';
 import expenses from '@/routes/expenses';
 import withdrawals from '@/routes/withdrawals';
 
@@ -78,6 +85,17 @@ export default function CashActions({
 
     return (
         <>
+            {can('payouts.create') && (
+                <Button
+                    asChild
+                    className="bg-highlight text-highlight-foreground hover:bg-highlight/90"
+                >
+                    <Link href={teachers.index()}>
+                        <HandCoins />
+                        {t('Teacher salaries')}
+                    </Link>
+                </Button>
+            )}
             {can('expenses.create') && (
                 <FormDialog
                     title={t('Expense')}
@@ -99,6 +117,9 @@ export default function CashActions({
                             <Field
                                 label={t('Category')}
                                 error={errors.expense_category_id}
+                                hint={t(
+                                    'Teacher salaries are paid on the Teachers page, not as an expense.',
+                                )}
                             >
                                 <NativeSelect
                                     name="expense_category_id"
