@@ -48,3 +48,21 @@ fun describe(type: String, meta: JsonObject?): String = when (type) {
     "balance_transfer" -> "${meta.text("from_group")} → ${meta.text("to_group")}"
     else -> meta.text("group").orEmpty()
 }
+
+/** The 9 local digits of an Uzbek number from any input ("+998 90 123 45 67", "998901234567", "901234567"). */
+fun phoneLocalDigits(value: String?): String {
+    val raw = value.orEmpty().trim()
+    if (raw.startsWith("+998")) return raw.substring(4).filter(Char::isDigit).take(9)
+    val digits = raw.filter(Char::isDigit)
+    return (if (digits.length >= 12 && digits.startsWith("998")) digits.substring(3) else digits).take(9)
+}
+
+/** "+998901234567" → "+998 90 123 45 67" (partial numbers are formatted as far as they go). */
+fun formatPhone(value: String?): String {
+    val local = phoneLocalDigits(value)
+    if (local.isEmpty()) return ""
+    val parts = listOf(0 to 2, 2 to 5, 5 to 7, 7 to 9)
+        .filter { (from, _) -> from < local.length }
+        .map { (from, to) -> local.substring(from, minOf(to, local.length)) }
+    return "+998 " + parts.joinToString(" ")
+}

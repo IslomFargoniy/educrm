@@ -48,7 +48,7 @@ fun SplashScreen() {
 
 @Composable
 fun LoginScreen(api: MensaApi, onLoggedIn: (String, UserProfile) -> Unit) {
-    var phone by remember { mutableStateOf("+998 ") }
+    var phone by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -70,7 +70,7 @@ fun LoginScreen(api: MensaApi, onLoggedIn: (String, UserProfile) -> Unit) {
         ) {
             Text(stringResource(R.string.login_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
             Text(stringResource(R.string.login_subtitle), color = MaterialTheme.colorScheme.onSurfaceVariant)
-            OutlinedTextField(phone, { phone = it }, label = { Text(stringResource(R.string.phone)) }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone), modifier = Modifier.fillMaxWidth())
+            PhoneField(phone, { phone = it }, label = stringResource(R.string.phone), modifier = Modifier.fillMaxWidth())
             OutlinedTextField(password, { password = it }, label = { Text(stringResource(R.string.password)) }, singleLine = true, visualTransformation = PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), modifier = Modifier.fillMaxWidth())
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             Button(
@@ -78,13 +78,13 @@ fun LoginScreen(api: MensaApi, onLoggedIn: (String, UserProfile) -> Unit) {
                     busy = true
                     error = null
                     scope.launch {
-                        runCatching { api.login(LoginRequest(phone, password)) }
+                        runCatching { api.login(LoginRequest("+998$phone", password)) }
                             .onSuccess { onLoggedIn(it.token, it.user) }
                             .onFailure { error = it.readableMessage(networkError) }
                         busy = false
                     }
                 },
-                enabled = !busy && password.isNotBlank(),
+                enabled = !busy && phone.length == 9 && password.isNotBlank(),
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
             ) {
                 if (busy) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp) else Text(stringResource(R.string.login))
