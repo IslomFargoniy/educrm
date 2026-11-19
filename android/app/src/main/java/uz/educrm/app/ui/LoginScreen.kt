@@ -1,4 +1,4 @@
-package uz.mensalc.app.ui
+package uz.educrm.app.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -45,15 +45,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.Image
 import kotlinx.coroutines.launch
-import uz.mensalc.app.R
-import uz.mensalc.app.data.LoginRequest
-import uz.mensalc.app.data.MensaApi
-import uz.mensalc.app.data.UserProfile
-import uz.mensalc.app.data.readableMessage
+import uz.educrm.app.R
+import uz.educrm.app.data.LoginRequest
+import uz.educrm.app.data.EduCrmApi
+import uz.educrm.app.data.UserProfile
+import uz.educrm.app.data.readableMessage
 
 @Composable
 fun SplashScreen() {
-    Box(Modifier.fillMaxSize().background(mensa.bar), contentAlignment = Alignment.Center) {
+    Box(Modifier.fillMaxSize().background(eduCrm.bar), contentAlignment = Alignment.Center) {
         LogoBadge(96)
     }
 }
@@ -67,7 +67,7 @@ fun LogoBadge(size: Int) {
 }
 
 @Composable
-fun LoginScreen(api: MensaApi, onLoggedIn: (String, UserProfile) -> Unit) {
+fun LoginScreen(api: EduCrmApi, onLoggedIn: (String, UserProfile) -> Unit) {
     var phone by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
@@ -79,22 +79,22 @@ fun LoginScreen(api: MensaApi, onLoggedIn: (String, UserProfile) -> Unit) {
         Column(
             Modifier.fillMaxWidth()
                 .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
-                .background(mensa.bar)
+                .background(eduCrm.bar)
                 .statusBarsPadding()
                 .padding(start = 24.dp, end = 24.dp, top = 36.dp, bottom = 56.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 LogoBadge(52)
                 Column(Modifier.padding(start = 12.dp)) {
-                    Text("Mensa", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
-                    Text("Learning center", color = mensa.barMuted, fontSize = 13.sp)
+                    Text("EduCrm", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
+                    Text("Learning center", color = eduCrm.barMuted, fontSize = 13.sp)
                 }
             }
             Box(Modifier.padding(top = 28.dp, bottom = 10.dp).size(12.dp).rotate(45f).background(Orange))
             Text(stringResource(R.string.login_tagline), color = Color.White, fontSize = 24.sp, lineHeight = 30.sp, fontWeight = FontWeight.ExtraBold)
         }
 
-        MensaCard(Modifier.padding(horizontal = 16.dp).offset(y = (-32).dp)) {
+        EduCrmCard(Modifier.padding(horizontal = 16.dp).offset(y = (-32).dp)) {
             Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Column {
                     Text(stringResource(R.string.login_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)

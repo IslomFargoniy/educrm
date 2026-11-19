@@ -1,4 +1,4 @@
-package uz.mensalc.app.ui
+package uz.educrm.app.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -27,14 +27,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import uz.mensalc.app.R
-import uz.mensalc.app.data.MensaApi
-import uz.mensalc.app.data.UserProfile
+import uz.educrm.app.R
+import uz.educrm.app.data.EduCrmApi
+import uz.educrm.app.data.UserProfile
 
 private data class Tab(val route: String, val label: Int, val icon: ImageVector)
 
 @Composable
-fun MainScreen(api: MensaApi, user: UserProfile, themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit, onLogout: () -> Unit) {
+fun MainScreen(api: EduCrmApi, user: UserProfile, themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit, onLogout: () -> Unit) {
     val nav = rememberNavController()
     val isTeacher = user.roles.contains("teacher")
     val tabs = listOfNotNull(

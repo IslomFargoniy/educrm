@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Mensa</string>
-    <string name="login_title">Mensa\'ga kirish</string>
+    <string name="app_name">EduCrm</string>
+    <string name="login_title">EduCrm\'ga kirish</string>
     <string name="login_subtitle">Telefon raqam va parolni kiriting</string>
     <string name="phone">Telefon raqam</string>
     <string name="password">Parol</string>
@@ -56,7 +56,7 @@
     <string name="update_now">Yangilash</string>
     <string name="update_later">Keyinroq</string>
     <string name="update_downloading">Yuklanmoqda: %1$d%%</string>
-    <string name="update_permission">Telefon sozlamalarida Mensa uchun «Noma\'lum ilovalarni o\'rnatish»ga ruxsat bering, so\'ng qaytib «Yangilash»ni bosing.</string>
+    <string name="update_permission">Telefon sozlamalarida EduCrm uchun «Noma\'lum ilovalarni o\'rnatish»ga ruxsat bering, so\'ng qaytib «Yangilash»ni bosing.</string>
     <string name="update_failed">Yuklab bo\'lmadi. Internetni tekshirib, qayta urinib ko\'ring.</string>
     <string name="app_version">Versiya %1$s</string>
 </resources>

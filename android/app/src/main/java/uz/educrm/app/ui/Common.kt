@@ -1,4 +1,4 @@
-package uz.mensalc.app.ui
+package uz.educrm.app.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -41,8 +41,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import uz.mensalc.app.R
-import uz.mensalc.app.data.History
+import uz.educrm.app.R
+import uz.educrm.app.data.History
 
 /** Loading / error / content wrapper. */
 sealed interface Load<out T> {
@@ -76,7 +76,7 @@ fun ScreenHeader(
 ) {
     Column(
         Modifier.fillMaxWidth()
-            .background(mensa.bar)
+            .background(eduCrm.bar)
             .statusBarsPadding()
             .padding(start = if (onBack == null) 20.dp else 4.dp, end = 8.dp, top = 8.dp, bottom = 14.dp),
     ) {
@@ -86,7 +86,7 @@ fun ScreenHeader(
             }
             Column(Modifier.weight(1f).padding(vertical = 6.dp)) {
                 Text(title, color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
-                subtitle?.let { Text(it, color = mensa.barMuted, style = MaterialTheme.typography.bodyMedium, maxLines = 1) }
+                subtitle?.let { Text(it, color = eduCrm.barMuted, style = MaterialTheme.typography.bodyMedium, maxLines = 1) }
             }
             actions()
         }
@@ -96,9 +96,9 @@ fun ScreenHeader(
 
 /** White (dark: navy) card with a thin border, like the web cards. */
 @Composable
-fun MensaCard(modifier: Modifier = Modifier, onClick: (() -> Unit)? = null, content: @Composable ColumnScope.() -> Unit) {
+fun EduCrmCard(modifier: Modifier = Modifier, onClick: (() -> Unit)? = null, content: @Composable ColumnScope.() -> Unit) {
     val colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-    val border = BorderStroke(1.dp, mensa.border)
+    val border = BorderStroke(1.dp, eduCrm.border)
     val shape = MaterialTheme.shapes.large
     if (onClick != null) {
         Card(onClick = onClick, modifier = modifier.fillMaxWidth(), shape = shape, colors = colors, border = border, content = content)
@@ -137,7 +137,7 @@ fun ThemeSwitcher(mode: ThemeMode, onChange: (ThemeMode) -> Unit, modifier: Modi
         Triple(ThemeMode.System, Icons.Filled.PhoneAndroid, R.string.theme_system),
     )
     Row(
-        modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceVariant).border(1.dp, mensa.border, RoundedCornerShape(12.dp)).padding(4.dp),
+        modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceVariant).border(1.dp, eduCrm.border, RoundedCornerShape(12.dp)).padding(4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         options.forEach { (value, icon, label) ->
@@ -162,8 +162,8 @@ fun ThemeSwitcher(mode: ThemeMode, onChange: (ThemeMode) -> Unit, modifier: Modi
 @Composable
 fun MoneyText(value: Long, signed: Boolean = false, bold: Boolean = true) {
     val color = when {
-        signed && value < 0 -> mensa.danger
-        signed && value > 0 -> mensa.success
+        signed && value < 0 -> eduCrm.danger
+        signed && value > 0 -> eduCrm.success
         else -> MaterialTheme.colorScheme.onSurface
     }
     Text(money(value), color = color, fontWeight = if (bold) FontWeight.Bold else FontWeight.Normal)
@@ -178,9 +178,9 @@ fun SectionTitle(text: String) {
 fun HistoryList(history: History, signed: Boolean) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         SectionTitle(stringResource(R.string.history))
-        MensaCard {
+        EduCrmCard {
             history.rows.forEachIndexed { index, row ->
-                if (index > 0) HorizontalDivider(Modifier.padding(horizontal = 14.dp), color = mensa.border)
+                if (index > 0) HorizontalDivider(Modifier.padding(horizontal = 14.dp), color = eduCrm.border)
                 Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
                         Text(txLabel(row.type), fontWeight = FontWeight.SemiBold)
@@ -188,11 +188,11 @@ fun HistoryList(history: History, signed: Boolean) {
                     }
                     Column(horizontalAlignment = Alignment.End) {
                         when {
-                            row.income > 0 -> Text("+" + money(row.income), color = mensa.success, fontWeight = FontWeight.Bold)
-                            row.expense > 0 -> Text("−" + money(row.expense), color = mensa.danger, fontWeight = FontWeight.Bold)
+                            row.income > 0 -> Text("+" + money(row.income), color = eduCrm.success, fontWeight = FontWeight.Bold)
+                            row.expense > 0 -> Text("−" + money(row.expense), color = eduCrm.danger, fontWeight = FontWeight.Bold)
                             else -> Text("—")
                         }
-                        Text(money(row.balance), style = MaterialTheme.typography.bodySmall, color = if (signed && row.balance < 0) mensa.danger else MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(money(row.balance), style = MaterialTheme.typography.bodySmall, color = if (signed && row.balance < 0) eduCrm.danger else MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }

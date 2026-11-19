@@ -8,7 +8,7 @@ export default function AppLogo() {
             </div>
             <div className="ml-1.5 grid flex-1 text-left leading-tight">
                 <span className="truncate text-lg font-extrabold tracking-tight text-white">
-                    Mensa
+                    EduCrm
                 </span>
                 <span className="truncate text-xs text-sidebar-muted">
                     Learning center

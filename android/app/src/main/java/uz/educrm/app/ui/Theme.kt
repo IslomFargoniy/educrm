@@ -1,4 +1,4 @@
-package uz.mensalc.app.ui
+package uz.educrm.app.ui
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,7 +21,7 @@ val OnOrange = Color(0xFF1F1300)
 enum class ThemeMode { Light, Dark, System }
 
 /** Colors that Material 3 has no slot for. */
-data class MensaColors(
+data class EduCrmColors(
     val success: Color,
     val danger: Color,
     val info: Color,
@@ -33,7 +33,7 @@ data class MensaColors(
     val hero: Color,
 )
 
-private val LightExtra = MensaColors(
+private val LightExtra = EduCrmColors(
     success = Color(0xFF0B7A4B),
     danger = Color(0xFFC2410C),
     info = Color(0xFF0369A1),
@@ -45,7 +45,7 @@ private val LightExtra = MensaColors(
     hero = Navy,
 )
 
-private val DarkExtra = MensaColors(
+private val DarkExtra = EduCrmColors(
     success = Color(0xFF4ADE9A),
     danger = Color(0xFFFDA06B),
     info = Color(0xFF7DD3FC),
@@ -100,13 +100,13 @@ private val Dark = darkColorScheme(
     error = Color(0xFFFDA06B),
 )
 
-private val LocalMensaColors = staticCompositionLocalOf { LightExtra }
+private val LocalEduCrmColors = staticCompositionLocalOf { LightExtra }
 
-/** Extra Mensa colors for the current theme. */
-val mensa: MensaColors
-    @Composable @ReadOnlyComposable get() = LocalMensaColors.current
+/** Extra EduCrm colors for the current theme. */
+val eduCrm: EduCrmColors
+    @Composable @ReadOnlyComposable get() = LocalEduCrmColors.current
 
-private val MensaShapes = Shapes(
+private val EduCrmShapes = Shapes(
     extraSmall = RoundedCornerShape(8.dp),
     small = RoundedCornerShape(10.dp),
     medium = RoundedCornerShape(14.dp),
@@ -122,11 +122,11 @@ fun isDark(mode: ThemeMode): Boolean = when (mode) {
 }
 
 @Composable
-fun MensaTheme(mode: ThemeMode = ThemeMode.System, content: @Composable () -> Unit) {
+fun EduCrmTheme(mode: ThemeMode = ThemeMode.System, content: @Composable () -> Unit) {
     val dark = isDark(mode)
-    androidx.compose.runtime.CompositionLocalProvider(LocalMensaColors provides if (dark) DarkExtra else LightExtra) {
+    androidx.compose.runtime.CompositionLocalProvider(LocalEduCrmColors provides if (dark) DarkExtra else LightExtra) {
         val scheme = if (dark) Dark else Light
-        MaterialTheme(colorScheme = scheme, shapes = MensaShapes) {
+        MaterialTheme(colorScheme = scheme, shapes = EduCrmShapes) {
             androidx.compose.runtime.CompositionLocalProvider(androidx.compose.material3.LocalContentColor provides scheme.onBackground, content = content)
         }
     }

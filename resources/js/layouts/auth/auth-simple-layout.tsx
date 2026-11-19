@@ -51,7 +51,7 @@ export default function AuthSimpleLayout({
                 </div>
 
                 <p className="relative z-10 text-xs text-sidebar-muted">
-                    © {new Date().getFullYear()} Mensa Learning center
+                    © {new Date().getFullYear()} EduCrm
                 </p>
 
                 <AppLogoIcon className="absolute -right-24 -bottom-24 size-[28rem] text-white opacity-[0.05]" />

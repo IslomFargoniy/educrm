@@ -1,4 +1,4 @@
-package uz.mensalc.app.ui
+package uz.educrm.app.ui
 
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
@@ -11,7 +11,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
-import uz.mensalc.app.R
+import uz.educrm.app.R
 
 /**
  * Amount field: digits only, shown grouped by thousands ("1 803 000 so'm").

@@ -1,4 +1,4 @@
-package uz.mensalc.app.ui
+package uz.educrm.app.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -46,20 +46,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
-import uz.mensalc.app.R
-import uz.mensalc.app.data.AttendanceRequest
-import uz.mensalc.app.data.LessonItem
-import uz.mensalc.app.data.LessonResponse
-import uz.mensalc.app.data.LessonsResponse
-import uz.mensalc.app.data.MensaApi
-import uz.mensalc.app.data.UserProfile
-import uz.mensalc.app.data.readableMessage
+import uz.educrm.app.R
+import uz.educrm.app.data.AttendanceRequest
+import uz.educrm.app.data.LessonItem
+import uz.educrm.app.data.LessonResponse
+import uz.educrm.app.data.LessonsResponse
+import uz.educrm.app.data.EduCrmApi
+import uz.educrm.app.data.UserProfile
+import uz.educrm.app.data.readableMessage
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
 
 @Composable
-fun LessonsScreen(api: MensaApi, user: UserProfile, onOpen: (Int) -> Unit) {
+fun LessonsScreen(api: EduCrmApi, user: UserProfile, onOpen: (Int) -> Unit) {
     var day by remember { mutableStateOf(LocalDate.now()) }
     var state by remember { mutableStateOf<Load<LessonsResponse>>(Load.Loading) }
     var reload by remember { mutableStateOf(0) }
@@ -77,7 +77,7 @@ fun LessonsScreen(api: MensaApi, user: UserProfile, onOpen: (Int) -> Unit) {
             subtitle = stringResource(R.string.lessons),
             bottom = {
                 Row(
-                    Modifier.padding(top = 12.dp, end = 12.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(mensa.barAccent),
+                    Modifier.padding(top = 12.dp, end = 12.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(eduCrm.barAccent),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     IconButton({ day = day.minusDays(1) }) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, null, tint = Color.White) }
@@ -85,7 +85,7 @@ fun LessonsScreen(api: MensaApi, user: UserProfile, onOpen: (Int) -> Unit) {
                         Text(date(day.toString()), color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 17.sp)
                         Text(
                             if (isToday) stringResource(R.string.today) else day.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault()).replaceFirstChar { it.uppercase() },
-                            color = if (isToday) Orange else mensa.barMuted,
+                            color = if (isToday) Orange else eduCrm.barMuted,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.clickable(enabled = !isToday) { day = LocalDate.now() },
@@ -110,7 +110,7 @@ fun LessonsScreen(api: MensaApi, user: UserProfile, onOpen: (Int) -> Unit) {
 @Composable
 private fun LessonCard(lesson: LessonItem, onClick: () -> Unit) {
     val (statusText, statusColor) = lessonStatus(lesson.status)
-    MensaCard(onClick = onClick) {
+    EduCrmCard(onClick = onClick) {
         Row(Modifier.height(androidx.compose.foundation.layout.IntrinsicSize.Min).padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.width(56.dp)) {
                 Text(lesson.start_time, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
@@ -130,8 +130,8 @@ private fun LessonCard(lesson: LessonItem, onClick: () -> Unit) {
 
 @Composable
 private fun lessonStatus(status: String): Pair<String, Color> = when (status) {
-    "held" -> stringResource(R.string.status_held) to mensa.success
-    "cancelled" -> stringResource(R.string.status_cancelled) to mensa.danger
+    "held" -> stringResource(R.string.status_held) to eduCrm.success
+    "cancelled" -> stringResource(R.string.status_cancelled) to eduCrm.danger
     else -> stringResource(R.string.status_scheduled) to MaterialTheme.colorScheme.primary
 }
 
@@ -146,7 +146,7 @@ fun EmptyState(text: String) {
 }
 
 @Composable
-fun LessonScreen(api: MensaApi, lessonId: Int, onBack: () -> Unit) {
+fun LessonScreen(api: EduCrmApi, lessonId: Int, onBack: () -> Unit) {
     var state by remember { mutableStateOf<Load<LessonResponse>>(Load.Loading) }
     var reload by remember { mutableStateOf(0) }
     val statuses = remember { mutableStateMapOf<Int, String>() }
@@ -191,13 +191,13 @@ fun LessonScreen(api: MensaApi, lessonId: Int, onBack: () -> Unit) {
                 }
                 LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     items(data.students, key = { it.enrollment_id }) { student ->
-                        MensaCard {
+                        EduCrmCard {
                             Column(Modifier.padding(14.dp)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Initials(student.full_name, size = 38)
                                     Text(student.full_name, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f).padding(horizontal = 10.dp))
                                     if (student.is_trial) Pill(stringResource(R.string.trial), Orange)
-                                    if (student.is_debtor == true) Box(Modifier.padding(start = 4.dp)) { Pill(stringResource(R.string.debtor), mensa.danger) }
+                                    if (student.is_debtor == true) Box(Modifier.padding(start = 4.dp)) { Pill(stringResource(R.string.debtor), eduCrm.danger) }
                                 }
                                 AttendanceChoice(
                                     selected = statuses[student.enrollment_id],
@@ -208,7 +208,7 @@ fun LessonScreen(api: MensaApi, lessonId: Int, onBack: () -> Unit) {
                         }
                     }
                 }
-                message?.let { Text(it, modifier = Modifier.padding(horizontal = 16.dp), color = if (it == savedText) mensa.success else mensa.danger, fontWeight = FontWeight.SemiBold) }
+                message?.let { Text(it, modifier = Modifier.padding(horizontal = 16.dp), color = if (it == savedText) eduCrm.success else eduCrm.danger, fontWeight = FontWeight.SemiBold) }
                 if (data.can_mark && data.lesson.status != "cancelled") {
                     Button(
                         onClick = {
@@ -233,9 +233,9 @@ fun LessonScreen(api: MensaApi, lessonId: Int, onBack: () -> Unit) {
 @Composable
 private fun AttendanceChoice(selected: String?, enabled: Boolean, onSelect: (String) -> Unit) {
     val options = listOf(
-        Triple("present", R.string.present, mensa.success),
-        Triple("absent", R.string.absent, mensa.danger),
-        Triple("excused", R.string.excused, mensa.info),
+        Triple("present", R.string.present, eduCrm.success),
+        Triple("absent", R.string.absent, eduCrm.danger),
+        Triple("excused", R.string.excused, eduCrm.info),
     )
     Row(Modifier.padding(top = 12.dp).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         options.forEach { (value, label, color) ->
@@ -244,7 +244,7 @@ private fun AttendanceChoice(selected: String?, enabled: Boolean, onSelect: (Str
                 Modifier.weight(1f)
                     .clip(RoundedCornerShape(10.dp))
                     .background(if (isSelected) color else Color.Transparent)
-                    .border(1.dp, if (isSelected) color else mensa.border, RoundedCornerShape(10.dp))
+                    .border(1.dp, if (isSelected) color else eduCrm.border, RoundedCornerShape(10.dp))
                     .clickable(enabled = enabled) { onSelect(value) }
                     .padding(vertical = 10.dp),
                 contentAlignment = Alignment.Center,

@@ -1,6 +1,6 @@
 {
-    "name": "Mensa Learning Center",
-    "short_name": "Mensa",
+    "name": "EduCrm",
+    "short_name": "EduCrm",
     "start_url": "/home",
     "scope": "/",
     "display": "standalone",

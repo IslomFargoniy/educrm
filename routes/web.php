@@ -26,7 +26,7 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/home');
-Route::permanentRedirect('mensa.apk', '/downloads/mensa.apk');
+Route::permanentRedirect('mensa.apk', '/downloads/educrm.apk');
 Route::post('locale', [PreferenceController::class, 'locale'])->name('locale.update');
 
 Route::post('telegram/webhook/{secret}', [TelegramController::class, 'webhook'])

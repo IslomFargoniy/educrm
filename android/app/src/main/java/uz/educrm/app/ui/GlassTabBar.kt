@@ -1,4 +1,4 @@
-package uz.mensalc.app.ui
+package uz.educrm.app.ui
 
 import android.os.Build
 import androidx.compose.animation.animateColorAsState

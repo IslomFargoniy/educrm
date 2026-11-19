@@ -1,4 +1,4 @@
-package uz.mensalc.app.ui
+package uz.educrm.app.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -37,14 +37,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import uz.mensalc.app.R
-import uz.mensalc.app.data.BalanceResponse
-import uz.mensalc.app.data.MensaApi
-import uz.mensalc.app.data.UserProfile
-import uz.mensalc.app.data.readableMessage
+import uz.educrm.app.R
+import uz.educrm.app.data.BalanceResponse
+import uz.educrm.app.data.EduCrmApi
+import uz.educrm.app.data.UserProfile
+import uz.educrm.app.data.readableMessage
 
 @Composable
-fun BalanceScreen(api: MensaApi) {
+fun BalanceScreen(api: EduCrmApi) {
     var state by remember { mutableStateOf<Load<BalanceResponse>>(Load.Loading) }
     var reload by remember { mutableStateOf(0) }
     val networkError = stringResource(R.string.error_network)
@@ -57,18 +57,18 @@ fun BalanceScreen(api: MensaApi) {
         ScreenHeader(title = stringResource(R.string.my_balance))
         LoadBox(state, { reload++ }) { data ->
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(contentPadding()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Card(shape = MaterialTheme.shapes.large, colors = CardDefaults.cardColors(containerColor = mensa.hero), modifier = Modifier.fillMaxWidth()) {
+                Card(shape = MaterialTheme.shapes.large, colors = CardDefaults.cardColors(containerColor = eduCrm.hero), modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(20.dp)) {
                         Text(stringResource(R.string.can_take), color = Color.White.copy(alpha = 0.8f), fontWeight = FontWeight.SemiBold)
                         Text(money(data.balance) + " " + stringResource(R.string.sum), color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.ExtraBold)
                     }
                 }
-                MensaCard {
+                EduCrmCard {
                     Column(Modifier.padding(16.dp)) {
                         Text(stringResource(R.string.waiting_payment), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text(money(data.pending.total) + " " + stringResource(R.string.sum), fontWeight = FontWeight.ExtraBold, fontSize = 22.sp)
                         data.pending.items.take(20).forEach {
-                            HorizontalDivider(Modifier.padding(vertical = 8.dp), color = mensa.border)
+                            HorizontalDivider(Modifier.padding(vertical = 8.dp), color = eduCrm.border)
                             Row(Modifier.fillMaxWidth()) {
                                 Column(Modifier.weight(1f)) {
                                     Text(it.student, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
@@ -92,7 +92,7 @@ fun ProfileScreen(user: UserProfile, themeMode: ThemeMode, onThemeChange: (Theme
     Column(Modifier.fillMaxSize()) {
         ScreenHeader(title = stringResource(R.string.profile))
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(contentPadding()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            MensaCard {
+            EduCrmCard {
                 Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                     Initials(user.name, size = 56, background = Orange, color = OnOrange)
                     Column(Modifier.padding(start = 14.dp)) {
@@ -100,7 +100,7 @@ fun ProfileScreen(user: UserProfile, themeMode: ThemeMode, onThemeChange: (Theme
                         Text(formatPhone(user.phone), color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
-                HorizontalDivider(color = mensa.border)
+                HorizontalDivider(color = eduCrm.border)
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     InfoRow(stringResource(R.string.role), user.roles.joinToString { roleLabel(it) })
                     if (user.branches.isNotEmpty()) InfoRow(stringResource(R.string.branches), user.branches.joinToString { it.name })
@@ -114,7 +114,7 @@ fun ProfileScreen(user: UserProfile, themeMode: ThemeMode, onThemeChange: (Theme
                 Text(stringResource(R.string.open_web), modifier = Modifier.padding(start = 8.dp), fontWeight = FontWeight.SemiBold)
             }
             Text(
-                stringResource(R.string.app_version, uz.mensalc.app.BuildConfig.VERSION_NAME),
+                stringResource(R.string.app_version, uz.educrm.app.BuildConfig.VERSION_NAME),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.fillMaxWidth(),
@@ -123,7 +123,7 @@ fun ProfileScreen(user: UserProfile, themeMode: ThemeMode, onThemeChange: (Theme
             Button(
                 onLogout,
                 shape = MaterialTheme.shapes.medium,
-                colors = ButtonDefaults.buttonColors(containerColor = mensa.danger.copy(alpha = 0.12f), contentColor = mensa.danger),
+                colors = ButtonDefaults.buttonColors(containerColor = eduCrm.danger.copy(alpha = 0.12f), contentColor = eduCrm.danger),
                 modifier = Modifier.fillMaxWidth().height(50.dp),
             ) {
                 Icon(Icons.AutoMirrored.Filled.Logout, null, modifier = Modifier.size(18.dp))

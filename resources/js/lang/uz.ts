@@ -202,7 +202,7 @@ export const uz: Record<string, string> = {
         "Darslar o'tilgan, o'quvchilar hali to'lamagan. Balansga qo'shilmagan.",
     Light: "Yorug'",
     'Log in': 'Kirish',
-    'Log in to Mensa': "Mensa'ga kirish",
+    'Log in to EduCrm': "EduCrm'ga kirish",
     'Manage your passkeys for passwordless sign-in':
         'Parolsiz kirish kalitlarini boshqarish',
     'Manage your profile and account settings': 'Profil va hisob sozlamalari',

@@ -57,5 +57,5 @@ it('lets a teacher open own lessons but not finance', function () {
 });
 
 it('redirects the old APK link to the downloads folder', function () {
-    $this->get('/mensa.apk')->assertRedirect('/downloads/mensa.apk')->assertStatus(301);
+    $this->get('/mensa.apk')->assertRedirect('/downloads/educrm.apk')->assertStatus(301);
 });

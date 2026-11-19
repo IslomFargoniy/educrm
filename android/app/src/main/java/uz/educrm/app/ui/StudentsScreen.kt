@@ -1,4 +1,4 @@
-package uz.mensalc.app.ui
+package uz.educrm.app.ui
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.height
@@ -47,19 +47,19 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import uz.mensalc.app.R
-import uz.mensalc.app.data.Cashbox
-import uz.mensalc.app.data.EnrollmentDetail
-import uz.mensalc.app.data.MensaApi
-import uz.mensalc.app.data.PaymentRequest
-import uz.mensalc.app.data.StudentResponse
-import uz.mensalc.app.data.StudentsResponse
-import uz.mensalc.app.data.UserProfile
-import uz.mensalc.app.data.readableMessage
+import uz.educrm.app.R
+import uz.educrm.app.data.Cashbox
+import uz.educrm.app.data.EnrollmentDetail
+import uz.educrm.app.data.EduCrmApi
+import uz.educrm.app.data.PaymentRequest
+import uz.educrm.app.data.StudentResponse
+import uz.educrm.app.data.StudentsResponse
+import uz.educrm.app.data.UserProfile
+import uz.educrm.app.data.readableMessage
 import java.util.UUID
 
 @Composable
-fun StudentsScreen(api: MensaApi, onOpen: (Int) -> Unit) {
+fun StudentsScreen(api: EduCrmApi, onOpen: (Int) -> Unit) {
     var query by remember { mutableStateOf("") }
     var state by remember { mutableStateOf<Load<StudentsResponse>>(Load.Loading) }
     var reload by remember { mutableStateOf(0) }
@@ -98,7 +98,7 @@ fun StudentsScreen(api: MensaApi, onOpen: (Int) -> Unit) {
             }
             LazyColumn(contentPadding = contentPadding(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 items(data.students, key = { it.id }) { student ->
-                    MensaCard(onClick = { onOpen(student.id) }) {
+                    EduCrmCard(onClick = { onOpen(student.id) }) {
                         Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                             Initials(student.full_name)
                             Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
@@ -115,7 +115,7 @@ fun StudentsScreen(api: MensaApi, onOpen: (Int) -> Unit) {
 }
 
 @Composable
-fun StudentScreen(api: MensaApi, user: UserProfile, studentId: Int, onBack: () -> Unit) {
+fun StudentScreen(api: EduCrmApi, user: UserProfile, studentId: Int, onBack: () -> Unit) {
     var state by remember { mutableStateOf<Load<StudentResponse>>(Load.Loading) }
     var reload by remember { mutableStateOf(0) }
     var selected by remember { mutableStateOf<Int?>(null) }
@@ -145,9 +145,9 @@ fun StudentScreen(api: MensaApi, user: UserProfile, studentId: Int, onBack: () -
                         }
                     }
                 }
-                message?.let { Text(it, color = mensa.success, fontWeight = FontWeight.SemiBold) }
+                message?.let { Text(it, color = eduCrm.success, fontWeight = FontWeight.SemiBold) }
                 enrollment?.let { e ->
-                    Card(shape = MaterialTheme.shapes.large, colors = CardDefaults.cardColors(containerColor = mensa.hero), modifier = Modifier.fillMaxWidth()) {
+                    Card(shape = MaterialTheme.shapes.large, colors = CardDefaults.cardColors(containerColor = eduCrm.hero), modifier = Modifier.fillMaxWidth()) {
                         Column(Modifier.padding(20.dp)) {
                             Text(e.group, color = Color.White.copy(alpha = 0.8f), fontWeight = FontWeight.SemiBold)
                             Text(stringResource(R.string.balance), color = Color.White.copy(alpha = 0.7f), style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(top = 10.dp))
@@ -185,7 +185,7 @@ fun StudentScreen(api: MensaApi, user: UserProfile, studentId: Int, onBack: () -
 }
 
 @Composable
-private fun PaymentDialog(api: MensaApi, enrollment: EnrollmentDetail, onDismiss: () -> Unit, onDone: (String) -> Unit) {
+private fun PaymentDialog(api: EduCrmApi, enrollment: EnrollmentDetail, onDismiss: () -> Unit, onDone: (String) -> Unit) {
     var amount by remember { mutableStateOf(if (enrollment.balance < 0) (-enrollment.balance).toString() else "") }
     var cashboxes by remember { mutableStateOf<List<Cashbox>>(emptyList()) }
     var cashboxId by remember { mutableStateOf<Int?>(null) }
@@ -212,7 +212,7 @@ private fun PaymentDialog(api: MensaApi, enrollment: EnrollmentDetail, onDismiss
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     cashboxes.forEach { c -> FilterChip(selected = c.id == cashboxId, onClick = { cashboxId = c.id }, label = { Text(c.name) }) }
                 }
-                error?.let { Text(it, color = mensa.danger) }
+                error?.let { Text(it, color = eduCrm.danger) }
             }
         },
         confirmButton = {

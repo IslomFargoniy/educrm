@@ -2,7 +2,7 @@
 
 > Holat: amalga oshirilgan (veb-tizim, Telegram bot, Android ilova). Sayt: https://mensalc.uz Stack: Laravel 13, Inertia v3 + React, Wayfinder, Fortify, Pest, MySQL.
 > Interfeys tillari: o'zbekcha (lotin, asosiy), ruscha, inglizcha. Foydalanuvchi tilni o'zi tanlaydi va tanlov profilda saqlanadi.
-> Brend: **Mensa Learning Center** — butun tizim va dizayn logoga moslanadi (§9).
+> Brend: **EduCrm** — butun tizim va dizayn logoga moslanadi (§9).
 
 ## 1. Asosiy biznes qoidalar
 
@@ -360,11 +360,11 @@ Har bosqich alohida PR sifatida, testlar bilan topshiriladi. Hisob-kitob (3–4 
 | Zaxira nusxa               | FastPanel zaxira rejasi (10-bosqich)                                                                                                         |
 | SMS xizmati                | Keyin tanlanadi (8-bosqich)                                                                                                                  |
 | Import                     | Excel'dan (9-bosqich)                                                                                                                        |
-| Brend                      | Mensa logosi va ranglari, butun dizayn shunga moslanadi (§9)                                                                                 |
+| Brend                      | EduCrm logosi va ranglari, butun dizayn shunga moslanadi (§9)                                                                                |
 
 ## 9. Brend va dizayn
 
-Butun tizim **Mensa Learning Center** logosiga moslanadi.
+Butun tizim **EduCrm** logosiga moslanadi.
 
 ### 9.1 Ranglar
 
@@ -383,21 +383,21 @@ Logodan olingan (taxminiy qiymatlar; aniq HEX kodlari asl fayldan olinadi):
 
 ### 9.2 Logo ishlatilishi
 
-| Joy                                              | Variant                                                          |
-| ------------------------------------------------ | ---------------------------------------------------------------- |
-| Login, parolni tiklash sahifalari                | To'liq logo (belgi + "Mensa" + "Learning center"), navy fonda oq |
-| Sidebar (ochiq)                                  | Belgi + "Mensa" yozuvi                                           |
-| Sidebar (yig'ilgan), favicon, mobil ikonka (PWA) | Faqat belgi (kitob/qalqon + orange romb)                         |
-| Chek (termal printer)                            | Oq-qora, soddalashtirilgan belgi + "Mensa Learning Center"       |
-| Chek (A4), hisobotlar eksporti (PDF/Excel)       | To'liq rangli logo                                               |
-| SMS / Telegram xabarlar                          | Imzo: "Mensa Learning Center"                                    |
+| Joy                                              | Variant                                                           |
+| ------------------------------------------------ | ----------------------------------------------------------------- |
+| Login, parolni tiklash sahifalari                | To'liq logo (belgi + "EduCrm" + "Learning center"), navy fonda oq |
+| Sidebar (ochiq)                                  | Belgi + "EduCrm" yozuvi                                           |
+| Sidebar (yig'ilgan), favicon, mobil ikonka (PWA) | Faqat belgi (kitob/qalqon + orange romb)                          |
+| Chek (termal printer)                            | Oq-qora, soddalashtirilgan belgi + "EduCrm"                       |
+| Chek (A4), hisobotlar eksporti (PDF/Excel)       | To'liq rangli logo                                                |
+| SMS / Telegram xabarlar                          | Imzo: "EduCrm"                                                    |
 
 ### 9.3 Shrift va uslub
 
 - Logodagi yozuvga yaqin, qalin geometrik sans-serif shrift; **lotin va kirill** harflarini qo'llab-quvvatlashi shart (ruscha interfeys uchun). Variantlar: Manrope, Onest, Inter — logo bilan solishtirib tanlanadi.
 - Burchaklar biroz yumaloq, soyalar yengil; kartalar oq fonda, sarlavha qismi navy.
-- Ilova nomi hamma joyda: **Mensa** (to'liq: Mensa Learning Center); `APP_NAME` ham shunga o'zgartiriladi.
-- Hozirgi starter-kit sahifasi (welcome) Mensa uchun oddiy bosh sahifa yoki to'g'ridan-to'g'ri login sahifasi bilan almashtiriladi.
+- Ilova nomi hamma joyda: **EduCrm** (to'liq: EduCrm); `APP_NAME` ham shunga o'zgartiriladi.
+- Hozirgi starter-kit sahifasi (welcome) EduCrm uchun oddiy bosh sahifa yoki to'g'ridan-to'g'ri login sahifasi bilan almashtiriladi.
 
 ### 9.4 Kerakli fayllar
 

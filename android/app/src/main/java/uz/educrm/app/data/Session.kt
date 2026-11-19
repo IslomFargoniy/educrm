@@ -1,4 +1,4 @@
-package uz.mensalc.app.data
+package uz.educrm.app.data
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit

@@ -59,8 +59,8 @@ export function AppSidebar() {
                                 className="h-10 gap-3 rounded-lg px-3 font-semibold text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&>svg]:size-[18px]"
                             >
                                 <a
-                                    href="/downloads/mensa.apk"
-                                    download="mensa.apk"
+                                    href="/downloads/educrm.apk"
+                                    download="educrm.apk"
                                 >
                                     <Smartphone />
                                     <span>{t('Android app')}</span>

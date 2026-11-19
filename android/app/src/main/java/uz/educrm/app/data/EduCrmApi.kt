@@ -1,4 +1,4 @@
-package uz.mensalc.app.data
+package uz.educrm.app.data
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
@@ -13,11 +13,11 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
-import uz.mensalc.app.BuildConfig
+import uz.educrm.app.BuildConfig
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
-interface MensaApi {
+interface EduCrmApi {
     @POST("login") suspend fun login(@Body body: LoginRequest): LoginResponse
     @GET("me") suspend fun me(): MeResponse
     @POST("logout") suspend fun logout(): OkResponse
@@ -37,7 +37,7 @@ interface MensaApi {
             explicitNulls = false
         }
 
-        fun create(tokenProvider: () -> String?): MensaApi {
+        fun create(tokenProvider: () -> String?): EduCrmApi {
             val client = OkHttpClient.Builder()
                 .connectTimeout(15, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
@@ -55,7 +55,7 @@ interface MensaApi {
                 .client(client)
                 .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
                 .build()
-                .create(MensaApi::class.java)
+                .create(EduCrmApi::class.java)
         }
     }
 }
@@ -67,7 +67,7 @@ fun Throwable.readableMessage(fallback: String): String {
     if (this is HttpException) {
         val body = response()?.errorBody()?.string().orEmpty()
         runCatching {
-            val obj = MensaApi.json.parseToJsonElement(body).jsonObject
+            val obj = EduCrmApi.json.parseToJsonElement(body).jsonObject
             val errors = obj["errors"]?.jsonObject
             val first = errors?.values?.firstOrNull()?.let { (it as? kotlinx.serialization.json.JsonArray)?.firstOrNull()?.jsonPrimitive?.content }
             return first ?: obj["message"]?.jsonPrimitive?.content ?: fallback

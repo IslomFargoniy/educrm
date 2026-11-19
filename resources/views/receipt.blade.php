@@ -31,13 +31,13 @@
         <div class="head">
             <svg width="48" height="48" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#0B0F7E"/><g transform="translate(6 6) scale(0.8125)" fill="#fff"><polygon points="8,16 28.5,23 28.5,58.5 8,47"/><polygon points="56,16 35.5,23 35.5,58.5 56,47"/><polygon points="30.5,24 33.5,24 33.5,59.5 32,61 30.5,59.5"/><polygon points="32,5 41.5,11.5 32,18 22.5,11.5" fill="#F7941D"/></g></svg>
             <div>
-                <div class="brand" style="color:#0b0f7e">Mensa</div>
+                <div class="brand" style="color:#0b0f7e">EduCrm</div>
                 <div class="muted">Learning center · {{ $enrollment->group->branch->name }} {{ $enrollment->group->branch->phone }}</div>
             </div>
         </div>
     @else
         <div class="center">
-            <div class="brand">MENSA</div>
+            <div class="brand">EDUCRM</div>
             <div class="muted">Learning Center</div>
             <div class="muted">{{ $enrollment->group->branch->name }}</div>
             @if ($enrollment->group->branch->phone)<div class="muted">{{ $enrollment->group->branch->phone }}</div>@endif

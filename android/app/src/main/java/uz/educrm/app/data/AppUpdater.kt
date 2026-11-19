@@ -1,4 +1,4 @@
-package uz.mensalc.app.data
+package uz.educrm.app.data
 
 import android.content.Context
 import android.content.Intent
@@ -13,7 +13,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.CacheControl
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import uz.mensalc.app.BuildConfig
+import uz.educrm.app.BuildConfig
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit
 data class AppVersion(
     val versionCode: Int,
     val versionName: String,
-    val apk: String = "mensa.apk",
+    val apk: String = "educrm.apk",
     val notes: String? = null,
 )
 
@@ -54,7 +54,7 @@ class AppUpdater(private val context: Context) {
     suspend fun download(version: AppVersion, onProgress: (Float) -> Unit): File = withContext(Dispatchers.IO) {
         val dir = File(context.cacheDir, "updates").apply { mkdirs() }
         dir.listFiles()?.forEach { it.delete() }
-        val target = File(dir, "mensa-${version.versionCode}.apk")
+        val target = File(dir, "eduCrm-${version.versionCode}.apk")
         val request = Request.Builder().url(base + version.apk).cacheControl(CacheControl.FORCE_NETWORK).build()
 
         client.newCall(request).execute().use { response ->

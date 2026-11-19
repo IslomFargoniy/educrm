@@ -197,7 +197,7 @@ export const ru: Record<string, string> = {
         'Уроки проведены, ученики ещё не оплатили. Не на балансе.',
     Light: 'Светлая',
     'Log in': 'Войти',
-    'Log in to Mensa': 'Вход в Mensa',
+    'Log in to EduCrm': 'Вход в EduCrm',
     'Manage your passkeys for passwordless sign-in':
         'Управление ключами входа без пароля',
     'Manage your profile and account settings': 'Профиль и настройки аккаунта',

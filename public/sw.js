@@ -1,9 +1,21 @@
 // Minimal service worker: makes the app installable and keeps static assets cached.
-const CACHE = 'mensa-v1';
+const CACHE = 'educrm-v1';
 
 self.addEventListener('install', () => self.skipWaiting());
+// Drop caches from older names/versions.
 self.addEventListener('activate', (event) =>
-    event.waitUntil(self.clients.claim()),
+    event.waitUntil(
+        caches
+            .keys()
+            .then((keys) =>
+                Promise.all(
+                    keys
+                        .filter((key) => key !== CACHE)
+                        .map((key) => caches.delete(key)),
+                ),
+            )
+            .then(() => self.clients.claim()),
+    ),
 );
 
 self.addEventListener('fetch', (event) => {

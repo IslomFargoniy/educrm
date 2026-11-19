@@ -13,10 +13,11 @@ val keystoreProperties = Properties().apply {
 }
 
 android {
-    namespace = "uz.mensalc.app"
+    namespace = "uz.educrm.app"
     compileSdk = 36
 
     defaultConfig {
+        // Kept from the first release: changing it would stop installed apps from updating.
         applicationId = "uz.mensalc.app"
         minSdk = 24
         targetSdk = 36

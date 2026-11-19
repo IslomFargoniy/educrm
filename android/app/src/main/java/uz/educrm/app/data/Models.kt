@@ -1,4 +1,4 @@
-package uz.mensalc.app.data
+package uz.educrm.app.data
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement

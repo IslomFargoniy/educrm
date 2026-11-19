@@ -1,4 +1,4 @@
-package uz.mensalc.app.ui
+package uz.educrm.app.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,9 +22,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import uz.mensalc.app.R
-import uz.mensalc.app.data.AppUpdater
-import uz.mensalc.app.data.AppVersion
+import uz.educrm.app.R
+import uz.educrm.app.data.AppUpdater
+import uz.educrm.app.data.AppVersion
 
 /**
  * Checks for a newer APK once per launch and offers to download and install it.

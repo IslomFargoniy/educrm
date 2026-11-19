@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build the signed release APK and publish it to public/downloads/ (mensa.apk + version.json).
+# Build the signed release APK and publish it to public/downloads/ (educrm.apk + version.json).
 # Installed apps read version.json on start and offer the update.
 # Usage: scripts/release-android.sh "What changed (shown in the update dialog)"
 # Bump versionCode/versionName in android/app/build.gradle.kts first, then commit version.json and run scripts/deploy.sh.
@@ -26,10 +26,11 @@ echo "→ Building $NAME ($CODE)"
 "$APKSIGNER" verify "$APK"
 
 mkdir -p "$OUT"
-cp "$APK" "$OUT/mensa.apk"
+rm -f "$OUT"/*.apk
+cp "$APK" "$OUT/educrm.apk"
 php -r '
     [$code, $name, $notes, $file] = array_slice($argv, 1);
-    file_put_contents($file, json_encode(["versionCode" => (int) $code, "versionName" => $name, "apk" => "mensa.apk", "notes" => $notes === "" ? null : $notes], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)."\n");
+    file_put_contents($file, json_encode(["versionCode" => (int) $code, "versionName" => $name, "apk" => "educrm.apk", "notes" => $notes === "" ? null : $notes], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)."\n");
 ' "$CODE" "$NAME" "$NOTES" "$OUT/version.json"
 
-echo "✓ public/downloads/mensa.apk and version.json ($NAME). Commit version.json, then run scripts/deploy.sh."
+echo "✓ public/downloads/educrm.apk and version.json ($NAME). Commit version.json, then run scripts/deploy.sh."

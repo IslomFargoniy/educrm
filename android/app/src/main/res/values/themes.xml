@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Mensa" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="Theme.EduCrm" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:windowBackground">@color/mensa_navy</item>
+        <item name="android:windowBackground">@color/educrm_navy</item>
     </style>
 </resources>

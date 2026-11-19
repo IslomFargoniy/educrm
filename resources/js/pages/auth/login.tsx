@@ -88,6 +88,6 @@ export default function Login({ status }: { status?: string }) {
 }
 
 Login.layout = {
-    title: 'Log in to Mensa',
+    title: 'Log in to EduCrm',
     description: 'Enter your phone number and password',
 };

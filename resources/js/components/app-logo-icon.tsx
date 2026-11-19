@@ -1,7 +1,7 @@
 import type { SVGAttributes } from 'react';
 
 /**
- * Mensa mark: book / shield with the orange diamond (white parts use currentColor).
+ * EduCrm mark: book / shield with the orange diamond (white parts use currentColor).
  */
 export default function AppLogoIcon(props: SVGAttributes<SVGElement>) {
     return (

@@ -1,4 +1,4 @@
-package uz.mensalc.app
+package uz.educrm.app
 
 import android.graphics.Color
 import android.os.Bundle
@@ -15,20 +15,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.launch
-import uz.mensalc.app.data.MensaApi
-import uz.mensalc.app.data.Session
-import uz.mensalc.app.data.UserProfile
-import uz.mensalc.app.ui.LoginScreen
-import uz.mensalc.app.ui.MainScreen
-import uz.mensalc.app.ui.MensaTheme
-import uz.mensalc.app.ui.SplashScreen
-import uz.mensalc.app.ui.ThemeMode
-import uz.mensalc.app.ui.UpdatePrompt
-import uz.mensalc.app.ui.isDark
+import uz.educrm.app.data.EduCrmApi
+import uz.educrm.app.data.Session
+import uz.educrm.app.data.UserProfile
+import uz.educrm.app.ui.LoginScreen
+import uz.educrm.app.ui.MainScreen
+import uz.educrm.app.ui.EduCrmTheme
+import uz.educrm.app.ui.SplashScreen
+import uz.educrm.app.ui.ThemeMode
+import uz.educrm.app.ui.UpdatePrompt
+import uz.educrm.app.ui.isDark
 
 class MainActivity : ComponentActivity() {
     private lateinit var session: Session
-    private lateinit var api: MensaApi
+    private lateinit var api: EduCrmApi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
             navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
         )
         session = Session(applicationContext)
-        api = MensaApi.create { session.token }
+        api = EduCrmApi.create { session.token }
 
         setContent {
             val themeName by session.theme.collectAsState(initial = "system")
@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
                 onDispose {}
             }
 
-            MensaTheme(mode) {
+            EduCrmTheme(mode) {
                 var user by remember { mutableStateOf<UserProfile?>(null) }
                 var checking by remember { mutableStateOf(true) }
 
