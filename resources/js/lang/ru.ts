@@ -734,4 +734,10 @@ export const ru: Record<string, string> = {
     'Clear filters': 'Сбросить фильтры',
     'Filtered: payments, groups, courses, debtors and leads follow the filter. Expenses and cashbox change are not tied to a group, so they are not shown.':
         'Фильтр включён: оплаты, группы, курсы, должники и лиды по фильтру. Расходы и изменение касс не привязаны к группе, поэтому не показаны.',
+    'The system is being updated. Nothing was saved — try again in half a minute.':
+        'Система обновляется. Ничего не сохранено — повторите через полминуты.',
+    'The page has expired. Refresh the page and try again.':
+        'Страница устарела. Обновите страницу и повторите.',
+    'Something went wrong on the server. Nothing was saved — try again.':
+        'Ошибка на сервере. Ничего не сохранено — попробуйте ещё раз.',
 };

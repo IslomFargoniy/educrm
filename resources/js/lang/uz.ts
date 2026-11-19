@@ -740,4 +740,10 @@ export const uz: Record<string, string> = {
     'Clear filters': 'Filtrni tozalash',
     'Filtered: payments, groups, courses, debtors and leads follow the filter. Expenses and cashbox change are not tied to a group, so they are not shown.':
         "Filtr qo'llangan: to'lovlar, guruhlar, kurslar, qarzdorlar va lidlar shu filtr bo'yicha. Xarajatlar va kassa o'zgarishi guruhga bog'liq emas, shuning uchun ular ko'rsatilmaydi.",
+    'The system is being updated. Nothing was saved — try again in half a minute.':
+        "Tizim yangilanmoqda. Hech narsa saqlanmadi — yarim daqiqadan keyin qayta urinib ko'ring.",
+    'The page has expired. Refresh the page and try again.':
+        "Sahifa eskirdi. Sahifani yangilab, qayta urinib ko'ring.",
+    'Something went wrong on the server. Nothing was saved — try again.':
+        "Serverda xatolik yuz berdi. Hech narsa saqlanmadi — qayta urinib ko'ring.",
 };

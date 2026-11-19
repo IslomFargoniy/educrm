@@ -44,17 +44,19 @@ sudo mkdir -p ${APP_DIR}/storage/{app/public,framework/{cache/data,sessions,view
 sudo rsync -a --chown=${SITE_USER}:${SITE_USER} --exclude 'index.php' --exclude 'storage' ${APP_DIR}/public/ ${DOC_ROOT}/
 sudo install -m 644 /tmp/mensalc-upload/app/docroot-index.php ${DOC_ROOT}/index.php
 sudo ln -sfn ${APP_DIR}/storage/app/public ${DOC_ROOT}/storage
-sudo chown -R ${SITE_USER}:${SITE_USER} ${APP_DIR} ${DOC_ROOT}
 sudo chown -h ${SITE_USER}:${SITE_USER} ${DOC_ROOT}/storage
-sudo rsync -a --delete /tmp/mensalc-upload/landing/ ${LANDING_ROOT}/
-sudo chown -R ${LANDING_USER}:${LANDING_USER} ${LANDING_ROOT}
-sudo rm -rf /tmp/mensalc-upload
+sudo chown ${SITE_USER}:${SITE_USER} ${DOC_ROOT}/index.php
+sudo chown -R ${SITE_USER}:${SITE_USER} ${APP_DIR}/storage ${APP_DIR}/bootstrap/cache
 artisan migrate --force
 artisan db:seed --force
 artisan optimize:clear >/dev/null
 artisan optimize
-artisan lessons:generate
+# Back online as soon as code, database and caches are ready (users see "updating" for these seconds only).
 artisan up
+sudo rsync -a --delete /tmp/mensalc-upload/landing/ ${LANDING_ROOT}/
+sudo chown -R ${LANDING_USER}:${LANDING_USER} ${LANDING_ROOT}
+sudo rm -rf /tmp/mensalc-upload
+artisan lessons:generate
 REMOTE
 
 echo "✓ Deployed: https://crm.mensalc.uz and https://mensalc.uz"
