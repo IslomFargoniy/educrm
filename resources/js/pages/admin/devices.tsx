@@ -294,8 +294,10 @@ function DeviceDetails({
                                 name="isup_key"
                                 defaultValue={device.isup_key}
                                 required
-                                pattern="[A-Za-z0-9]{8,16}"
-                                title={t('8 to 16 letters and digits')}
+                                pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z0-9]{8,16}"
+                                title={t(
+                                    '8 to 16 characters: capital and small letters and digits',
+                                )}
                                 className="font-mono"
                             />
                         </label>

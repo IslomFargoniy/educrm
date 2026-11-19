@@ -42,8 +42,7 @@ class Device extends Model
     {
         static::creating(function (Device $device): void {
             $device->isup_id ??= self::nextIsupId();
-            // Terminals refuse a digits-only key; the Device ID (letters and digits) is easy to type twice.
-            $device->isup_key ??= (string) config('isup.default_key') ?: self::keyFor($device->isup_id);
+            $device->isup_key ??= (string) config('isup.default_key') ?: self::newKey();
         });
     }
 
@@ -63,11 +62,12 @@ class Device extends Model
     }
 
     /**
-     * Key made from the Device ID: terminals take 8 to 16 characters.
+     * ISUP key typed into the terminal, e.g. EduCrm4827. Terminals refuse weak keys ("riskPassword"):
+     * digits only, or the same as the Device ID. Upper and lower case letters with digits pass; 8-16 characters.
      */
-    public static function keyFor(string $isupId): string
+    public static function newKey(): string
     {
-        return str_pad(substr($isupId, -16), 8, '0', STR_PAD_LEFT);
+        return 'EduCrm'.random_int(1000, 9999);
     }
 
     /**

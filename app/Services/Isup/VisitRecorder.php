@@ -38,7 +38,10 @@ class VisitRecorder
 
         $scannedAt = $this->time($dateTime ?? ($event['time'] ?? null), $live);
         $serial = isset($event['serialNo']) ? (string) $event['serialNo'] : null;
-        $student = ctype_digit($employeeNo) ? Student::query()->find((int) $employeeNo) : null;
+        // Only students the CRM wrote to this terminal: other people on it (or old numbers) never match a student.
+        $student = ctype_digit($employeeNo)
+            ? Student::query()->whereKey((int) $employeeNo)->whereHas('devices', fn ($q) => $q->whereKey($device->id)->where('device_student.status', 'synced'))->first()
+            : null;
 
         if ($serial !== null && StudentVisit::query()->where('device_id', $device->id)->where('event_serial', $serial)->exists()) {
             return null;

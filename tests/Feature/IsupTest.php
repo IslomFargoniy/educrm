@@ -37,6 +37,7 @@ function studyingStudent(): array
     $student = Student::factory()->create(['branch_id' => $device->branch_id]);
     $enrollment = Enrollment::factory()->create(['student_id' => $student->id, 'group_id' => $group->id]);
     $student->guardians()->attach(User::factory()->create(['telegram_chat_id' => '123']), ['relation' => 'mother']);
+    $student->devices()->attach($device->id, ['status' => 'synced', 'synced_at' => now()]);
 
     return [$device, $enrollment, $group];
 }
@@ -78,6 +79,17 @@ it('records a pass once and tells the family "arrived" first and "registered" af
     Queue::assertPushed(SendNotification::class, 2);
     Queue::assertPushed(SendNotification::class, fn (SendNotification $job) => $job->template === 'arrived' && $job->telegramOnly);
     Queue::assertPushed(SendNotification::class, fn (SendNotification $job) => $job->template === 'visit' && $job->telegramOnly);
+});
+
+it('ignores people on the terminal the CRM did not write there, even when the number matches a student', function () {
+    Queue::fake();
+    $device = Device::factory()->create();
+    $student = Student::factory()->create(['branch_id' => $device->branch_id]);
+
+    $this->postJson(route('isup.events'), faceEvent($device, $student->id, 1), $this->gateway)->assertOk();
+
+    expect(StudentVisit::query()->firstOrFail()->student_id)->toBeNull();
+    Queue::assertNotPushed(SendNotification::class);
 });
 
 it('uses the server time when a live event comes from a device with a wrong clock', function () {
@@ -191,16 +203,19 @@ it('gives a new device a Device ID from the domain and the same text as its key,
     $device = Device::factory()->create();
 
     expect($device->isup_id)->toBe('crmmensalcuz'.$device->id)
-        ->and($device->isup_key)->toBe($device->isup_id);
+        ->and($device->isup_key)->toMatch('/^EduCrm\d{4}$/');
 
     config(['isup.device_id_prefix' => 'markaz.oquv-uz.example.com']);
     $long = Device::factory()->create();
     expect(strlen($long->isup_id))->toBeLessThanOrEqual(32)
         ->and(strlen($long->isup_key))->toBeBetween(8, 16);
 
-    $this->put(route('admin.devices.update', $device), ['branch_id' => $device->branch_id, 'name' => 'Kirish', 'direction' => 'in', 'isup_id' => 'filial1', 'isup_key' => 'mensa2026'])
+    $this->put(route('admin.devices.update', $device), ['branch_id' => $device->branch_id, 'name' => 'Kirish', 'direction' => 'in', 'isup_key' => 'crmmensalcuz1'])
+        ->assertSessionHasErrors('isup_key');
+
+    $this->put(route('admin.devices.update', $device), ['branch_id' => $device->branch_id, 'name' => 'Kirish', 'direction' => 'in', 'isup_id' => 'filial1', 'isup_key' => 'Mensa2026'])
         ->assertSessionHasNoErrors();
-    expect($device->fresh())->isup_id->toBe('filial1')->isup_key->toBe('mensa2026');
+    expect($device->fresh())->isup_id->toBe('filial1')->isup_key->toBe('Mensa2026');
 
     $this->put(route('admin.devices.update', $device), ['branch_id' => $device->branch_id, 'name' => 'Kirish', 'direction' => 'in', 'isup_key' => '123'])
         ->assertSessionHasErrors('isup_key');

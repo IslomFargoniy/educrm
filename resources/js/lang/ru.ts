@@ -682,5 +682,6 @@ export const ru: Record<string, string> = {
     'From the face terminals: for each day, when the student first came in and last went out.':
         'С терминалов Face ID: за каждый день — когда ученик впервые вошёл и последний раз вышел.',
     Passes: 'Проходы',
-    '8 to 16 letters and digits': 'От 8 до 16 букв и цифр',
+    '8 to 16 characters: capital and small letters and digits':
+        '8–16 символов: заглавные и строчные буквы и цифры',
 };
