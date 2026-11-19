@@ -69,17 +69,42 @@ fun BalanceScreen(api: EduCrmApi) {
                         Text(money(data.balance) + " " + stringResource(R.string.sum), color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.ExtraBold)
                     }
                 }
+                HistoryList(data.history, signed = false)
+            }
+        }
+    }
+}
+
+/**
+ * Lessons taught whose students have not paid yet (the teacher's share waits for them), by student.
+ */
+@Composable
+fun DebtsScreen(api: EduCrmApi) {
+    var state by remember { mutableStateOf<Load<BalanceResponse>>(Load.Loading) }
+    var reload by remember { mutableStateOf(0) }
+    val networkError = stringResource(R.string.error_network)
+
+    LaunchedEffect(reload) {
+        state = runCatching { api.myBalance() }.fold({ Load.Ready(it) }, { Load.Failed(it.readableMessage(networkError)) })
+    }
+
+    Column(Modifier.fillMaxSize()) {
+        ScreenHeader(title = stringResource(R.string.debts))
+        LoadBox(state, { reload++ }) { data ->
+            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(contentPadding()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 EduCrmCard {
                     Column(Modifier.padding(16.dp)) {
                         Text(stringResource(R.string.waiting_payment), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text(money(data.pending.total) + " " + stringResource(R.string.sum), fontWeight = FontWeight.ExtraBold, fontSize = 22.sp)
+                        Text(money(-data.pending.total) + " " + stringResource(R.string.sum), fontWeight = FontWeight.ExtraBold, fontSize = 22.sp, color = if (data.pending.total > 0) eduCrm.danger else MaterialTheme.colorScheme.onSurface)
+                        if (data.pending.items.isEmpty()) {
+                            Text("—", modifier = Modifier.padding(top = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
                         data.pending.items.groupBy { it.student to it.group }.entries.forEachIndexed { index, (key, lessons) ->
                             HorizontalDivider(Modifier.padding(vertical = 8.dp), color = eduCrm.border)
                             PendingStudentRow(index + 1, key.first, key.second, lessons)
                         }
                     }
                 }
-                HistoryList(data.history, signed = false)
             }
         }
     }
@@ -98,14 +123,14 @@ private fun PendingStudentRow(number: Int, student: String, group: String, lesso
                 Text(student, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
                 Text("$group · ${stringResource(R.string.lessons_count, lessons.size)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Text(money(lessons.sumOf { it.amount }), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
+            Text(money(-lessons.sumOf { it.amount }), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium, color = eduCrm.danger)
             Icon(if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 4.dp).size(20.dp))
         }
         if (expanded) {
             lessons.sortedBy { it.lesson_date }.forEach {
                 Row(Modifier.fillMaxWidth().padding(start = 26.dp, end = 24.dp, top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(date(it.lesson_date), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
-                    Text(money(it.amount), style = MaterialTheme.typography.bodySmall)
+                    Text(money(-it.amount), style = MaterialTheme.typography.bodySmall, color = eduCrm.danger)
                 }
             }
         }

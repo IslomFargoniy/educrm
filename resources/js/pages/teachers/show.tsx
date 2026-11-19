@@ -112,32 +112,20 @@ export default function TeacherShow({
                         label={t('Balance (can be taken)')}
                         value={formatMoney(teacher.balance)}
                     />
-                    <StatCard
-                        label={t('Waiting for payment')}
-                        value={formatMoney(pending.total)}
-                        hint={t(
-                            'Lessons taught, students have not paid yet. Not on the balance.',
-                        )}
-                    />
+                    <a href="#pending" className="block rounded-xl">
+                        <StatCard
+                            tone={pending.total > 0 ? 'danger' : 'default'}
+                            label={t('Waiting for payment')}
+                            value={formatMoney(-pending.total)}
+                            hint={t(
+                                'Lessons taught, students have not paid yet. Not on the balance.',
+                            )}
+                        />
+                    </a>
                 </div>
-
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h2 className="text-lg font-bold">
-                        {t('Balance history')}
-                    </h2>
-                    <PeriodFilter from={period.from} to={period.to} />
-                </div>
-                <HistoryTable
-                    history={history}
-                    context="teacher"
-                    labels={{
-                        income: t('Total earned'),
-                        expense: t('Total taken'),
-                    }}
-                />
 
                 {pending.items.length > 0 && (
-                    <section className="space-y-2">
+                    <section id="pending" className="scroll-mt-20 space-y-2">
                         <h2 className="text-lg font-bold">
                             {t('Waiting for payment')}
                         </h2>
@@ -166,8 +154,8 @@ export default function TeacherShow({
                                                     </span>
                                                     <span className="flex items-center gap-2">
                                                         <Money
-                                                            value={row.total}
-                                                            className="font-semibold"
+                                                            value={-row.total}
+                                                            signed
                                                         />
                                                         <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
                                                     </span>
@@ -199,8 +187,9 @@ export default function TeacherShow({
                                                             </span>
                                                             <Money
                                                                 value={
-                                                                    item.amount
+                                                                    -item.amount
                                                                 }
+                                                                signed
                                                             />
                                                         </li>
                                                     ))}
@@ -213,6 +202,21 @@ export default function TeacherShow({
                         </div>
                     </section>
                 )}
+
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h2 className="text-lg font-bold">
+                        {t('Balance history')}
+                    </h2>
+                    <PeriodFilter from={period.from} to={period.to} />
+                </div>
+                <HistoryTable
+                    history={history}
+                    context="teacher"
+                    labels={{
+                        income: t('Total earned'),
+                        expense: t('Total taken'),
+                    }}
+                />
             </div>
         </>
     );

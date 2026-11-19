@@ -82,4 +82,5 @@
     <string name="lessons_count">уроков: %d</string>
     <string name="came_at">пришёл в %1$s</string>
     <string name="face_arrived_summary">Face ID: пришли %1$d из %2$d. Проверьте и сохраните.</string>
+    <string name="debts">Долги</string>
 </resources>

@@ -21,6 +21,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material3.Button
@@ -33,6 +35,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -209,23 +213,52 @@ fun HistoryList(history: History, signed: Boolean) {
         EduCrmCard {
             history.rows.forEachIndexed { index, row ->
                 if (index > 0) HorizontalDivider(Modifier.padding(horizontal = 14.dp), color = eduCrm.border)
-                Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                    RowNumber(index + 1)
-                    Column(Modifier.weight(1f)) {
-                        Text(txLabel(row.type), fontWeight = FontWeight.SemiBold)
-                        Text("${date(row.date)} · ${describe(row.type, row.metaObject)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Column(horizontalAlignment = Alignment.End) {
-                        when {
-                            row.income > 0 -> Text("+" + money(row.income), color = eduCrm.success, fontWeight = FontWeight.Bold)
-                            row.expense > 0 -> Text("−" + money(row.expense), color = eduCrm.danger, fontWeight = FontWeight.Bold)
-                            else -> Text("—")
-                        }
-                        Text(money(row.balance), style = MaterialTheme.typography.bodySmall, color = if (signed && row.balance < 0) eduCrm.danger else MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
+                HistoryRowItem(index + 1, row, signed)
             }
             if (history.rows.isEmpty()) Text("—", modifier = Modifier.padding(14.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+/**
+ * A history row; a lesson share of several students opens the list of students on tap.
+ */
+@Composable
+private fun HistoryRowItem(number: Int, row: uz.educrm.app.data.HistoryRow, signed: Boolean) {
+    var expanded by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    val expandable = row.children.size > 1
+    Column(Modifier.fillMaxWidth().then(if (expandable) Modifier.clickable { expanded = !expanded } else Modifier).padding(horizontal = 14.dp, vertical = 12.dp)) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            RowNumber(number)
+            Column(Modifier.weight(1f)) {
+                Text(txLabel(row.type), fontWeight = FontWeight.SemiBold)
+                val details = if (expandable) {
+                    listOfNotNull(date(row.date), stringResource(R.string.students_count, row.children.size), row.metaObject.text("group")).joinToString(" · ")
+                } else {
+                    "${date(row.date)} · ${describe(row.type, row.metaObject)}"
+                }
+                Text(details, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Column(horizontalAlignment = Alignment.End) {
+                when {
+                    row.income > 0 -> Text("+" + money(row.income), color = eduCrm.success, fontWeight = FontWeight.Bold)
+                    row.expense > 0 -> Text("−" + money(row.expense), color = eduCrm.danger, fontWeight = FontWeight.Bold)
+                    else -> Text("—")
+                }
+                Text(money(row.balance), style = MaterialTheme.typography.bodySmall, color = if (signed && row.balance < 0) eduCrm.danger else MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            if (expandable) {
+                Icon(if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 4.dp).size(20.dp))
+            }
+        }
+        if (expanded) {
+            row.children.forEachIndexed { i, child ->
+                Row(Modifier.fillMaxWidth().padding(start = 26.dp, end = 24.dp, top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text("${i + 1}. ${child.student}", style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+                    Text("${child.percent.let { if (it % 1.0 == 0.0) it.toInt().toString() else it.toString() }}% · ", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("+" + money(child.share), style = MaterialTheme.typography.bodySmall, color = eduCrm.success, fontWeight = FontWeight.SemiBold)
+                }
+            }
         }
     }
 }

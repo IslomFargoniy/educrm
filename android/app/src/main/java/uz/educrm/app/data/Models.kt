@@ -94,9 +94,14 @@ data class HistoryRow(
     val by: String? = null,
     val flagged: Boolean = false,
     val reversed: Boolean = false,
+    val children: List<HistoryChild> = emptyList(),
 ) {
     val metaObject: JsonObject? get() = meta as? JsonObject
 }
+
+/** One student inside a grouped "lesson share" row. */
+@Serializable
+data class HistoryChild(val student: String = "", val lesson_amount: Long = 0, val covered: Long = 0, val percent: Double = 0.0, val share: Long = 0)
 
 @Serializable
 data class History(val opening: Long = 0, val income: Long = 0, val expense: Long = 0, val closing: Long = 0, val rows: List<HistoryRow> = emptyList())

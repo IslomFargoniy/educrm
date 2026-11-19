@@ -83,4 +83,5 @@
     <string name="lessons_count">%d ta dars</string>
     <string name="came_at">%1$s da keldi</string>
     <string name="face_arrived_summary">Face ID: %2$d ta o\'quvchidan %1$d tasi keldi. Tekshirib, saqlang.</string>
+    <string name="debts">Qarzlar</string>
 </resources>

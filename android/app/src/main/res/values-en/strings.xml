@@ -82,4 +82,5 @@
     <string name="lessons_count">%d lessons</string>
     <string name="came_at">came at %1$s</string>
     <string name="face_arrived_summary">Face ID: %1$d of %2$d came in. Check and save.</string>
+    <string name="debts">Debts</string>
 </resources>
