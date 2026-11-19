@@ -147,7 +147,7 @@ class FaceSync
                     continue;
                 }
 
-                if (str_contains($block, '<hostName>'.$host.'</hostName>') && str_contains($block, $device->pushPath())) {
+                if (str_contains($block, '<hostName>'.$host.'</hostName>') && str_contains($block, $device->pushPath()) && str_contains($block, '<eventMode>all</eventMode>')) {
                     return;
                 }
 
@@ -164,7 +164,7 @@ class FaceSync
             ."<id>{$slot}</id><url>{$device->pushPath()}</url><protocolType>HTTPS</protocolType>"
             .'<parameterFormatType>JSON</parameterFormatType><addressingFormatType>hostname</addressingFormatType>'
             ."<hostName>{$host}</hostName><portNo>443</portNo><httpAuthenticationMethod>none</httpAuthenticationMethod>"
-            .'<SubscribeEvent><heartbeat>30</heartbeat><eventMode>list</eventMode><EventList><Event><type>AccessControllerEvent</type>'
+            .'<SubscribeEvent><heartbeat>30</heartbeat><eventMode>all</eventMode><EventList><Event><type>AccessControllerEvent</type>'
             .'<minorAlarm></minorAlarm><minorException></minorException><minorOperation></minorOperation><minorEvent></minorEvent>'
             .'<pictureURLType>binary</pictureURLType></Event></EventList></SubscribeEvent></HttpHostNotification>');
     }
