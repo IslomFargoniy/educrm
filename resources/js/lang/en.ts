@@ -97,4 +97,8 @@ export const en: Record<string, string> = {
     'tx.student_payment': 'Payment',
     'tx.teacher_earning': 'Debt paid',
     'tx.teacher_payout': 'Paid out',
+    'status.graduated': 'Graduated',
+    'leave.graduated': 'Graduated',
+    'leave.dropped': 'Left on own',
+    'leave.expelled': 'Removed from the group',
 };

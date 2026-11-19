@@ -72,6 +72,8 @@ type Enrollment = {
     status: string;
     joined_at: string;
     left_at: string | null;
+    leave_reason: 'graduated' | 'dropped' | 'expelled' | null;
+    leave_note: string | null;
     balance: number;
     available: number;
     monthly_price: number | null;
@@ -308,7 +310,14 @@ export default function StudentShow({
                                         )}
                                     />
                                     {e.status !== 'active' && (
-                                        <StatusBadge status={e.status} />
+                                        <StatusBadge
+                                            status={
+                                                e.status === 'left' &&
+                                                e.leave_reason === 'graduated'
+                                                    ? 'graduated'
+                                                    : e.status
+                                            }
+                                        />
                                     )}
                                 </button>
                             ))}
@@ -493,11 +502,22 @@ function EnrollmentPanel({
                         {t('since :date', { date: formatDate(e.joined_at) })}
                         {e.left_at &&
                             ` · ${t('until :date', { date: formatDate(e.left_at) })}`}
+                        {e.leave_reason &&
+                            ` · ${t(`leave.${e.leave_reason}`)}${e.leave_note ? ` (${e.leave_note})` : ''}`}
                         {e.transferred_from &&
                             ` · ${t('moved from :group', { group: e.transferred_from })}`}
                     </div>
                 </div>
-                <StatusBadge status={activeFreeze ? 'frozen' : e.status} />
+                <StatusBadge
+                    status={
+                        activeFreeze
+                            ? 'frozen'
+                            : e.status === 'left' &&
+                                e.leave_reason === 'graduated'
+                              ? 'graduated'
+                              : e.status
+                    }
+                />
             </div>
 
             <div className="grid grid-cols-2 gap-2 md:grid-cols-5">
@@ -961,7 +981,7 @@ function EnrollmentPanel({
                 {can('enrollments.manage') && studying && (
                     <FormDialog
                         destructive
-                        title={t('Remove from group')}
+                        title={t('Graduate or remove from group')}
                         description={t(
                             'The debt (if any) stays in the debtor list.',
                         )}
@@ -970,19 +990,47 @@ function EnrollmentPanel({
                         trigger={
                             <Button variant="ghost" className="text-danger">
                                 <LogOut />
-                                {t('Leaves the group')}
+                                {t('Graduates / leaves')}
                             </Button>
                         }
                     >
                         {(errors) => (
-                            <Field label={t('Last day')} error={errors.date}>
-                                <Input
-                                    name="date"
-                                    type="date"
-                                    defaultValue={today()}
-                                    required
-                                />
-                            </Field>
+                            <>
+                                <Field
+                                    label={t('Reason')}
+                                    error={errors.reason}
+                                >
+                                    <NativeSelect
+                                        name="reason"
+                                        defaultValue="graduated"
+                                        required
+                                    >
+                                        <option value="graduated">
+                                            {t('leave.graduated')}
+                                        </option>
+                                        <option value="dropped">
+                                            {t('leave.dropped')}
+                                        </option>
+                                        <option value="expelled">
+                                            {t('leave.expelled')}
+                                        </option>
+                                    </NativeSelect>
+                                </Field>
+                                <Field
+                                    label={t('Last day')}
+                                    error={errors.date}
+                                >
+                                    <Input
+                                        name="date"
+                                        type="date"
+                                        defaultValue={today()}
+                                        required
+                                    />
+                                </Field>
+                                <Field label={t('Note')} error={errors.note}>
+                                    <Input name="note" maxLength={255} />
+                                </Field>
+                            </>
                         )}
                     </FormDialog>
                 )}

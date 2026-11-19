@@ -766,4 +766,10 @@ export const uz: Record<string, string> = {
     Frozen: 'Muzlatilgan',
     'No groups match the filters.': "Filtrga mos guruh yo'q.",
     'Group period': 'Guruh muddati',
+    'status.graduated': 'Bitirgan',
+    'leave.graduated': 'Guruhni bitirdi',
+    'leave.dropped': "O'zi chiqib ketdi",
+    'leave.expelled': 'Guruhdan chiqarildi',
+    'Graduate or remove from group': 'Bitirish yoki guruhdan chiqarish',
+    'Graduates / leaves': 'Bitirdi / chiqdi',
 };

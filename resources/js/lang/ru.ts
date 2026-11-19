@@ -761,4 +761,10 @@ export const ru: Record<string, string> = {
     Frozen: 'Заморожены',
     'No groups match the filters.': 'Нет групп по фильтру.',
     'Group period': 'Срок группы',
+    'status.graduated': 'Окончил',
+    'leave.graduated': 'Окончил группу',
+    'leave.dropped': 'Ушёл сам',
+    'leave.expelled': 'Исключён',
+    'Graduate or remove from group': 'Окончание или выход из группы',
+    'Graduates / leaves': 'Окончил / ушёл',
 };

@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['student_id', 'group_id', 'joined_at', 'left_at', 'status', 'trial_lessons', 'transferred_from_id', 'teacher_percent', 'discount_type', 'discount_value'])]
+#[Fillable(['student_id', 'group_id', 'joined_at', 'left_at', 'leave_reason', 'leave_note', 'status', 'trial_lessons', 'transferred_from_id', 'teacher_percent', 'discount_type', 'discount_value'])]
 class Enrollment extends Model
 {
     /** @use HasFactory<EnrollmentFactory> */

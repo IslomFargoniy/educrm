@@ -64,9 +64,13 @@ class EnrollmentController extends Controller
     public function leave(Request $request, Enrollment $enrollment): RedirectResponse
     {
         $this->authorizeEnrollment($enrollment);
-        $validated = $request->validate(['date' => ['required', 'date']]);
-        $this->enrollments->leave($enrollment, Carbon::parse($validated['date']));
-        $this->toast(__('Student removed from the group.'));
+        $validated = $request->validate([
+            'date' => ['required', 'date'],
+            'reason' => ['required', 'in:graduated,dropped,expelled'],
+            'note' => ['nullable', 'string', 'max:255'],
+        ]);
+        $this->enrollments->leave($enrollment, Carbon::parse($validated['date']), $validated['reason'], $validated['note'] ?? null);
+        $this->toast($validated['reason'] === 'graduated' ? __('The student graduated from the group.') : __('Student removed from the group.'));
 
         return back();
     }

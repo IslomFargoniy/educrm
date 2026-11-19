@@ -157,6 +157,8 @@ class StudentController extends Controller
                     'status' => $enrollment->status->value,
                     'joined_at' => $enrollment->joined_at->toDateString(),
                     'left_at' => $enrollment->left_at?->toDateString(),
+                    'leave_reason' => $enrollment->leave_reason,
+                    'leave_note' => $enrollment->leave_note,
                     'balance' => $enrollment->balance,
                     'available' => max(0, $coverage->availableFunds($enrollment)),
                     'monthly_price' => $price?->monthly_price,

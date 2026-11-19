@@ -92,9 +92,12 @@ class EnrollmentService
         });
     }
 
-    public function leave(Enrollment $enrollment, CarbonInterface $date): void
+    /**
+     * @param  string  $reason  graduated, dropped or expelled
+     */
+    public function leave(Enrollment $enrollment, CarbonInterface $date, string $reason = 'dropped', ?string $note = null): void
     {
-        $enrollment->update(['status' => EnrollmentStatus::Left, 'left_at' => $date]);
+        $enrollment->update(['status' => EnrollmentStatus::Left, 'left_at' => $date, 'leave_reason' => $reason, 'leave_note' => $note]);
     }
 
     public function freeze(Enrollment $enrollment, CarbonInterface $from, CarbonInterface $to, ?string $reason): void

@@ -3,6 +3,7 @@
 use App\Enums\Role;
 use App\Models\Branch;
 use App\Models\Course;
+use App\Models\Enrollment;
 use App\Models\Group;
 use App\Models\Lead;
 use App\Models\Student;
@@ -56,4 +57,16 @@ it('rejects a duplicate course name', function () {
     Course::query()->create(['name' => 'IELTS']);
 
     $this->post(route('admin.courses.store'), ['name' => 'IELTS'])->assertSessionHasErrors('name');
+});
+
+it('asks why a student leaves the group and keeps "graduated" apart', function () {
+    $enrollment = Enrollment::factory()->create(['group_id' => Group::factory()->create(['branch_id' => $this->branch->id])->id]);
+
+    $this->post(route('enrollments.leave', $enrollment), ['date' => today()->toDateString()])->assertSessionHasErrors('reason');
+    $this->post(route('enrollments.leave', $enrollment), ['date' => today()->toDateString(), 'reason' => 'graduated', 'note' => 'B2 sertifikat'])->assertSessionHasNoErrors();
+
+    expect($enrollment->fresh())
+        ->status->value->toBe('left')
+        ->leave_reason->toBe('graduated')
+        ->leave_note->toBe('B2 sertifikat');
 });

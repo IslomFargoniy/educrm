@@ -106,5 +106,6 @@
     "Students are being sent to the device. It takes a few minutes.": "O'quvchilar qurilmaga yuborilmoqda. Bir necha daqiqa davom etadi.",
     "Photo saved. It is being sent to the devices.": "Rasm saqlandi va qurilmalarga yuborilmoqda.",
     "Photo deleted. The student is removed from the devices.": "Rasm o'chirildi. O'quvchi qurilmalardan o'chiriladi.",
-    "The photo could not be read.": "Rasmni o'qib bo'lmadi."
+    "The photo could not be read.": "Rasmni o'qib bo'lmadi.",
+    "The student graduated from the group.": "O'quvchi guruhni bitirdi."
 }
