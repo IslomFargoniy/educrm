@@ -22,14 +22,14 @@ use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\TelegramController;
-use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/home');
 Route::post('locale', [PreferenceController::class, 'locale'])->name('locale.update');
 
 Route::post('telegram/webhook/{secret}', [TelegramController::class, 'webhook'])
-    ->withoutMiddleware([ValidateCsrfToken::class])
+    ->withoutMiddleware([PreventRequestForgery::class])
     ->name('telegram.webhook');
 Route::get('tma', [TelegramController::class, 'miniApp'])->name('tma');
 Route::post('tma/login', [TelegramController::class, 'miniAppLogin'])->middleware('throttle:20,1')->name('tma.login');
