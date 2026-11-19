@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\EnrollmentStatus;
 use App\Enums\Role;
+use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Group;
 use App\Models\Lesson;
@@ -102,7 +103,7 @@ class GroupController extends Controller
 
         return Inertia::render('groups/show', [
             'group' => [
-                ...$group->only(['id', 'name', 'subject', 'days', 'teacher_percent', 'status', 'teacher_id', 'room_id', 'branch_id']),
+                ...$group->only(['id', 'name', 'subject', 'days', 'teacher_percent', 'status', 'teacher_id', 'room_id', 'branch_id', 'course_id']),
                 'start_time' => substr($group->start_time, 0, 5),
                 'end_time' => substr($group->end_time, 0, 5),
                 'start_date' => $group->start_date->toDateString(),
@@ -143,7 +144,8 @@ class GroupController extends Controller
                 'attendance' => $lesson->attendances->mapWithKeys(fn ($a) => [$a->enrollment_id => $a->status->value]),
             ]),
             'month' => $month->format('Y-m'),
-            ...$this->formOptions([$group->branch_id]),
+            'canEditAttendance' => $user->can('attendance.edit_past'),
+            ...$this->formOptions([$group->branch_id], $group->course_id),
         ]);
     }
 
@@ -236,9 +238,10 @@ class GroupController extends Controller
      * @param  list<int>  $branchIds
      * @return array<string, mixed>
      */
-    private function formOptions(array $branchIds): array
+    private function formOptions(array $branchIds, ?int $courseId = null): array
     {
         return [
+            'courses' => Course::options($courseId),
             'teachers' => User::role(Role::Teacher->value)->where('is_active', true)
                 ->whereHas('branches', fn ($q) => $q->whereIn('branches.id', $branchIds))
                 ->orderBy('name')->get(['id', 'name']),
@@ -255,7 +258,7 @@ class GroupController extends Controller
         return $request->validate([
             'branch_id' => ['required', 'exists:branches,id'],
             'name' => ['required', 'string', 'max:255'],
-            'subject' => ['nullable', 'string', 'max:255'],
+            'course_id' => ['nullable', 'exists:courses,id'],
             'teacher_id' => ['nullable', 'exists:users,id'],
             'room_id' => ['nullable', 'exists:rooms,id'],
             'teacher_percent' => ['required', 'integer', 'min:0', 'max:100'],

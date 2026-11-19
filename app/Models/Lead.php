@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\HasPersonName;
 use App\Enums\LeadSource;
 use App\Enums\LeadStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -9,9 +10,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['branch_id', 'full_name', 'phone', 'source', 'interested_course', 'status', 'assigned_to', 'next_contact_at', 'student_id', 'note'])]
+#[Fillable(['branch_id', 'full_name', 'first_name', 'last_name', 'phone', 'source', 'interested_course', 'course_id', 'status', 'assigned_to', 'next_contact_at', 'student_id', 'note'])]
 class Lead extends Model
 {
+    use HasPersonName;
+
     /**
      * @return array<string, string>
      */
@@ -22,6 +25,24 @@ class Lead extends Model
             'status' => LeadStatus::class,
             'next_contact_at' => 'date',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        // The course name is kept on the row for display; a chosen course always wins.
+        static::saving(function (self $model): void {
+            if ($model->isDirty('course_id')) {
+                $model->interested_course = $model->course_id === null ? null : Course::query()->whereKey($model->course_id)->value('name');
+            }
+        });
+    }
+
+    /**
+     * @return BelongsTo<Course, $this>
+     */
+    public function course(): BelongsTo
+    {
+        return $this->belongsTo(Course::class);
     }
 
     /**

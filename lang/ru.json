@@ -95,5 +95,6 @@
     "This payment key was already used for another student.": "Этот ключ платежа уже использован для другого ученика.",
     "Choose a teacher of this branch.": "Выберите преподавателя этого филиала.",
     "The teacher does not work in the branch of this cashbox.": "Преподаватель не работает в филиале этой кассы.",
-    "With this price the discounted price of :students does not divide by :lessons lessons. Change their discount first.": "При этой цене цена со скидкой у :students не делится на :lessons уроков без остатка. Сначала измените их скидку."
+    "With this price the discounted price of :students does not divide by :lessons lessons. Change their discount first.": "При этой цене цена со скидкой у :students не делится на :lessons уроков без остатка. Сначала измените их скидку.",
+    "Course added.": "Курс добавлен."
 }

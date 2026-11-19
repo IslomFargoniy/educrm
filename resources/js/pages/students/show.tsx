@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import Field from '@/components/field';
+import NameFields from '@/components/name-fields';
 import FormDialog from '@/components/form-dialog';
 import HistoryTable from '@/components/history-table';
 import type { History } from '@/components/history-table';
@@ -110,6 +111,8 @@ type Props = {
     student: {
         id: number;
         full_name: string;
+        first_name: string | null;
+        last_name: string | null;
         phone: string | null;
         birth_date: string | null;
         note: string | null;
@@ -1041,13 +1044,11 @@ function EditStudentDialog({ student }: { student: Props['student'] }) {
         >
             {(errors) => (
                 <>
-                    <Field label={t('Full name')} error={errors.full_name}>
-                        <Input
-                            name="full_name"
-                            defaultValue={student.full_name}
-                            required
-                        />
-                    </Field>
+                    <NameFields
+                        errors={errors}
+                        firstName={student.first_name}
+                        lastName={student.last_name}
+                    />
                     <Field label={t('Phone')} error={errors.phone}>
                         <PhoneInput
                             name="phone"
@@ -1089,9 +1090,7 @@ function GuardianDialog({ studentId }: { studentId: number }) {
         >
             {(errors) => (
                 <>
-                    <Field label={t('Name')} error={errors.name}>
-                        <Input name="name" required />
-                    </Field>
+                    <NameFields errors={errors} />
                     <Field label={t('Phone')} error={errors.phone}>
                         <PhoneInput name="phone" required />
                     </Field>

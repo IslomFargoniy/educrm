@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\HasPersonName;
 use App\Enums\Role;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -17,12 +18,17 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'phone', 'email', 'password', 'locale', 'is_active', 'telegram_chat_id'])]
+#[Fillable(['name', 'first_name', 'last_name', 'phone', 'email', 'password', 'locale', 'is_active', 'telegram_chat_id'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token', 'telegram_chat_id'])]
 class User extends Authenticatable implements PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, HasRoles, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+    use HasApiTokens, HasFactory, HasPersonName, HasRoles, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+
+    public function personNameColumn(): string
+    {
+        return 'name';
+    }
 
     /**
      * Get the attributes that should be cast.

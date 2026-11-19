@@ -12,7 +12,7 @@ test('profile information and language can be updated', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
-        ->patch(route('profile.update'), ['name' => 'Test User', 'email' => 'test@example.com', 'locale' => 'ru'])
+        ->patch(route('profile.update'), ['first_name' => 'Test', 'last_name' => 'User', 'email' => 'test@example.com', 'locale' => 'ru'])
         ->assertSessionHasNoErrors()
         ->assertRedirect(route('profile.edit'));
 
@@ -27,7 +27,7 @@ test('email is optional', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
-        ->patch(route('profile.update'), ['name' => 'Test User', 'email' => null, 'locale' => 'uz'])
+        ->patch(route('profile.update'), ['first_name' => 'Test', 'last_name' => 'User', 'email' => null, 'locale' => 'uz'])
         ->assertSessionHasNoErrors();
 
     expect($user->refresh()->email)->toBeNull();

@@ -3,6 +3,7 @@ import { Plus, Search } from 'lucide-react';
 import { useState } from 'react';
 import EmptyState from '@/components/empty-state';
 import Field from '@/components/field';
+import NameFields from '@/components/name-fields';
 import FormDialog from '@/components/form-dialog';
 import Money from '@/components/money';
 import PageHeader from '@/components/page-header';
@@ -194,25 +195,20 @@ function NewStudentDialog({ groups }: { groups: Props['groups'] }) {
         >
             {(errors) => (
                 <div className="grid gap-4 sm:grid-cols-2">
-                    <Field
-                        label={t('Full name')}
-                        error={errors.full_name}
-                        className="sm:col-span-2"
-                    >
-                        <Input name="full_name" required autoFocus />
-                    </Field>
+                    <NameFields errors={errors} autoFocus />
                     <Field label={t('Phone')} error={errors.phone}>
                         <PhoneInput name="phone" />
                     </Field>
                     <Field label={t('Birth date')} error={errors.birth_date}>
                         <Input name="birth_date" type="date" />
                     </Field>
-                    <Field
-                        label={t('Parent name')}
-                        error={errors.guardian_name}
-                    >
-                        <Input name="guardian_name" />
-                    </Field>
+                    <NameFields
+                        errors={errors}
+                        prefix="guardian_"
+                        required={false}
+                        firstLabel={t('Parent first name')}
+                        lastLabel={t('Parent last name')}
+                    />
                     <Field
                         label={t('Parent phone')}
                         error={errors.guardian_phone}

@@ -6,6 +6,7 @@ use App\Enums\LeadSource;
 use App\Enums\LeadStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
+use App\Models\Course;
 use App\Models\Group;
 use App\Models\Lead;
 use App\Support\Phone;
@@ -70,6 +71,9 @@ class PublicController extends Controller
             'source' => LeadSource::Website,
             'status' => LeadStatus::New,
             'interested_course' => $validated['course'] ?? null,
+            'course_id' => filled($validated['course'] ?? null)
+                ? Course::query()->whereRaw('LOWER(name) = ?', [mb_strtolower(trim($validated['course']))])->value('id')
+                : null,
             'note' => $validated['note'] ?? null,
             'next_contact_at' => today(),
         ]);

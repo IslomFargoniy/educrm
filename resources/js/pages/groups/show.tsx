@@ -7,6 +7,7 @@ import {
     Tag,
 } from 'lucide-react';
 import { useState } from 'react';
+import type { ReactNode } from 'react';
 import Field from '@/components/field';
 import FormDialog from '@/components/form-dialog';
 import GroupFormFields from '@/components/group-form-fields';
@@ -15,6 +16,14 @@ import Money from '@/components/money';
 import PageHeader from '@/components/page-header';
 import StatusBadge from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import MoneyInput from '@/components/money-input';
 import { Input } from '@/components/ui/input';
 import { NativeSelect } from '@/components/ui/native-select';
@@ -99,6 +108,7 @@ type Props = GroupFormOptions & {
         attendance: Record<string, string>;
     }[];
     month: string;
+    canEditAttendance: boolean;
 };
 
 const marks: Record<string, { label: string; className: string }> = {
@@ -115,6 +125,7 @@ export default function GroupShow({
     students: roster,
     lessons: monthLessons,
     month,
+    canEditAttendance,
     ...options
 }: Props) {
     const t = useT();
@@ -123,6 +134,26 @@ export default function GroupShow({
     const [tab, setTab] = useState<'journal' | 'students' | 'prices'>(
         'journal',
     );
+    const canEditCell = (
+        lesson: Props['lessons'][number],
+        student: Props['students'][number],
+    ) =>
+        canEditAttendance &&
+        lesson.status !== 'cancelled' &&
+        lesson.date <= today() &&
+        (lesson.attendance[student.enrollment_id] !== undefined ||
+            (lesson.date >= student.joined_at &&
+                (!student.left_at || lesson.date <= student.left_at)));
+    const changeAttendance = (
+        lessonId: number,
+        enrollmentId: number,
+        status: string,
+    ) =>
+        router.post(
+            lessons.attendance(lessonId).url,
+            { statuses: { [enrollmentId]: status } },
+            { preserveScroll: true, preserveState: true },
+        );
     const goMonth = (by: number) =>
         router.get(
             groups.show(group.id).url,
@@ -509,19 +540,37 @@ export default function GroupShow({
                                                         key={lesson.id}
                                                         className="px-1 py-1.5 text-center"
                                                     >
-                                                        {mark ? (
-                                                            <span
-                                                                className={cn(
-                                                                    'inline-flex size-6 items-center justify-center rounded-md text-xs font-bold',
-                                                                    mark.className,
-                                                                )}
+                                                        {canEditCell(
+                                                            lesson,
+                                                            s,
+                                                        ) ? (
+                                                            <AttendanceCellMenu
+                                                                current={
+                                                                    lesson
+                                                                        .attendance[
+                                                                        s
+                                                                            .enrollment_id
+                                                                    ]
+                                                                }
+                                                                onChange={(
+                                                                    status,
+                                                                ) =>
+                                                                    changeAttendance(
+                                                                        lesson.id,
+                                                                        s.enrollment_id,
+                                                                        status,
+                                                                    )
+                                                                }
                                                             >
-                                                                {mark.label}
-                                                            </span>
+                                                                <MarkBadge
+                                                                    mark={mark}
+                                                                    interactive
+                                                                />
+                                                            </AttendanceCellMenu>
                                                         ) : (
-                                                            <span className="text-muted-foreground/40">
-                                                                ·
-                                                            </span>
+                                                            <MarkBadge
+                                                                mark={mark}
+                                                            />
                                                         )}
                                                     </td>
                                                 );
@@ -705,13 +754,7 @@ export default function GroupShow({
     );
 }
 
-function Card({
-    label,
-    children,
-}: {
-    label: string;
-    children: React.ReactNode;
-}) {
+function Card({ label, children }: { label: string; children: ReactNode }) {
     return (
         <div className="rounded-xl border bg-card px-3 py-2">
             <div className="text-[11px] font-semibold text-muted-foreground uppercase">
@@ -792,5 +835,91 @@ function StudentPercentDialog({
                 </>
             )}
         </FormDialog>
+    );
+}
+
+function MarkBadge({
+    mark,
+    interactive = false,
+}: {
+    mark: { label: string; className: string } | undefined;
+    interactive?: boolean;
+}) {
+    if (!mark) {
+        return (
+            <span
+                className={cn(
+                    'inline-flex size-6 items-center justify-center rounded-md text-muted-foreground/40',
+                    interactive && 'hover:bg-muted',
+                )}
+            >
+                ·
+            </span>
+        );
+    }
+
+    return (
+        <span
+            className={cn(
+                'inline-flex size-6 items-center justify-center rounded-md text-xs font-bold',
+                mark.className,
+                interactive && 'hover:ring-2 hover:ring-primary/40',
+            )}
+        >
+            {mark.label}
+        </span>
+    );
+}
+
+function AttendanceCellMenu({
+    current,
+    onChange,
+    children,
+}: {
+    current: string | undefined;
+    onChange: (status: string) => void;
+    children: ReactNode;
+}) {
+    const t = useT();
+    const options = [
+        { value: 'present', label: t('present') },
+        { value: 'absent', label: t('absent without reason') },
+        { value: 'excused', label: t('excused') },
+    ];
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger
+                className="cursor-pointer rounded-md outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                aria-label={t('Change attendance')}
+            >
+                {children}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center" className="w-60">
+                <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+                    {t(
+                        'Excused: the lesson money goes back to the student and the teacher share is taken back.',
+                    )}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {options.map((option) => (
+                    <DropdownMenuItem
+                        key={option.value}
+                        disabled={option.value === current}
+                        onSelect={() => onChange(option.value)}
+                    >
+                        <span
+                            className={cn(
+                                'inline-flex size-5 items-center justify-center rounded text-[10px] font-bold',
+                                marks[option.value].className,
+                            )}
+                        >
+                            {marks[option.value].label}
+                        </span>
+                        {option.label}
+                    </DropdownMenuItem>
+                ))}
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 }

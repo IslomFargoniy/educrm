@@ -1,6 +1,7 @@
 import { Form, Head, usePage } from '@inertiajs/react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import Field from '@/components/field';
+import NameFields from '@/components/name-fields';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,19 +32,13 @@ export default function Profile() {
                 >
                     {({ processing, errors }) => (
                         <>
-                            <Field
-                                label={t('Name')}
-                                error={errors.name}
-                                htmlFor="name"
-                            >
-                                <Input
-                                    id="name"
-                                    defaultValue={auth.user.name}
-                                    name="name"
-                                    required
-                                    autoComplete="name"
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <NameFields
+                                    errors={errors}
+                                    firstName={auth.user.first_name}
+                                    lastName={auth.user.last_name}
                                 />
-                            </Field>
+                            </div>
 
                             <Field
                                 label={t('Phone number')}

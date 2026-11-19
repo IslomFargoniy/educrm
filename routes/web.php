@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\CashboxSettingsController;
+use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\ExpenseCategoryController;
 use App\Http\Controllers\Admin\HolidayController;
 use App\Http\Controllers\Admin\ImportController;
@@ -122,6 +123,9 @@ Route::middleware(['auth'])->group(function () {
         Route::middleware('permission:settings.manage')->group(function () {
             Route::post('branches/{branch}/cashboxes', [CashboxSettingsController::class, 'store'])->name('cashboxes.store');
             Route::put('cashboxes/{cashbox}', [CashboxSettingsController::class, 'update'])->name('cashboxes.update');
+            Route::get('courses', [CourseController::class, 'index'])->name('courses.index');
+            Route::post('courses', [CourseController::class, 'store'])->name('courses.store');
+            Route::put('courses/{course}', [CourseController::class, 'update'])->name('courses.update');
             Route::get('expense-categories', [ExpenseCategoryController::class, 'index'])->name('expense-categories.index');
             Route::post('expense-categories', [ExpenseCategoryController::class, 'store'])->name('expense-categories.store');
             Route::put('expense-categories/{category}', [ExpenseCategoryController::class, 'update'])->name('expense-categories.update');

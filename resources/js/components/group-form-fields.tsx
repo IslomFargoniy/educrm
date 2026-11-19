@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import Field from '@/components/field';
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import MoneyInput from '@/components/money-input';
 import { Input } from '@/components/ui/input';
@@ -10,6 +12,7 @@ import { useLocale, useT } from '@/lib/i18n';
 
 export type GroupFormOptions = {
     teachers: { id: number; name: string }[];
+    courses: { id: number; name: string }[];
     rooms: { id: number; name: string; branch_id: number }[];
     defaultBranchId: number | null;
 };
@@ -18,6 +21,7 @@ export type GroupValues = {
     branch_id?: number;
     name?: string;
     subject?: string | null;
+    course_id?: number | null;
     teacher_id?: number | null;
     room_id?: number | null;
     teacher_percent?: number;
@@ -44,6 +48,21 @@ export default function GroupFormFields({
     const locale = useLocale();
     const { can } = useCan();
     const branchId = values.branch_id ?? options.defaultBranchId ?? undefined;
+    const [days, setDays] = useState<number[]>(values.days ?? [1, 3, 5]);
+    const toggleDay = (day: number, checked: boolean) =>
+        setDays((current) =>
+            checked
+                ? [...current.filter((d) => d !== day), day].sort(
+                      (a, b) => a - b,
+                  )
+                : current.filter((d) => d !== day),
+        );
+    const sameDays = (a: number[], b: number[]) =>
+        a.length === b.length && a.every((d) => b.includes(d));
+    const dayPresets = [
+        { label: t('Odd days'), days: [1, 3, 5] },
+        { label: t('Even days'), days: [2, 4, 6] },
+    ];
 
     return (
         <div className="grid gap-4 sm:grid-cols-2">
@@ -56,8 +75,18 @@ export default function GroupFormFields({
                     autoFocus
                 />
             </Field>
-            <Field label={t('Subject')} error={errors.subject}>
-                <Input name="subject" defaultValue={values.subject ?? ''} />
+            <Field label={t('Course')} error={errors.course_id}>
+                <NativeSelect
+                    name="course_id"
+                    defaultValue={values.course_id ?? ''}
+                >
+                    <option value="">—</option>
+                    {options.courses.map((course) => (
+                        <option key={course.id} value={course.id}>
+                            {course.name}
+                        </option>
+                    ))}
+                </NativeSelect>
             </Field>
             <Field label={t('Teacher')} error={errors.teacher_id}>
                 <NativeSelect
@@ -92,7 +121,7 @@ export default function GroupFormFields({
                 error={errors.days}
                 className="sm:col-span-2"
             >
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                     {[1, 2, 3, 4, 5, 6, 7].map((day) => (
                         <Label
                             key={day}
@@ -101,13 +130,32 @@ export default function GroupFormFields({
                             <Checkbox
                                 name="days[]"
                                 value={String(day)}
-                                defaultChecked={(
-                                    values.days ?? [1, 3, 5]
-                                ).includes(day)}
+                                checked={days.includes(day)}
+                                onCheckedChange={(checked) =>
+                                    toggleDay(day, checked === true)
+                                }
                             />
                             {weekdayName(day, locale)}
                         </Label>
                     ))}
+                    <div className="ml-auto flex gap-1.5">
+                        {dayPresets.map((preset) => (
+                            <Button
+                                key={preset.label}
+                                type="button"
+                                size="sm"
+                                variant={
+                                    sameDays(days, preset.days)
+                                        ? 'default'
+                                        : 'outline'
+                                }
+                                className="h-7 px-2.5 text-xs"
+                                onClick={() => setDays(preset.days)}
+                            >
+                                {preset.label}
+                            </Button>
+                        ))}
+                    </div>
                 </div>
             </Field>
             <Field label={t('Starts at')} error={errors.start_time}>

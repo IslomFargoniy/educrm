@@ -47,7 +47,7 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'locale' => app()->getLocale(),
             'auth' => [
-                'user' => $user?->only(['id', 'name', 'phone', 'email', 'locale', 'two_factor_enabled', 'created_at', 'updated_at']),
+                'user' => $user?->only(['id', 'name', 'first_name', 'last_name', 'phone', 'email', 'locale', 'two_factor_enabled', 'created_at', 'updated_at']),
                 'roles' => fn () => $user?->getRoleNames()->all() ?? [],
                 'permissions' => fn () => $user === null ? [] : ($user->isSuperadmin()
                     ? Permissions::all()

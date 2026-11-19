@@ -204,3 +204,20 @@ it('moves unused money between groups of the same student', function () {
     expect($this->enrollment->fresh()->balance)->toBe(40_000)
         ->and($other->fresh()->balance)->toBe(60_000);
 });
+
+it('lets an admin turn a past present mark into excused from the journal', function () {
+    $lesson = lessonOn($this->group, '2026-11-03');
+    pay($this->enrollment, $this->cashbox, 50_000);
+    mark($lesson, $this->enrollment, AttendanceStatus::Present);
+
+    $admin = userWithRole(Role::Admin, [$this->group->branch]);
+
+    $this->actingAs($admin)
+        ->post(route('lessons.attendance', $lesson), ['statuses' => [$this->enrollment->id => 'excused']])
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    expect($this->enrollment->fresh()->balance)->toBe(50_000)
+        ->and($this->teacherA->fresh()->balance)->toBe(0)
+        ->and($lesson->charges()->where('status', ChargeStatus::Active)->exists())->toBeFalse();
+});

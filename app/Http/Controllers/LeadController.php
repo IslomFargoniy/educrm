@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\LeadSource;
 use App\Enums\LeadStatus;
 use App\Enums\Role;
+use App\Models\Course;
 use App\Models\Group;
 use App\Models\Lead;
 use App\Models\User;
@@ -36,7 +37,7 @@ class LeadController extends Controller
             ->paginate(30)
             ->withQueryString()
             ->through(fn (Lead $lead) => [
-                ...$lead->only(['id', 'full_name', 'phone', 'interested_course', 'note', 'student_id']),
+                ...$lead->only(['id', 'full_name', 'first_name', 'last_name', 'phone', 'interested_course', 'note', 'student_id']),
                 'source' => $lead->source->value,
                 'status' => $lead->status->value,
                 'assigned_to' => $lead->assigned_to,
@@ -49,6 +50,7 @@ class LeadController extends Controller
         return Inertia::render('leads/index', [
             'leads' => $leads,
             'filters' => $filters,
+            'courses' => Course::options(),
             'staff' => User::role([Role::Admin->value, Role::Manager->value])
                 ->whereHas('branches', fn ($q) => $q->whereIn('branches.id', $branchIds))->orderBy('name')->get(['id', 'name']),
             'sources' => array_column(LeadSource::cases(), 'value'),
@@ -74,7 +76,7 @@ class LeadController extends Controller
 
         return Inertia::render('leads/show', [
             'lead' => [
-                ...$lead->only(['id', 'full_name', 'phone', 'interested_course', 'note', 'assigned_to', 'student_id']),
+                ...$lead->only(['id', 'full_name', 'first_name', 'last_name', 'phone', 'interested_course', 'course_id', 'note', 'assigned_to', 'student_id']),
                 'source' => $lead->source->value,
                 'status' => $lead->status->value,
                 'next_contact_at' => $lead->next_contact_at?->toDateString(),
@@ -83,6 +85,7 @@ class LeadController extends Controller
                 'student' => $lead->student?->full_name,
                 'notes' => $lead->notes->map(fn ($n) => ['id' => $n->id, 'text' => $n->text, 'by' => $n->user?->name, 'at' => $n->created_at->toIso8601String()]),
             ],
+            'courses' => Course::options($lead->course_id),
             'staff' => User::role([Role::Admin->value, Role::Manager->value])
                 ->whereHas('branches', fn ($q) => $q->where('branches.id', $lead->branch_id))->orderBy('name')->get(['id', 'name']),
             'groups' => Group::query()->where('branch_id', $lead->branch_id)->where('status', 'active')->orderBy('name')->get(['id', 'name']),
@@ -121,11 +124,12 @@ class LeadController extends Controller
         $request->merge(['phone' => Phone::normalize($request->input('phone'))]);
 
         return $request->validate([
-            'full_name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:100'],
+            'last_name' => ['nullable', 'string', 'max:100'],
             'phone' => ['required', 'regex:/^\+998\d{9}$/'],
             'source' => ['required', Rule::enum(LeadSource::class)],
             'status' => ['nullable', Rule::enum(LeadStatus::class)],
-            'interested_course' => ['nullable', 'string', 'max:255'],
+            'course_id' => ['nullable', 'exists:courses,id'],
             'assigned_to' => ['nullable', 'exists:users,id'],
             'next_contact_at' => ['nullable', 'date'],
             'note' => ['nullable', 'string', 'max:2000'],

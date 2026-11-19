@@ -11,6 +11,7 @@ import {
     LayoutGrid,
     ShieldCheck,
     Tags,
+    Library,
     UserCog,
     UserPlus,
     Users,
@@ -107,6 +108,11 @@ export function useNavItems(): { main: NavItem[]; settings: NavItem[] } {
             title: t('Holidays'),
             href: admin.holidays.index(),
             icon: CalendarOff,
+        },
+        can('settings.manage') && {
+            title: t('Courses'),
+            href: admin.courses.index(),
+            icon: Library,
         },
         can('settings.manage') && {
             title: t('Expense categories'),

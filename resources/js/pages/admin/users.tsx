@@ -1,6 +1,7 @@
 import { Head, router } from '@inertiajs/react';
 import { KeyRound, Pencil, Plus } from 'lucide-react';
 import Field from '@/components/field';
+import NameFields from '@/components/name-fields';
 import FormDialog from '@/components/form-dialog';
 import PageHeader from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +26,8 @@ import admin from '@/routes/admin';
 type User = {
     id: number;
     name: string;
+    first_name: string | null;
+    last_name: string | null;
     phone: string;
     email: string | null;
     is_active: boolean;
@@ -198,9 +201,11 @@ function UserFields({
 
     return (
         <div className="grid gap-3 sm:grid-cols-2">
-            <Field label={t('Name')} error={errors.name}>
-                <Input name="name" defaultValue={user?.name} required />
-            </Field>
+            <NameFields
+                errors={errors}
+                firstName={user?.first_name}
+                lastName={user?.last_name}
+            />
             <Field label={t('Phone')} error={errors.phone}>
                 <PhoneInput name="phone" defaultValue={user?.phone} required />
             </Field>

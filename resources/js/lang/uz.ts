@@ -45,6 +45,19 @@ export const uz: Record<string, string> = {
     Amount: 'Summa',
     Appearance: "Ko'rinish",
     'Appearance settings': "Ko'rinish sozlamalari",
+    'Change attendance': "Davomatni o'zgartirish",
+    'Excused: the lesson money goes back to the student and the teacher share is taken back.':
+        "Sababli: dars puli o'quvchiga qaytadi, o'qituvchi ulushi qaytarib olinadi.",
+    'First name': 'Ism',
+    'Last name': 'Familiya',
+    'Parent first name': 'Ota-ona ismi',
+    'Parent last name': 'Ota-ona familiyasi',
+    Courses: 'Kurslar',
+    'Odd days': 'Toq kunlar',
+    'Even days': 'Juft kunlar',
+    'Groups and leads choose a course from this list.':
+        "Guruh va lidlar kursni shu ro'yxatdan tanlaydi.",
+    'e.g. IELTS': 'masalan, IELTS',
     'Attendance can be marked only on the lesson day. Later changes are made by the administrator.':
         "Davomat faqat dars kuni belgilanadi. Keyingi o'zgarishlarni administrator qiladi.",
     'Attendance journal': 'Davomat jurnali',

@@ -34,7 +34,7 @@ class UserController extends Controller
             ->orderBy('name')
             ->get()
             ->map(fn (User $user) => [
-                ...$user->only(['id', 'name', 'phone', 'email', 'is_active', 'balance']),
+                ...$user->only(['id', 'name', 'first_name', 'last_name', 'phone', 'email', 'is_active', 'balance']),
                 'role' => $user->getRoleNames()->first(),
                 'branch_ids' => $user->branches->pluck('id'),
                 'branches' => $user->branches->pluck('name'),
@@ -56,7 +56,8 @@ class UserController extends Controller
 
         DB::transaction(function () use ($validated, $password) {
             $user = User::query()->create([
-                'name' => $validated['name'],
+                'first_name' => $validated['first_name'],
+                'last_name' => $validated['last_name'],
                 'phone' => $validated['phone'],
                 'email' => $validated['email'] ?? null,
                 'password' => $password,
@@ -82,7 +83,8 @@ class UserController extends Controller
 
         DB::transaction(function () use ($user, $validated) {
             $user->update([
-                'name' => $validated['name'],
+                'first_name' => $validated['first_name'],
+                'last_name' => $validated['last_name'],
                 'phone' => $validated['phone'],
                 'email' => $validated['email'] ?? null,
                 'is_active' => $validated['is_active'] ?? true,
@@ -126,7 +128,8 @@ class UserController extends Controller
     {
         $request->merge(['phone' => Phone::normalize($request->input('phone'))]);
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:100'],
+            'last_name' => ['required', 'string', 'max:100'],
             'phone' => ['required', 'regex:/^\+998\d{9}$/', Rule::unique('users', 'phone')->ignore($user?->id)],
             'email' => ['nullable', 'email', Rule::unique('users', 'email')->ignore($user?->id)],
             'password' => ['nullable', 'string', 'min:8'],

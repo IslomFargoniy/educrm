@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\HasPersonName;
 use Database\Factories\StudentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -12,11 +13,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
-#[Fillable(['full_name', 'phone', 'birth_date', 'branch_id', 'user_id', 'lead_id', 'status', 'note'])]
+#[Fillable(['full_name', 'first_name', 'last_name', 'phone', 'birth_date', 'branch_id', 'user_id', 'lead_id', 'status', 'note'])]
 class Student extends Model
 {
     /** @use HasFactory<StudentFactory> */
-    use HasFactory;
+    use HasFactory, HasPersonName;
 
     /**
      * @return array<string, string>

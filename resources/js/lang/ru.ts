@@ -45,6 +45,19 @@ export const ru: Record<string, string> = {
     Amount: 'Сумма',
     Appearance: 'Оформление',
     'Appearance settings': 'Настройки оформления',
+    'Change attendance': 'Изменить посещаемость',
+    'Excused: the lesson money goes back to the student and the teacher share is taken back.':
+        'Уважительная: деньги за урок возвращаются ученику, доля учителя списывается.',
+    'First name': 'Имя',
+    'Last name': 'Фамилия',
+    'Parent first name': 'Имя родителя',
+    'Parent last name': 'Фамилия родителя',
+    Courses: 'Курсы',
+    'Odd days': 'Нечётные',
+    'Even days': 'Чётные',
+    'Groups and leads choose a course from this list.':
+        'Группы и лиды выбирают курс из этого списка.',
+    'e.g. IELTS': 'например, IELTS',
     'Attendance can be marked only on the lesson day. Later changes are made by the administrator.':
         'Посещаемость отмечается только в день урока. Позже изменения вносит администратор.',
     'Attendance journal': 'Журнал посещаемости',

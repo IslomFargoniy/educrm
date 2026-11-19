@@ -2,6 +2,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import EmptyState from '@/components/empty-state';
 import Field from '@/components/field';
+import NameFields from '@/components/name-fields';
 import FormDialog from '@/components/form-dialog';
 import PageHeader from '@/components/page-header';
 import Pagination from '@/components/pagination';
@@ -28,6 +29,8 @@ import leads from '@/routes/leads';
 type Lead = {
     id: number;
     full_name: string;
+    first_name: string | null;
+    last_name: string | null;
     phone: string;
     source: string;
     status: string;
@@ -46,6 +49,7 @@ type Props = {
         q?: string;
     };
     staff: { id: number; name: string }[];
+    courses: { id: number; name: string }[];
     sources: string[];
     statuses: string[];
 };
@@ -54,6 +58,7 @@ export default function LeadsIndex({
     leads: list,
     filters,
     staff,
+    courses,
     sources,
     statuses,
 }: Props) {
@@ -91,6 +96,7 @@ export default function LeadsIndex({
                                     <LeadFields
                                         errors={errors}
                                         staff={staff}
+                                        courses={courses}
                                         sources={sources}
                                     />
                                 )}
@@ -226,27 +232,32 @@ export default function LeadsIndex({
 export function LeadFields({
     errors,
     staff,
+    courses,
     sources,
     values,
 }: {
     errors: Record<string, string>;
     staff: Props['staff'];
+    courses: Props['courses'];
     sources: string[];
     values?: Partial<
-        Lead & { assigned_to: number | null; note: string | null }
+        Lead & {
+            assigned_to: number | null;
+            course_id: number | null;
+            note: string | null;
+        }
     >;
 }) {
     const t = useT();
 
     return (
         <div className="grid gap-3 sm:grid-cols-2">
-            <Field label={t('Full name')} error={errors.full_name}>
-                <Input
-                    name="full_name"
-                    defaultValue={values?.full_name}
-                    required
-                />
-            </Field>
+            <NameFields
+                errors={errors}
+                firstName={values?.first_name}
+                lastName={values?.last_name}
+                lastNameRequired={false}
+            />
             <Field label={t('Phone')} error={errors.phone}>
                 <PhoneInput
                     name="phone"
@@ -266,11 +277,18 @@ export function LeadFields({
                     ))}
                 </NativeSelect>
             </Field>
-            <Field label={t('Course')} error={errors.interested_course}>
-                <Input
-                    name="interested_course"
-                    defaultValue={values?.interested_course ?? ''}
-                />
+            <Field label={t('Course')} error={errors.course_id}>
+                <NativeSelect
+                    name="course_id"
+                    defaultValue={values?.course_id ?? ''}
+                >
+                    <option value="">—</option>
+                    {courses.map((course) => (
+                        <option key={course.id} value={course.id}>
+                            {course.name}
+                        </option>
+                    ))}
+                </NativeSelect>
             </Field>
             <Field label={t('Responsible')} error={errors.assigned_to}>
                 <NativeSelect

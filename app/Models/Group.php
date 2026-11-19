@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * @property-read int|null $students_count
  */
-#[Fillable(['branch_id', 'name', 'subject', 'teacher_id', 'room_id', 'teacher_percent', 'days', 'start_time', 'end_time', 'start_date', 'end_date', 'status'])]
+#[Fillable(['branch_id', 'name', 'subject', 'course_id', 'teacher_id', 'room_id', 'teacher_percent', 'days', 'start_time', 'end_time', 'start_date', 'end_date', 'status'])]
 class Group extends Model
 {
     /** @use HasFactory<GroupFactory> */
@@ -30,6 +30,24 @@ class Group extends Model
             'end_date' => 'date',
             'teacher_percent' => 'integer',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        // The course name is kept on the row for display; a chosen course always wins.
+        static::saving(function (self $model): void {
+            if ($model->isDirty('course_id')) {
+                $model->subject = $model->course_id === null ? null : Course::query()->whereKey($model->course_id)->value('name');
+            }
+        });
+    }
+
+    /**
+     * @return BelongsTo<Course, $this>
+     */
+    public function course(): BelongsTo
+    {
+        return $this->belongsTo(Course::class);
     }
 
     /**

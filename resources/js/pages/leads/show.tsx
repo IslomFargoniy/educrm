@@ -1,6 +1,7 @@
 import { Form, Head, Link, router } from '@inertiajs/react';
 import { GraduationCap, Pencil } from 'lucide-react';
 import Field from '@/components/field';
+import NameFields from '@/components/name-fields';
 import FormDialog from '@/components/form-dialog';
 import PageHeader from '@/components/page-header';
 import StatusBadge from '@/components/status-badge';
@@ -21,10 +22,13 @@ type Props = {
     lead: {
         id: number;
         full_name: string;
+        first_name: string | null;
+        last_name: string | null;
         phone: string;
         source: string;
         status: string;
         interested_course: string | null;
+        course_id: number | null;
         note: string | null;
         assigned_to: number | null;
         assignee: string | null;
@@ -35,6 +39,7 @@ type Props = {
         notes: { id: number; text: string; by: string | null; at: string }[];
     };
     staff: { id: number; name: string }[];
+    courses: { id: number; name: string }[];
     groups: { id: number; name: string }[];
     sources: string[];
     statuses: string[];
@@ -43,6 +48,7 @@ type Props = {
 export default function LeadShow({
     lead,
     staff,
+    courses,
     groups,
     sources,
     statuses,
@@ -99,18 +105,11 @@ export default function LeadShow({
                                                     name="lead_id"
                                                     value={lead.id}
                                                 />
-                                                <Field
-                                                    label={t('Full name')}
-                                                    error={errors.full_name}
-                                                >
-                                                    <Input
-                                                        name="full_name"
-                                                        defaultValue={
-                                                            lead.full_name
-                                                        }
-                                                        required
-                                                    />
-                                                </Field>
+                                                <NameFields
+                                                    errors={errors}
+                                                    firstName={lead.first_name}
+                                                    lastName={lead.last_name}
+                                                />
                                                 <Field
                                                     label={t('Parent phone')}
                                                     error={
@@ -189,6 +188,7 @@ export default function LeadShow({
                                         <LeadFields
                                             errors={errors}
                                             staff={staff}
+                                            courses={courses}
                                             sources={sources}
                                             values={lead}
                                         />
