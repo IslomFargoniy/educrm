@@ -182,6 +182,9 @@ export const uz: Record<string, string> = {
     'Must be at most :amount': "Ko'pi bilan :amount bo'lishi mumkin",
     ':p% (group)': ':p% (guruh)',
     'Android app': 'Mobil ilova (Android)',
+    'Lesson revenue': 'Darslar daromadi',
+    'Shares are counted from lessons held and paid in this period, so money paid earlier for these lessons is included.':
+        "Ulushlar shu davrda o'tilgan va to'langan darslardan hisoblanadi: bu darslar uchun oldinroq to'langan pul ham kiradi.",
     Leads: 'Lidlar',
     Lessons: 'Darslar',
     'Leaves the group': 'Guruhdan chiqadi',

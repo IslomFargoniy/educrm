@@ -45,6 +45,7 @@ type Props = {
         teacher: string | null;
         students: number;
         income: number;
+        revenue: number;
         teacher_share: number;
         center_share: number;
     }[];
@@ -252,28 +253,37 @@ export default function Reports({
                 )}
 
                 {tab === 'groups' && (
-                    <SimpleTable
-                        heads={[
-                            t('Group'),
-                            t('Teacher'),
-                            t('Students'),
-                            t('Income'),
-                            t('Teacher share'),
-                            t('Center share'),
-                        ]}
-                        rows={groups.map((g) => [
-                            g.group,
-                            g.teacher ?? '—',
-                            g.students,
-                            <Money key="i" value={g.income} />,
-                            <Money key="t" value={g.teacher_share} />,
-                            <Money
-                                key="c"
-                                value={g.center_share}
-                                className="font-bold"
-                            />,
-                        ])}
-                    />
+                    <div className="space-y-2">
+                        <p className="text-sm text-muted-foreground">
+                            {t(
+                                'Shares are counted from lessons held and paid in this period, so money paid earlier for these lessons is included.',
+                            )}
+                        </p>
+                        <SimpleTable
+                            heads={[
+                                t('Group'),
+                                t('Teacher'),
+                                t('Students'),
+                                t('Payments received'),
+                                t('Lesson revenue'),
+                                t('Teacher share'),
+                                t('Center share'),
+                            ]}
+                            rows={groups.map((g) => [
+                                g.group,
+                                g.teacher ?? '—',
+                                g.students,
+                                <Money key="i" value={g.income} />,
+                                <Money key="r" value={g.revenue} />,
+                                <Money key="t" value={g.teacher_share} />,
+                                <Money
+                                    key="c"
+                                    value={g.center_share}
+                                    className="font-bold"
+                                />,
+                            ])}
+                        />
+                    </div>
                 )}
 
                 {tab === 'leads' && (

@@ -178,6 +178,9 @@ export const ru: Record<string, string> = {
     'Must be at most :amount': 'Не больше :amount',
     ':p% (group)': ':p% (группа)',
     'Android app': 'Мобильное приложение (Android)',
+    'Lesson revenue': 'Доход с уроков',
+    'Shares are counted from lessons held and paid in this period, so money paid earlier for these lessons is included.':
+        'Доли считаются по урокам, проведённым и оплаченным за период, включая деньги, внесённые за эти уроки заранее.',
     Leads: 'Лиды',
     Lessons: 'Уроки',
     'Leaves the group': 'Уходит из группы',

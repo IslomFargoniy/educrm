@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\EnrollmentStatus;
 use App\Enums\TransactionType;
+use App\Models\ChargeCoverage;
 use App\Models\Enrollment;
 use App\Models\Group;
 use App\Models\Lead;
@@ -65,18 +66,23 @@ class ReportController extends Controller
             ->map(function (Group $group) use ($from, $to) {
                 $income = (int) Transaction::query()->where('type', TransactionType::StudentPayment)->whereNull('reversed_at')
                     ->whereBetween('occurred_at', [$from, $to])->where('meta->group_id', $group->id)->sum('amount');
-                $teacher = (int) Transaction::query()->whereIn('type', [TransactionType::TeacherEarning])
-                    ->whereBetween('occurred_at', [$from, $to])->where('meta->group_id', $group->id)->sum('amount')
-                    - (int) Transaction::query()->whereIn('type', [TransactionType::EarningReversal])
-                        ->whereBetween('occurred_at', [$from, $to])->where('meta->group_id', $group->id)->sum('amount');
+                // Shares come from lesson money recognised in the period (charge coverages), not from
+                // payments received: a payment made last month can pay for this month's lessons.
+                $earned = ChargeCoverage::query()->whereNull('reversed_at')->whereBetween('covered_at', [$from, $to])
+                    ->whereHas('charge.enrollment', fn ($q) => $q->where('group_id', $group->id))
+                    ->selectRaw('COALESCE(SUM(amount), 0) as revenue, COALESCE(SUM(teacher_amount), 0) as teacher')
+                    ->first();
+                $revenue = (int) $earned?->getAttribute('revenue');
+                $teacher = (int) $earned?->getAttribute('teacher');
 
                 return [
                     'group' => $group->name,
                     'teacher' => $group->teacher?->name,
                     'students' => $group->enrollments()->whereIn('status', [EnrollmentStatus::Active, EnrollmentStatus::Trial])->count(),
                     'income' => $income,
+                    'revenue' => $revenue,
                     'teacher_share' => $teacher,
-                    'center_share' => $income - $teacher,
+                    'center_share' => $revenue - $teacher,
                 ];
             })->sortByDesc('income')->values();
 
