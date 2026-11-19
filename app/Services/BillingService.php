@@ -44,11 +44,17 @@ class BillingService
             return;
         }
 
+        // Reverse without re-covering, bill again, then cover once: the freed money goes to
+        // this lesson first (oldest first) and a write-off on it is kept.
+        $writtenOff = 0;
+
         if ($existing !== null) {
-            $this->reverseCharge($existing);
+            $writtenOff = $existing->written_off_amount;
+            $this->reverseCharge($existing, cover: false);
         }
 
-        $this->chargeFor($attendance);
+        $this->chargeFor($attendance, $writtenOff);
+        $this->coverage->cover($attendance->enrollment);
     }
 
     /**
@@ -56,11 +62,23 @@ class BillingService
      */
     public function rebillLesson(Lesson $lesson): void
     {
-        $lesson->charges()->whereIn('status', [ChargeStatus::Active, ChargeStatus::PendingTrial])->get()
-            ->each(fn (LessonCharge $charge) => $this->reverseCharge($charge));
+        /** @var array<int, int> $writtenOff enrollment id => written-off amount to keep */
+        $writtenOff = [];
 
-        $lesson->attendances()->with('enrollment.group', 'enrollment.student', 'lesson')->get()
-            ->each(fn (Attendance $attendance) => $this->chargeFor($attendance));
+        foreach ($lesson->charges()->whereIn('status', [ChargeStatus::Active, ChargeStatus::PendingTrial])->get() as $charge) {
+            $writtenOff[$charge->enrollment_id] = ($writtenOff[$charge->enrollment_id] ?? 0) + $charge->written_off_amount;
+            $this->reverseCharge($charge, cover: false);
+        }
+
+        $attendances = $lesson->attendances()->with('enrollment.group', 'enrollment.student', 'lesson')->get();
+
+        foreach ($attendances as $attendance) {
+            $this->chargeFor($attendance, $writtenOff[$attendance->enrollment_id] ?? 0);
+        }
+
+        foreach ($attendances as $attendance) {
+            $this->coverage->cover($attendance->enrollment);
+        }
     }
 
     /**
@@ -72,7 +90,10 @@ class BillingService
             ->each(fn (LessonCharge $charge) => $this->reverseCharge($charge));
     }
 
-    public function chargeFor(Attendance $attendance): ?LessonCharge
+    /**
+     * @param  int  $writtenOff  write-off carried over from a reversed charge of the same lesson
+     */
+    public function chargeFor(Attendance $attendance, int $writtenOff = 0): ?LessonCharge
     {
         if (! $attendance->status->isBillable()) {
             return null;
@@ -80,6 +101,14 @@ class BillingService
 
         $lesson = $attendance->lesson;
         $enrollment = $attendance->enrollment->loadMissing('group', 'student');
+
+        // A rejected trial lesson stays free, even when the lesson is re-marked or re-billed later.
+        $rejectedTrial = $enrollment->status === EnrollmentStatus::Left
+            && $enrollment->charges()->where('lesson_id', $lesson->id)->where('status', ChargeStatus::Cancelled)->exists();
+
+        if ($rejectedTrial) {
+            return null;
+        }
         $price = $enrollment->group->priceFor($lesson->date);
 
         if ($price === null || $price->lessons_per_month === 0) {
@@ -109,7 +138,7 @@ class BillingService
         ]);
 
         if (! $isTrial) {
-            $this->debit($charge, $attendance->status, $lessonsPerMonth);
+            $this->debit($charge, $attendance->status, $lessonsPerMonth, min($writtenOff, $amount));
         }
 
         return $charge;
@@ -118,7 +147,7 @@ class BillingService
     /**
      * Cancel a charge and give the money back to the student's balance.
      */
-    public function reverseCharge(LessonCharge $charge): void
+    public function reverseCharge(LessonCharge $charge, bool $cover = true): void
     {
         if ($charge->status === ChargeStatus::PendingTrial) {
             $charge->update(['status' => ChargeStatus::Cancelled]);
@@ -136,7 +165,10 @@ class BillingService
         ]);
 
         $charge->update(['status' => ChargeStatus::Reversed]);
-        $this->coverage->cover($enrollment);
+
+        if ($cover) {
+            $this->coverage->cover($enrollment);
+        }
     }
 
     /**
@@ -219,7 +251,7 @@ class BillingService
         return $this->billedLessonsInMonth($enrollment, $month) < $this->monthlyLimit($enrollment, $month, $lessonsPerMonth);
     }
 
-    private function debit(LessonCharge $charge, AttendanceStatus $attendanceStatus, int $lessonsPerMonth): void
+    private function debit(LessonCharge $charge, AttendanceStatus $attendanceStatus, int $lessonsPerMonth, int $writtenOff = 0): void
     {
         $enrollment = $charge->enrollment->loadMissing('group', 'student');
         $balanceBefore = $enrollment->fresh()->balance;
@@ -233,6 +265,16 @@ class BillingService
                 'lessons_per_month' => $lessonsPerMonth,
             ],
         ]);
+
+        // The lesson was written off before it was re-billed: keep it written off.
+        if ($writtenOff > 0) {
+            $charge->update(['written_off_amount' => $writtenOff]);
+            $this->ledger->record(TransactionType::DebtWriteoff, $writtenOff, [[$enrollment, $writtenOff]], [
+                'branch_id' => $enrollment->group->branch_id,
+                'note' => __('Write-off kept after re-billing the lesson'),
+                'meta' => $this->chargeMeta($charge, $enrollment),
+            ]);
+        }
 
         $this->coverage->cover($enrollment);
 

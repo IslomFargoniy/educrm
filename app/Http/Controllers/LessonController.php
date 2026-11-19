@@ -16,6 +16,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -129,9 +131,13 @@ class LessonController extends Controller
         $this->authorizeBranch($lesson->group->branch_id);
         $validated = $request->validate([
             'action' => ['required', 'in:teacher,cancel,restore'],
-            'teacher_id' => ['required_if:action,teacher', 'nullable', 'exists:users,id'],
+            'teacher_id' => ['required_if:action,teacher', 'nullable', Rule::exists('branch_user', 'user_id')->where('branch_id', $lesson->group->branch_id)],
             'cancel_reason' => ['nullable', 'string', 'max:255'],
         ]);
+
+        if ($validated['action'] === 'teacher' && ! User::role(Role::Teacher->value)->whereKey($request->integer('teacher_id'))->exists()) {
+            throw ValidationException::withMessages(['teacher_id' => __('Choose a teacher of this branch.')]);
+        }
 
         DB::transaction(function () use ($validated, $lesson, $billing) {
             match ($validated['action']) {

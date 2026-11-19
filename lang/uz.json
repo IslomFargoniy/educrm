@@ -89,5 +89,11 @@
     "sum": "so'm",
     "These credentials do not match our records.": "Telefon raqam yoki parol noto'g'ri.",
     "Too many login attempts. Please try again in :seconds seconds.": "Juda ko'p urinish. :seconds soniyadan keyin qayta urinib ko'ring.",
-    "The provided password is incorrect.": "Parol noto'g'ri."
+    "The provided password is incorrect.": "Parol noto'g'ri.",
+    "Write-off kept after re-billing the lesson": "Dars qayta hisoblangandan keyin ham qarz kechilgan holda qoldi",
+    "Money from this payment was already refunded or moved to another group. Cancel that first.": "Bu to'lov puli allaqachon qaytarilgan yoki boshqa guruhga o'tkazilgan. Avval o'shani bekor qiling.",
+    "This payment key was already used for another student.": "Bu to'lov kaliti boshqa o'quvchi uchun ishlatilgan.",
+    "Choose a teacher of this branch.": "Shu filialning o'qituvchisini tanlang.",
+    "The teacher does not work in the branch of this cashbox.": "O'qituvchi bu kassa filialida ishlamaydi.",
+    "With this price the discounted price of :students does not divide by :lessons lessons. Change their discount first.": "Bu narxda :students uchun chegirmali narx :lessons darsga qoldiqsiz bo'linmaydi. Avval ularning chegirmasini o'zgartiring."
 }

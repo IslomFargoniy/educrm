@@ -183,6 +183,19 @@ class GroupController extends Controller
         ]);
         $this->assertDivisible((int) $validated['monthly_price'], (int) $validated['lessons_per_month']);
 
+        // Discounted prices of current students must divide too, otherwise lesson prices get rounded.
+        $notDivisible = $group->enrollments()->with('student:id,full_name')
+            ->whereIn('status', [EnrollmentStatus::Active, EnrollmentStatus::Trial])->whereNotNull('discount_type')->get()
+            ->filter(fn (Enrollment $e) => $e->discountedMonthlyPrice((int) $validated['monthly_price']) % (int) $validated['lessons_per_month'] !== 0)
+            ->map(fn (Enrollment $e) => $e->student->full_name);
+
+        if ($notDivisible->isNotEmpty()) {
+            throw ValidationException::withMessages(['monthly_price' => __('With this price the discounted price of :students does not divide by :lessons lessons. Change their discount first.', [
+                'students' => $notDivisible->implode(', '),
+                'lessons' => $validated['lessons_per_month'],
+            ])]);
+        }
+
         $group->prices()->updateOrCreate(
             ['effective_from' => Carbon::parse($validated['effective_from'].'-01')->toDateString()],
             ['monthly_price' => $validated['monthly_price'], 'lessons_per_month' => $validated['lessons_per_month'], 'created_by' => $request->user()->id],

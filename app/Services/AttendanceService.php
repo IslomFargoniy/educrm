@@ -67,6 +67,9 @@ class AttendanceService
         $absent = [];
 
         DB::transaction(function () use ($lesson, $statuses, $user, $roster, &$absent) {
+            // Two saves of the same lesson at once must not both create a charge.
+            Lesson::query()->whereKey($lesson->getKey())->lockForUpdate()->first();
+
             foreach ($statuses as $enrollmentId => $value) {
                 $enrollment = $roster->get((int) $enrollmentId);
                 $status = AttendanceStatus::tryFrom($value);

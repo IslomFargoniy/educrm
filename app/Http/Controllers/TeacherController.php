@@ -12,6 +12,7 @@ use App\Support\Presenters\History;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -77,6 +78,10 @@ class TeacherController extends Controller
         ]);
         $cashbox = Cashbox::query()->findOrFail($request->integer('cashbox_id'));
         $this->authorizeBranch($cashbox->branch_id);
+
+        if (! $teacher->branches()->whereKey($cashbox->branch_id)->exists()) {
+            throw ValidationException::withMessages(['cashbox_id' => __('The teacher does not work in the branch of this cashbox.')]);
+        }
 
         $finance->payTeacher($teacher, $cashbox, (int) $validated['amount'], $validated['note'] ?? null);
         $this->toast(__('Salary paid.'));

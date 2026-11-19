@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\ChargeStatus;
+use App\Enums\LedgerAccount;
 use App\Enums\TransactionType;
 use App\Events\PaymentReceived;
 use App\Models\Cashbox;
@@ -13,6 +14,7 @@ use App\Models\Payment;
 use App\Models\Transaction;
 use App\Models\User;
 use Carbon\CarbonInterface;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -30,11 +32,49 @@ class FinanceService
         $enrollment->loadMissing('group', 'student');
         $this->assertSameBranch($cashbox, $enrollment);
 
-        if ($idempotencyKey !== null && ($existing = Transaction::query()->where('idempotency_key', $idempotencyKey)->first())) {
-            return Payment::query()->where('transaction_id', $existing->id)->firstOrFail();
+        if ($idempotencyKey !== null && ($existing = $this->paymentForKey($idempotencyKey, $enrollment))) {
+            return $existing;
         }
 
-        $payment = DB::transaction(function () use ($enrollment, $cashbox, $amount, $note, $paidAt, $idempotencyKey) {
+        try {
+            $payment = $this->storePayment($enrollment, $cashbox, $amount, $note, $paidAt, $idempotencyKey);
+        } catch (UniqueConstraintViolationException $e) {
+            // The same request arrived twice at once: the other one stored it.
+            if ($idempotencyKey !== null && ($existing = $this->paymentForKey($idempotencyKey, $enrollment))) {
+                return $existing;
+            }
+
+            throw $e;
+        }
+
+        PaymentReceived::dispatch($payment);
+
+        return $payment;
+    }
+
+    /**
+     * The payment already stored under an idempotency key (only for the same enrollment).
+     */
+    private function paymentForKey(string $key, Enrollment $enrollment): ?Payment
+    {
+        $transaction = Transaction::query()->where('idempotency_key', $key)->first();
+
+        if ($transaction === null) {
+            return null;
+        }
+
+        $payment = Payment::query()->where('transaction_id', $transaction->id)->firstOrFail();
+
+        if ($payment->enrollment_id !== $enrollment->id) {
+            throw ValidationException::withMessages(['idempotency_key' => __('This payment key was already used for another student.')]);
+        }
+
+        return $payment;
+    }
+
+    private function storePayment(Enrollment $enrollment, Cashbox $cashbox, int $amount, ?string $note, ?CarbonInterface $paidAt, ?string $idempotencyKey): Payment
+    {
+        return DB::transaction(function () use ($enrollment, $cashbox, $amount, $note, $paidAt, $idempotencyKey) {
             $payment = Payment::query()->create([
                 'enrollment_id' => $enrollment->id,
                 'cashbox_id' => $cashbox->id,
@@ -68,20 +108,33 @@ class FinanceService
 
             return $payment;
         });
-
-        PaymentReceived::dispatch($payment);
-
-        return $payment;
     }
 
     public function reversePayment(Payment $payment, string $reason): void
     {
-        if ($payment->reversed_at !== null) {
-            throw ValidationException::withMessages(['payment' => __('This payment is already cancelled.')]);
-        }
-
         DB::transaction(function () use ($payment, $reason) {
+            // Lock the payment so a double click cannot reverse it twice.
+            $payment = Payment::query()->whereKey($payment->getKey())->lockForUpdate()->firstOrFail();
+
+            if ($payment->reversed_at !== null) {
+                throw ValidationException::withMessages(['payment' => __('This payment is already cancelled.')]);
+            }
+
             $enrollment = $payment->enrollment->loadMissing('group', 'student');
+            $this->lockEnrollment($enrollment);
+
+            // Money that already left the group (refund, move to another group) cannot be taken back again.
+            $movedOutLater = LedgerEntry::query()
+                ->where('account_type', LedgerAccount::Enrollment)
+                ->where('account_id', $enrollment->id)
+                ->where('amount', '<', 0)
+                ->where('transaction_id', '>', $payment->transaction_id)
+                ->whereHas('transaction', fn ($q) => $q->whereIn('type', [TransactionType::Refund, TransactionType::BalanceTransfer]))
+                ->exists();
+
+            if ($movedOutLater) {
+                throw ValidationException::withMessages(['payment' => __('Money from this payment was already refunded or moved to another group. Cancel that first.')]);
+            }
 
             $this->ledger->record(TransactionType::PaymentReversal, $payment->amount, [
                 [$payment->cashbox, -$payment->amount],
@@ -117,6 +170,7 @@ class FinanceService
         }
 
         DB::transaction(function () use ($from, $to, $amount) {
+            $this->lockEnrollment($from);
             $this->assertFundsAvailable($from, $amount);
             $from->loadMissing('group', 'student');
             $to->loadMissing('group', 'student');
@@ -144,6 +198,7 @@ class FinanceService
         $this->assertSameBranch($cashbox, $enrollment);
 
         DB::transaction(function () use ($enrollment, $cashbox, $amount, $note) {
+            $this->lockEnrollment($enrollment);
             $this->assertFundsAvailable($enrollment, $amount);
 
             $this->ledger->record(TransactionType::Refund, $amount, [[$enrollment, -$amount], [$cashbox, -$amount]], [
@@ -222,7 +277,10 @@ class FinanceService
         $this->assertPositive($amount);
 
         return DB::transaction(function () use ($teacher, $cashbox, $amount, $note) {
-            if ($amount > $teacher->fresh()->balance) {
+            // Locked read: two payouts at the same time cannot both pass the check.
+            $locked = User::query()->whereKey($teacher->getKey())->lockForUpdate()->firstOrFail();
+
+            if ($amount > $locked->balance) {
                 throw ValidationException::withMessages(['amount' => __('The amount is more than the teacher balance.')]);
             }
 
@@ -351,6 +409,14 @@ class FinanceService
         if ($cashbox->branch_id !== $enrollment->group->branch_id) {
             throw ValidationException::withMessages(['cashbox_id' => __('Choose a cashbox of the group branch.')]);
         }
+    }
+
+    /**
+     * Serialise money operations on one enrollment (row lock until the transaction ends).
+     */
+    private function lockEnrollment(Enrollment $enrollment): void
+    {
+        Enrollment::query()->whereKey($enrollment->getKey())->lockForUpdate()->first();
     }
 
     private function assertFundsAvailable(Enrollment $enrollment, int $amount): void

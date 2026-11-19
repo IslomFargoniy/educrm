@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\ChargeStatus;
 use App\Enums\DiscountType;
 use App\Enums\EnrollmentStatus;
 use App\Models\Enrollment;
@@ -78,6 +79,8 @@ class EnrollmentService
             ]);
             $new->update(['transferred_from_id' => $enrollment->id, 'status' => EnrollmentStatus::Active]);
             $enrollment->update(['status' => EnrollmentStatus::Transferred, 'left_at' => $date->copy()->subDay()]);
+            // Trial lessons in the old group were never billed; they must not use the new group's monthly limit.
+            $enrollment->charges()->where('status', ChargeStatus::PendingTrial)->update(['status' => ChargeStatus::Cancelled]);
 
             $funds = $this->coverage->availableFunds($enrollment);
 
