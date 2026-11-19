@@ -45,10 +45,15 @@ data class LessonItem(
     val group_days: List<Int> = emptyList(),
     val group_start_time: String? = null,
     val group_end_time: String? = null,
+    val students: Int = 0,
+    val frozen: Int = 0,
 )
 
 @Serializable
-data class LessonsResponse(val date: String, val lessons: List<LessonItem>)
+data class LessonsResponse(val date: String, val lessons: List<LessonItem>, val summary: LessonsSummary = LessonsSummary())
+
+@Serializable
+data class LessonsSummary(val students: Int = 0, val frozen: Int = 0)
 
 @Serializable
 data class LessonInfo(val id: Int, val group: String, val date: String, val status: String)

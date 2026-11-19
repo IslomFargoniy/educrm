@@ -94,6 +94,12 @@ fun LessonsScreen(api: EduCrmApi, user: UserProfile, onOpen: (Int) -> Unit) {
                     }
                     IconButton({ day = day.plusDays(1) }) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = Color.White) }
                 }
+                (state as? Load.Ready)?.value?.summary?.let { summary ->
+                    Row(Modifier.padding(top = 8.dp, end = 12.dp).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        HeaderStat(stringResource(R.string.total_students), summary.students.toString(), Color.White, Modifier.weight(1f))
+                        HeaderStat(stringResource(R.string.frozen_students), summary.frozen.toString(), if (summary.frozen > 0) Color(0xFF7DD3FC) else Color.White, Modifier.weight(1f))
+                    }
+                }
             },
         )
         LoadBox(state, { reload++ }) { data ->
@@ -105,6 +111,18 @@ fun LessonsScreen(api: EduCrmApi, user: UserProfile, onOpen: (Int) -> Unit) {
                 }
             }
         }
+    }
+}
+
+/** Small figure under the date in the navy header. */
+@Composable
+private fun HeaderStat(label: String, value: String, color: Color, modifier: Modifier) {
+    Row(
+        modifier.clip(RoundedCornerShape(12.dp)).background(eduCrm.barAccent).padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(label, color = eduCrm.barMuted, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f), maxLines = 1)
+        Text(value, color = color, fontSize = 17.sp, fontWeight = FontWeight.ExtraBold)
     }
 }
 
@@ -123,6 +141,10 @@ private fun LessonCard(number: Int, lesson: LessonItem, onClick: () -> Unit) {
                 Text(lesson.group, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold, maxLines = 1)
                 val details = listOfNotNull(lesson.teacher, lesson.room).joinToString(" · ")
                 if (details.isNotEmpty()) Text(details, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall, maxLines = 1)
+                if (lesson.students > 0) {
+                    val counts = stringResource(R.string.students_count, lesson.students) + if (lesson.frozen > 0) " · " + stringResource(R.string.frozen_count, lesson.frozen) else ""
+                    Text(counts, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall, maxLines = 1)
+                }
                 val groupTime = listOfNotNull(lesson.group_start_time, lesson.group_end_time).joinToString("–")
                 val schedule = listOf(weekdays(lesson.group_days), groupTime).filter { it.isNotEmpty() }.joinToString(" · ")
                 if (schedule.isNotEmpty()) Text(schedule, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold, maxLines = 1)

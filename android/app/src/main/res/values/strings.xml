@@ -101,4 +101,7 @@
     <string name="groups_tab">Guruhlar</string>
     <string name="by_student">O\'quvchilar bo\'yicha</string>
     <string name="lesson_on">%1$s darsi</string>
+    <string name="total_students">Jami o\'quvchilar</string>
+    <string name="frozen_students">Muzlaganlar</string>
+    <string name="frozen_count">%1$d ta muzlagan</string>
 </resources>

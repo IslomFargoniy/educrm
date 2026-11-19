@@ -100,4 +100,7 @@
     <string name="groups_tab">Groups</string>
     <string name="by_student">By student</string>
     <string name="lesson_on">Lesson %1$s</string>
+    <string name="total_students">Total students</string>
+    <string name="frozen_students">Frozen</string>
+    <string name="frozen_count">%1$d frozen</string>
 </resources>

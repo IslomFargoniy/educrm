@@ -100,4 +100,7 @@
     <string name="groups_tab">Группы</string>
     <string name="by_student">По ученикам</string>
     <string name="lesson_on">Урок %1$s</string>
+    <string name="total_students">Всего учеников</string>
+    <string name="frozen_students">Заморожены</string>
+    <string name="frozen_count">заморожено: %1$d</string>
 </resources>

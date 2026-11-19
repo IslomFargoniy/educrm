@@ -50,7 +50,19 @@ class MobileController extends Controller
             ->with('group:id,name,days,start_time,end_time', 'teacher:id,name', 'room:id,name')
             ->withCount('attendances')
             ->orderBy('start_time')
+            ->get();
+
+        // Students of the day's groups on that date; frozen ones are counted apart.
+        $enrollments = Enrollment::query()
+            ->whereIn('group_id', $lessons->pluck('group_id')->unique())
+            ->whereIn('status', ['trial', 'active'])
+            ->with('freezes')
             ->get()
+            ->filter(fn (Enrollment $e) => $e->joined_at->lte($date) && ($e->left_at === null || $e->left_at->gte($date)))
+            ->groupBy('group_id');
+        $frozen = fn (int $groupId) => $enrollments->get($groupId, collect())->filter(fn (Enrollment $e) => $e->isFrozenOn($date))->count();
+
+        $lessons = $lessons
             ->map(fn (Lesson $l) => [
                 'id' => $l->id,
                 'group' => $l->group->name,
@@ -65,9 +77,19 @@ class MobileController extends Controller
                 'group_days' => array_values(array_map('intval', $l->group->days ?? [])),
                 'group_start_time' => $l->group->start_time ? substr($l->group->start_time, 0, 5) : null,
                 'group_end_time' => $l->group->end_time ? substr($l->group->end_time, 0, 5) : null,
+                'students' => $enrollments->get($l->group_id, collect())->count(),
+                'frozen' => $frozen($l->group_id),
             ]);
+        $unique = $enrollments->flatten(1);
 
-        return response()->json(['date' => $date->toDateString(), 'lessons' => $lessons]);
+        return response()->json([
+            'date' => $date->toDateString(),
+            'lessons' => $lessons,
+            'summary' => [
+                'students' => $unique->pluck('student_id')->unique()->count(),
+                'frozen' => $unique->filter(fn (Enrollment $e) => $e->isFrozenOn($date))->pluck('student_id')->unique()->count(),
+            ],
+        ]);
     }
 
     public function lesson(Request $request, Lesson $lesson, AttendanceService $attendance, Arrivals $arrivals): JsonResponse

@@ -112,3 +112,20 @@ it('lists the students of the teacher\'s groups with their debts, debtors first'
         ->and($students->pluck('balance')->all())->toBe($students->pluck('balance')->sort()->values()->all())
         ->and($response->json('debt'))->toBe((int) -$students->where('balance', '<', 0)->sum('balance'));
 });
+
+it('counts the students of the day\'s groups and the frozen ones', function () {
+    $teacher = User::role(Role::Teacher->value)->first();
+    $group = Group::query()->where('teacher_id', $teacher->id)->where('status', 'active')->firstOrFail();
+    Lesson::factory()->create(['group_id' => $group->id, 'teacher_id' => $teacher->id, 'date' => today()]);
+    $studying = Enrollment::query()->where('group_id', $group->id)->whereIn('status', ['trial', 'active'])->whereDate('joined_at', '<=', today())->get();
+    $studying->first()->freezes()->create(['from_date' => today()->subDay(), 'to_date' => today()->addWeek(), 'reason' => 'kasal']);
+
+    $response = $this->withToken($teacher->createToken('test')->plainTextToken)
+        ->getJson(route('api.lessons', ['date' => today()->toDateString()]))->assertOk();
+
+    $lesson = collect($response->json('lessons'))->firstWhere('group', $group->name);
+    expect($lesson['students'])->toBe($studying->count())
+        ->and($lesson['frozen'])->toBe(1)
+        ->and($response->json('summary.frozen'))->toBeGreaterThanOrEqual(1)
+        ->and($response->json('summary.students'))->toBeGreaterThanOrEqual($studying->count());
+});
