@@ -4,7 +4,7 @@
  * mensalc.uz: landing page. Old system links are sent to crm.mensalc.uz.
  */
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
-$appPrefixes = ['/login', '/home', '/dashboard', '/students', '/groups', '/lessons', '/schedule', '/teachers', '/cashboxes', '/reports', '/leads', '/admin', '/portal', '/settings', '/payments', '/tma', '/telegram', '/api', '/mensa.apk'];
+$appPrefixes = ['/login', '/home', '/dashboard', '/students', '/groups', '/lessons', '/schedule', '/teachers', '/cashboxes', '/reports', '/leads', '/admin', '/portal', '/settings', '/payments', '/tma', '/telegram', '/api', '/mensa.apk', '/downloads'];
 
 foreach ($appPrefixes as $prefix) {
     if ($path === $prefix || str_starts_with($path, $prefix.'/')) {

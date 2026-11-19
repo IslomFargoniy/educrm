@@ -55,3 +55,7 @@ it('lets a teacher open own lessons but not finance', function () {
     $this->actingAs($teacher)->get(route('cashboxes.index'))->assertForbidden();
     $this->actingAs($teacher)->get(route('reports'))->assertForbidden();
 });
+
+it('redirects the old APK link to the downloads folder', function () {
+    $this->get('/mensa.apk')->assertRedirect('/downloads/mensa.apk')->assertStatus(301);
+});

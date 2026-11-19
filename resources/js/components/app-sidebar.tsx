@@ -58,7 +58,10 @@ export function AppSidebar() {
                                 tooltip={{ children: t('Android app') }}
                                 className="h-10 gap-3 rounded-lg px-3 font-semibold text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&>svg]:size-[18px]"
                             >
-                                <a href="/mensa.apk" download="mensa.apk">
+                                <a
+                                    href="/downloads/mensa.apk"
+                                    download="mensa.apk"
+                                >
                                     <Smartphone />
                                     <span>{t('Android app')}</span>
                                 </a>

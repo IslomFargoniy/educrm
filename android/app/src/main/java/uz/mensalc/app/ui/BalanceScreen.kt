@@ -113,6 +113,13 @@ fun ProfileScreen(user: UserProfile, themeMode: ThemeMode, onThemeChange: (Theme
                 Icon(Icons.AutoMirrored.Filled.OpenInNew, null, modifier = Modifier.size(18.dp))
                 Text(stringResource(R.string.open_web), modifier = Modifier.padding(start = 8.dp), fontWeight = FontWeight.SemiBold)
             }
+            Text(
+                stringResource(R.string.app_version, uz.mensalc.app.BuildConfig.VERSION_NAME),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            )
             Button(
                 onLogout,
                 shape = MaterialTheme.shapes.medium,

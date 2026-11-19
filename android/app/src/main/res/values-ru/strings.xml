@@ -50,4 +50,12 @@
     <string name="theme_system">Системная</string>
     <string name="login_tagline">Ученики, посещаемость и касса — в одной системе.</string>
     <string name="forgot_password">Забыли пароль? Обратитесь к администратору.</string>
+    <string name="update_title">Новая версия: %1$s</string>
+    <string name="update_text">Вышла новая версия приложения. Обновить сейчас?</string>
+    <string name="update_now">Обновить</string>
+    <string name="update_later">Позже</string>
+    <string name="update_downloading">Загрузка: %1$d%%</string>
+    <string name="update_permission">Разрешите Mensa «Установку неизвестных приложений» в настройках телефона, затем вернитесь и нажмите «Обновить».</string>
+    <string name="update_failed">Не удалось загрузить. Проверьте интернет и попробуйте снова.</string>
+    <string name="app_version">Версия %1$s</string>
 </resources>

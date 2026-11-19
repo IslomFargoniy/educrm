@@ -51,4 +51,12 @@
     <string name="theme_system">Tizim</string>
     <string name="login_tagline">O\'quvchilar, davomat va kassa — bitta tizimda.</string>
     <string name="forgot_password">Parolni unutdingizmi? Administratorga murojaat qiling.</string>
+    <string name="update_title">Yangi versiya: %1$s</string>
+    <string name="update_text">Ilovaning yangi versiyasi chiqdi. Hozir yangilaysizmi?</string>
+    <string name="update_now">Yangilash</string>
+    <string name="update_later">Keyinroq</string>
+    <string name="update_downloading">Yuklanmoqda: %1$d%%</string>
+    <string name="update_permission">Telefon sozlamalarida Mensa uchun «Noma\'lum ilovalarni o\'rnatish»ga ruxsat bering, so\'ng qaytib «Yangilash»ni bosing.</string>
+    <string name="update_failed">Yuklab bo\'lmadi. Internetni tekshirib, qayta urinib ko\'ring.</string>
+    <string name="app_version">Versiya %1$s</string>
 </resources>

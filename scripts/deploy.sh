@@ -21,6 +21,8 @@ echo "→ Building frontend"
 echo "→ Staging committed code with production dependencies"
 (cd "$ROOT" && git archive HEAD | tar -x -C "$STAGE")
 cp -R "$ROOT/public/build" "$STAGE/public/"
+# The APK is not in git; ship the one built by scripts/release-android.sh.
+if ls "$ROOT"/public/downloads/*.apk >/dev/null 2>&1; then mkdir -p "$STAGE/public/downloads" && cp "$ROOT"/public/downloads/*.apk "$STAGE/public/downloads/"; fi
 (cd "$STAGE" && composer install --no-dev --optimize-autoloader --no-interaction --no-scripts --quiet)
 # The docroot is a copy of public/ whose index.php points at the app directory.
 sed -e "s#__DIR__.'/../#'${APP_DIR}/#g" -e "s#^\$app->handleRequest#\$app->usePublicPath(__DIR__);\n\n\$app->handleRequest#" \

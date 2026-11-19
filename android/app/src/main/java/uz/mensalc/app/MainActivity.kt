@@ -23,6 +23,7 @@ import uz.mensalc.app.ui.MainScreen
 import uz.mensalc.app.ui.MensaTheme
 import uz.mensalc.app.ui.SplashScreen
 import uz.mensalc.app.ui.ThemeMode
+import uz.mensalc.app.ui.UpdatePrompt
 import uz.mensalc.app.ui.isDark
 
 class MainActivity : ComponentActivity() {
@@ -91,6 +92,8 @@ class MainActivity : ComponentActivity() {
                         },
                     )
                 }
+
+                if (!checking) UpdatePrompt()
             }
         }
     }
