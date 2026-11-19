@@ -8,7 +8,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -24,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -41,8 +53,16 @@ import uz.mensalc.app.data.readableMessage
 
 @Composable
 fun SplashScreen() {
-    Box(Modifier.fillMaxSize().background(Navy), contentAlignment = Alignment.Center) {
-        Image(painterResource(R.drawable.ic_launcher_foreground), contentDescription = null, modifier = Modifier.size(140.dp))
+    Box(Modifier.fillMaxSize().background(mensa.bar), contentAlignment = Alignment.Center) {
+        LogoBadge(96)
+    }
+}
+
+/** Orange rounded box with the logo, as in the web sidebar. */
+@Composable
+fun LogoBadge(size: Int) {
+    Box(Modifier.size(size.dp).clip(RoundedCornerShape((size / 3.5).dp)).background(Orange), contentAlignment = Alignment.Center) {
+        Image(painterResource(R.drawable.ic_launcher_foreground), contentDescription = null, colorFilter = ColorFilter.tint(Navy), modifier = Modifier.requiredSize((size * 1.7).dp))
     }
 }
 
@@ -55,39 +75,52 @@ fun LoginScreen(api: MensaApi, onLoggedIn: (String, UserProfile) -> Unit) {
     val scope = rememberCoroutineScope()
     val networkError = stringResource(R.string.error_network)
 
-    Column(Modifier.fillMaxSize()) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding().verticalScroll(rememberScrollState())) {
         Column(
-            Modifier.fillMaxWidth().background(Navy).padding(top = 64.dp, bottom = 32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            Modifier.fillMaxWidth()
+                .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
+                .background(mensa.bar)
+                .statusBarsPadding()
+                .padding(start = 24.dp, end = 24.dp, top = 36.dp, bottom = 56.dp),
         ) {
-            Image(painterResource(R.drawable.ic_launcher_foreground), contentDescription = null, modifier = Modifier.size(110.dp))
-            Text("Mensa", color = Color.White, fontSize = 34.sp, fontWeight = FontWeight.ExtraBold)
-            Text("Learning center", color = Color.White.copy(alpha = 0.8f))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                LogoBadge(52)
+                Column(Modifier.padding(start = 12.dp)) {
+                    Text("Mensa", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
+                    Text("Learning center", color = mensa.barMuted, fontSize = 13.sp)
+                }
+            }
+            Box(Modifier.padding(top = 28.dp, bottom = 10.dp).size(12.dp).rotate(45f).background(Orange))
+            Text(stringResource(R.string.login_tagline), color = Color.White, fontSize = 24.sp, lineHeight = 30.sp, fontWeight = FontWeight.ExtraBold)
         }
-        Column(
-            Modifier.fillMaxWidth().padding(24.dp).imePadding(),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
-        ) {
-            Text(stringResource(R.string.login_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
-            Text(stringResource(R.string.login_subtitle), color = MaterialTheme.colorScheme.onSurfaceVariant)
-            PhoneField(phone, { phone = it }, label = stringResource(R.string.phone), modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(password, { password = it }, label = { Text(stringResource(R.string.password)) }, singleLine = true, visualTransformation = PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), modifier = Modifier.fillMaxWidth())
-            error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-            Button(
-                onClick = {
-                    busy = true
-                    error = null
-                    scope.launch {
-                        runCatching { api.login(LoginRequest("+998$phone", password)) }
-                            .onSuccess { onLoggedIn(it.token, it.user) }
-                            .onFailure { error = it.readableMessage(networkError) }
-                        busy = false
-                    }
-                },
-                enabled = !busy && phone.length == 9 && password.isNotBlank(),
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            ) {
-                if (busy) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp) else Text(stringResource(R.string.login))
+
+        MensaCard(Modifier.padding(horizontal = 16.dp).offset(y = (-32).dp)) {
+            Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                Column {
+                    Text(stringResource(R.string.login_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
+                    Text(stringResource(R.string.login_subtitle), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                PhoneField(phone, { phone = it }, label = stringResource(R.string.phone), modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(password, { password = it }, label = { Text(stringResource(R.string.password)) }, singleLine = true, visualTransformation = PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), modifier = Modifier.fillMaxWidth())
+                error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                Button(
+                    onClick = {
+                        busy = true
+                        error = null
+                        scope.launch {
+                            runCatching { api.login(LoginRequest("+998$phone", password)) }
+                                .onSuccess { onLoggedIn(it.token, it.user) }
+                                .onFailure { error = it.readableMessage(networkError) }
+                            busy = false
+                        }
+                    },
+                    enabled = !busy && phone.length == 9 && password.isNotBlank(),
+                    shape = MaterialTheme.shapes.medium,
+                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                ) {
+                    if (busy) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onPrimary) else Text(stringResource(R.string.login), fontWeight = FontWeight.Bold)
+                }
+                Text(stringResource(R.string.forgot_password), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
             }
         }
     }

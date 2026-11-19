@@ -1,6 +1,13 @@
 package uz.mensalc.app.ui
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -64,15 +71,39 @@ fun StudentsScreen(api: MensaApi, onOpen: (Int) -> Unit) {
     }
 
     Column(Modifier.fillMaxSize()) {
-        OutlinedTextField(query, { query = it }, leadingIcon = { Icon(Icons.Filled.Search, null) }, placeholder = { Text(stringResource(R.string.search)) }, singleLine = true, modifier = Modifier.fillMaxWidth().padding(12.dp))
+        ScreenHeader(
+            title = stringResource(R.string.students),
+            subtitle = (state as? Load.Ready)?.value?.let { stringResource(R.string.students_count, it.students.size) },
+            bottom = {
+                TextField(
+                    query,
+                    { query = it },
+                    leadingIcon = { Icon(Icons.Filled.Search, null) },
+                    placeholder = { Text(stringResource(R.string.search)) },
+                    singleLine = true,
+                    shape = RoundedCornerShape(14.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                    ),
+                    modifier = Modifier.fillMaxWidth().padding(top = 12.dp, end = 12.dp),
+                )
+            },
+        )
         LoadBox(state, { reload++ }) { data ->
-            LazyColumn(contentPadding = PaddingValues(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (data.students.isEmpty()) {
+                EmptyState("—")
+            }
+            LazyColumn(contentPadding = contentPadding(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 items(data.students, key = { it.id }) { student ->
-                    Card(Modifier.fillMaxWidth().clickable { onOpen(student.id) }) {
+                    MensaCard(onClick = { onOpen(student.id) }) {
                         Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Column(Modifier.weight(1f)) {
-                                Text(student.full_name, fontWeight = FontWeight.Bold)
-                                Text(student.groups.joinToString { it.group }, style = MaterialTheme.typography.bodySmall)
+                            Initials(student.full_name)
+                            Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
+                                Text(student.full_name, fontWeight = FontWeight.Bold, maxLines = 1)
+                                Text(student.groups.joinToString { it.group }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
                             }
                             MoneyText(student.groups.sumOf { it.balance }, signed = true)
                         }
@@ -84,7 +115,7 @@ fun StudentsScreen(api: MensaApi, onOpen: (Int) -> Unit) {
 }
 
 @Composable
-fun StudentScreen(api: MensaApi, user: UserProfile, studentId: Int) {
+fun StudentScreen(api: MensaApi, user: UserProfile, studentId: Int, onBack: () -> Unit) {
     var state by remember { mutableStateOf<Load<StudentResponse>>(Load.Loading) }
     var reload by remember { mutableStateOf(0) }
     var selected by remember { mutableStateOf<Int?>(null) }
@@ -96,39 +127,58 @@ fun StudentScreen(api: MensaApi, user: UserProfile, studentId: Int) {
         state = runCatching { api.student(studentId) }.fold({ Load.Ready(it) }, { Load.Failed(it.readableMessage(networkError)) })
     }
 
-    LoadBox(state, { reload++ }) { data ->
-        val enrollment = data.enrollments.firstOrNull { it.id == selected } ?: data.enrollments.firstOrNull()
-        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(data.student.full_name, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                data.enrollments.forEach { e ->
-                    FilterChip(selected = e.id == enrollment?.id, onClick = { selected = e.id }, label = { Text(e.group) })
-                }
-            }
-            message?.let { Text(it, color = Success, fontWeight = FontWeight.SemiBold) }
-            enrollment?.let { e ->
-                Card(Modifier.fillMaxWidth()) {
-                    Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f)) {
-                            Text(stringResource(R.string.balance), style = MaterialTheme.typography.labelMedium)
-                            MoneyText(e.balance, signed = true)
-                        }
-                        if (user.can("payments.create")) {
-                            Button({ paying = e }, colors = ButtonDefaults.buttonColors(containerColor = Orange, contentColor = MaterialTheme.colorScheme.onSecondary)) {
-                                Text(stringResource(R.string.receive_payment))
-                            }
+    val ready = (state as? Load.Ready)?.value
+
+    Column(Modifier.fillMaxSize()) {
+        ScreenHeader(
+            title = ready?.student?.full_name ?: stringResource(R.string.students),
+            subtitle = ready?.enrollments?.joinToString { it.group },
+            onBack = onBack,
+        )
+        LoadBox(state, { reload++ }) { data ->
+            val enrollment = data.enrollments.firstOrNull { it.id == selected } ?: data.enrollments.firstOrNull()
+            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(contentPadding()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                if (data.enrollments.size > 1) {
+                    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        data.enrollments.forEach { e ->
+                            FilterChip(selected = e.id == enrollment?.id, onClick = { selected = e.id }, label = { Text(e.group) })
                         }
                     }
                 }
-                HistoryList(e.history, signed = true)
+                message?.let { Text(it, color = mensa.success, fontWeight = FontWeight.SemiBold) }
+                enrollment?.let { e ->
+                    Card(shape = MaterialTheme.shapes.large, colors = CardDefaults.cardColors(containerColor = mensa.hero), modifier = Modifier.fillMaxWidth()) {
+                        Column(Modifier.padding(20.dp)) {
+                            Text(e.group, color = Color.White.copy(alpha = 0.8f), fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.balance), color = Color.White.copy(alpha = 0.7f), style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(top = 10.dp))
+                            Text(
+                                money(e.balance) + " " + stringResource(R.string.sum),
+                                color = if (e.balance < 0) Color(0xFFFFB48A) else Color.White,
+                                fontSize = 28.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                            )
+                            if (user.can("payments.create")) {
+                                Button(
+                                    { paying = e },
+                                    shape = MaterialTheme.shapes.medium,
+                                    colors = ButtonDefaults.buttonColors(containerColor = Orange, contentColor = OnOrange),
+                                    modifier = Modifier.padding(top = 14.dp).fillMaxWidth().height(48.dp),
+                                ) {
+                                    Text(stringResource(R.string.receive_payment), fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+                    }
+                    HistoryList(e.history, signed = true)
+                }
             }
-        }
 
-        paying?.let { e ->
-            PaymentDialog(api, e, onDismiss = { paying = null }) { text ->
-                paying = null
-                message = text
-                reload++
+            paying?.let { e ->
+                PaymentDialog(api, e, onDismiss = { paying = null }) { text ->
+                    paying = null
+                    message = text
+                    reload++
+                }
             }
         }
     }
@@ -162,7 +212,7 @@ private fun PaymentDialog(api: MensaApi, enrollment: EnrollmentDetail, onDismiss
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     cashboxes.forEach { c -> FilterChip(selected = c.id == cashboxId, onClick = { cashboxId = c.id }, label = { Text(c.name) }) }
                 }
-                error?.let { Text(it, color = Danger) }
+                error?.let { Text(it, color = mensa.danger) }
             }
         },
         confirmButton = {

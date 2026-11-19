@@ -39,4 +39,15 @@
     <string name="branches">Филиалы</string>
     <string name="open_web">Открыть сайт</string>
     <string name="sum">сум</string>
+    <string name="hello">Добрый день, %1$s</string>
+    <string name="students_count">Учеников: %1$d</string>
+    <string name="status_held">Проведён</string>
+    <string name="status_cancelled">Отменён</string>
+    <string name="status_scheduled">По плану</string>
+    <string name="theme">Тема</string>
+    <string name="theme_light">Светлая</string>
+    <string name="theme_dark">Тёмная</string>
+    <string name="theme_system">Системная</string>
+    <string name="login_tagline">Ученики, посещаемость и касса — в одной системе.</string>
+    <string name="forgot_password">Забыли пароль? Обратитесь к администратору.</string>
 </resources>

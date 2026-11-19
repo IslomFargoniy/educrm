@@ -66,3 +66,14 @@ fun formatPhone(value: String?): String {
         .map { (from, to) -> local.substring(from, minOf(to, local.length)) }
     return "+998 " + parts.joinToString(" ")
 }
+
+private val roleLabels = mapOf(
+    "superadmin" to ("Superadmin" to "Суперадмин"),
+    "admin" to ("Administrator" to "Администратор"),
+    "manager" to ("Menejer" to "Менеджер"),
+    "teacher" to ("O'qituvchi" to "Преподаватель"),
+    "parent" to ("Ota-ona" to "Родитель"),
+    "student" to ("O'quvchi" to "Ученик"),
+)
+
+fun roleLabel(role: String): String = roleLabels[role]?.let { if (isRussian) it.second else it.first } ?: role

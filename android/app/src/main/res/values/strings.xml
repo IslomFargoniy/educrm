@@ -40,4 +40,15 @@
     <string name="branches">Filiallar</string>
     <string name="open_web">Saytni ochish</string>
     <string name="sum">so\'m</string>
+    <string name="hello">Xayrli kun, %1$s</string>
+    <string name="students_count">%1$d ta o\'quvchi</string>
+    <string name="status_held">O\'tildi</string>
+    <string name="status_cancelled">Bekor qilindi</string>
+    <string name="status_scheduled">Rejada</string>
+    <string name="theme">Mavzu</string>
+    <string name="theme_light">Yorug\'</string>
+    <string name="theme_dark">Qorong\'i</string>
+    <string name="theme_system">Tizim</string>
+    <string name="login_tagline">O\'quvchilar, davomat va kassa — bitta tizimda.</string>
+    <string name="forgot_password">Parolni unutdingizmi? Administratorga murojaat qiling.</string>
 </resources>
