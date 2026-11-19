@@ -74,3 +74,13 @@ it('adds a student and a lead with first and last name separately through the AP
         ->assertCreated()->assertJsonPath('lead.full_name', 'Bek Karimov');
     expect(Lead::query()->where('first_name', 'Bek')->value('last_name'))->toBe('Karimov');
 });
+
+it('saves the app language of the user through the API', function () {
+    $admin = User::role(Role::Admin->value)->first();
+    $token = $admin->createToken('test')->plainTextToken;
+
+    $this->withToken($token)->putJson(route('api.me.locale'), ['locale' => 'en'])->assertOk();
+    expect($admin->fresh()->locale)->toBe('en');
+
+    $this->withToken($token)->putJson(route('api.me.locale'), ['locale' => 'de'])->assertUnprocessable();
+});

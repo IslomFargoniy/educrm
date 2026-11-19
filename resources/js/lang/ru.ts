@@ -1,5 +1,6 @@
 export const ru: Record<string, string> = {
     '0 — no trial': '0 — без пробного',
+    '2FA recovery codes': 'Коды восстановления 2FA',
     ':attendance · lesson :seq of :total (:date)':
         ':attendance · урок :seq из :total (:date)',
     ':count groups': 'Групп: :count',
@@ -23,18 +24,25 @@ export const ru: Record<string, string> = {
         'Корректно :valid из :total строк. Строки с ошибками пропускаются.',
     'A make-up lesson is billed like a normal lesson (within the monthly limit).':
         'Дополнительный урок начисляется как обычный (в пределах месячного лимита).',
+    'A name helps you identify this passkey later.':
+        'Название поможет потом узнать этот ключ.',
     'A parent account is created with this phone.':
         'С этим номером создаётся аккаунт родителя.',
     'A student is created and added to the group with trial lessons.':
         'Создаётся ученик и добавляется в группу с пробными уроками.',
+    'above.': 'выше.',
     Absent: 'Не пришёл',
     'Active students': 'Активные ученики',
     Add: 'Добавить',
+    'Add a passkey to sign in without a password':
+        'Добавьте ключ доступа, чтобы входить без пароля',
     'Add lead': 'Добавить лид',
     'Add note': 'Добавить заметку',
     'Add parent': 'Добавить родителя',
+    'Add passkey': 'Добавить ключ доступа',
     'Add student': 'Добавить ученика',
     'Add to group': 'Добавить в группу',
+    'Added :time': 'Добавлен: :time',
     Address: 'Адрес',
     All: 'Все',
     'All branches': 'Все филиалы',
@@ -45,11 +53,44 @@ export const ru: Record<string, string> = {
     Amount: 'Сумма',
     Appearance: 'Оформление',
     'Appearance settings': 'Настройки оформления',
+    'Are you sure you want to remove the ":name" passkey? You will no longer be able to use it to sign in.':
+        'Удалить ключ доступа «:name»? Вы больше не сможете входить с его помощью.',
+    'Authenticating...': 'Проверка...',
+    Back: 'Назад',
     'Change attendance': 'Изменить посещаемость',
+    Close: 'Закрыть',
+    Confirm: 'Подтвердить',
+    'Confirm with passkey': 'Подтвердить ключом доступа',
+    'Confirming...': 'Подтверждение...',
+    Continue: 'Продолжить',
+    'Continue setup': 'Продолжить настройку',
+    'Current password': 'Текущий пароль',
+    'Disable 2FA': 'Отключить 2FA',
+    'e.g., MacBook Pro, iPhone': 'например, MacBook Pro, iPhone',
+    'Each recovery code can be used once to access your account and will be removed after use. If you need more, click':
+        'Каждый код восстановления можно использовать для входа только один раз, после чего он удаляется. Если нужно больше, нажмите',
+    'Enable 2FA': 'Включить 2FA',
+    'Enter recovery code': 'Введите код восстановления',
+    'Enter the 6-digit code from your authenticator app':
+        'Введите 6-значный код из приложения-аутентификатора',
+    'Enter the authentication code provided by your authenticator application.':
+        'Введите код подтверждения из приложения-аутентификатора.',
     'Excused: the lesson money goes back to the student and the teacher share is taken back.':
         'Уважительная: деньги за урок возвращаются ученику, доля учителя списывается.',
     'First name': 'Имя',
+    'Hide recovery codes': 'Скрыть коды восстановления',
     'Last name': 'Фамилия',
+    'Last used :time': 'Последнее использование: :time',
+    'Loading recovery codes': 'Загрузка кодов восстановления',
+    'Log out': 'Выйти',
+    'login using a recovery code': 'войти с кодом восстановления',
+    'login using an authentication code': 'войти с кодом подтверждения',
+    'Navigation menu': 'Меню навигации',
+    'No passkeys yet': 'Ключей доступа пока нет',
+    'Or confirm with password': 'Или подтвердите паролем',
+    'Or continue with email': 'Или продолжите с email',
+    'or you can': 'или можно',
+    'or, enter the code manually': 'или введите код вручную',
     'Parent first name': 'Имя родителя',
     'Parent last name': 'Фамилия родителя',
     Courses: 'Курсы',
@@ -60,13 +101,31 @@ export const ru: Record<string, string> = {
     'e.g. IELTS': 'например, IELTS',
     'At period start': 'На начало',
     'At period end': 'На конец',
+    'Passkey name': 'Название ключа доступа',
+    'Passkeys are not supported in this browser.':
+        'Этот браузер не поддерживает ключи доступа.',
+    'Please confirm access to your account by entering one of your emergency recovery codes.':
+        'Подтвердите доступ к аккаунту, введя один из резервных кодов восстановления.',
+    'Recovery codes': 'Коды восстановления',
+    'Recovery codes let you regain access if you lose your 2FA device. Store them in a secure password manager.':
+        'Коды восстановления помогут вернуть доступ, если вы потеряете устройство 2FA. Храните их в надёжном менеджере паролей.',
+    'Regenerate codes': 'Создать коды заново',
+    'Register passkey': 'Зарегистрировать ключ доступа',
+    'Registering...': 'Регистрация...',
+    'Remove passkey': 'Удалить ключ доступа',
+    'Removing...': 'Удаление...',
+    'Sign in with a passkey': 'Войти с ключом доступа',
     'Start of period + earned − paid = end of period. Salaries paid in this period can include money earned earlier, so paid may be more than earned.':
         'Остаток на начало + заработано − выплачено = остаток на конец. Выплаты за период могут включать деньги, заработанные раньше, поэтому выплачено может быть больше заработанного.',
     'Monthly plan': 'План в месяц',
+    'This is a secure area of the application. Please confirm your password before continuing.':
+        'Это защищённый раздел приложения. Подтвердите пароль, чтобы продолжить.',
     'To be received': 'К получению',
     'Monthly plan: monthly price of active students after discounts. To be received: price of the lessons held in the period. Shares are counted from lessons held and paid in this period, so money paid earlier for these lessons is included.':
         'План в месяц — месячная цена активных учеников со скидками. К получению — стоимость уроков, проведённых за период. Доли считаются по урокам, проведённым и оплаченным за период, включая деньги, заплаченные раньше.',
     Contacted: 'Связались',
+    'To finish enabling two-factor authentication, scan the QR code or enter the setup key in your authenticator app':
+        'Чтобы завершить включение двухфакторной защиты, отсканируйте QR-код или введите ключ настройки в приложении-аутентификаторе',
     'Trial lesson': 'Пробный урок',
     'Joined a group': 'Добавлен в группу',
     'Studying now': 'Учится сейчас',
@@ -423,6 +482,8 @@ export const ru: Record<string, string> = {
         'Пробный период: отмечено :marked из :total пробных уроков. Они начисляются, только если ученик продолжит.',
     'Two-factor authentication': 'Двухфакторная защита',
     'Two-factor authentication enabled': 'Двухфакторная защита включена',
+    'Two-factor authentication is now enabled. Scan the QR code or enter the setup key in your authenticator app.':
+        'Двухфакторная защита включена. Отсканируйте QR-код или введите ключ настройки в приложении-аутентификаторе.',
     Unfreeze: 'Разморозить',
     'Unused money moves too; this month the lesson limit is shared between both groups.':
         'Неиспользованные деньги тоже переносятся; в этом месяце лимит уроков общий для двух групп.',
@@ -433,10 +494,13 @@ export const ru: Record<string, string> = {
     'Update your name, email and language': 'Обновите имя, email и язык',
     Users: 'Пользователи',
     'Verify authentication code': 'Подтвердить код',
+    'View recovery codes': 'Показать коды восстановления',
     'Waiting for payment': 'Ожидает оплаты',
     'Weekly timetable by rooms. Red — the room or teacher is busy at the same time.':
         'Недельное расписание по кабинетам. Красным — кабинет или учитель заняты одновременно.',
     'What was discussed?': 'О чём говорили?',
+    'When you enable two-factor authentication, you will be prompted for a secure pin during login. This pin can be retrieved from a TOTP-supported application on your phone.':
+        'Если включить двухфакторную защиту, при входе будет запрашиваться PIN-код. Его можно получить в приложении с поддержкой TOTP на вашем телефоне.',
     'Withdraw profit': 'Снять прибыль',
     'Write off': 'Списать',
     'Write off debt': 'Списать долг',
@@ -573,4 +637,6 @@ export const ru: Record<string, string> = {
     'Today lessons': 'Уроки сегодня',
     'No lessons today.': 'Сегодня уроков нет.',
     Theme: 'Тема',
+    'You will be prompted for a secure, random pin during login, which you can retrieve from the TOTP-supported application on your phone.':
+        'При входе будет запрошен случайный PIN-код, который можно получить в приложении с поддержкой TOTP на вашем телефоне.',
 };

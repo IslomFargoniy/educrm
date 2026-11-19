@@ -20,6 +20,7 @@ Route::prefix('v1')->name('api.')->group(function () {
         Route::get('students/{student}', [MobileController::class, 'student'])->name('students.show');
         Route::post('enrollments/{enrollment}/payments', [MobileController::class, 'payment'])->name('payments.store');
         Route::get('cashboxes', [MobileController::class, 'cashboxes'])->name('cashboxes');
+        Route::put('me/locale', [MobileController::class, 'updateLocale'])->name('me.locale');
         Route::get('form-options', [MobileController::class, 'formOptions'])->name('form-options');
         Route::post('students', [MobileController::class, 'storeStudent'])->name('students.store');
         Route::post('leads', [MobileController::class, 'storeLead'])->name('leads.store');

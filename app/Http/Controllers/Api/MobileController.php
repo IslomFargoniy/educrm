@@ -188,6 +188,17 @@ class MobileController extends Controller
      * @return list<int>
      */
     /**
+     * The app language, also used for the user's notifications.
+     */
+    public function updateLocale(Request $request): JsonResponse
+    {
+        $validated = $request->validate(['locale' => ['required', Rule::in(['uz', 'ru', 'en'])]]);
+        $request->user()->update(['locale' => $validated['locale']]);
+
+        return response()->json(['ok' => true]);
+    }
+
+    /**
      * Choices for the add student / add lead forms.
      */
     public function formOptions(Request $request): JsonResponse

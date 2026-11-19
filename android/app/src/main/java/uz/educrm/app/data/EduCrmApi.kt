@@ -11,6 +11,7 @@ import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 import uz.educrm.app.BuildConfig
@@ -30,6 +31,7 @@ interface EduCrmApi {
     @POST("enrollments/{id}/payments") suspend fun pay(@Path("id") enrollmentId: Int, @Body body: PaymentRequest): PaymentResponse
     @GET("me/balance") suspend fun myBalance(): BalanceResponse
     @GET("form-options") suspend fun formOptions(): FormOptions
+    @PUT("me/locale") suspend fun updateLocale(@Body body: LocaleRequest): OkResponse
     @POST("students") suspend fun createStudent(@Body body: NewStudentRequest): NewStudentResponse
     @POST("leads") suspend fun createLead(@Body body: NewLeadRequest): NewLeadResponse
 

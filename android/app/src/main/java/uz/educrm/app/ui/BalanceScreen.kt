@@ -89,7 +89,7 @@ fun BalanceScreen(api: EduCrmApi) {
 }
 
 @Composable
-fun ProfileScreen(user: UserProfile, themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit, onLogout: () -> Unit) {
+fun ProfileScreen(user: UserProfile, themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit, language: String, onLanguageChange: (String) -> Unit, onLogout: () -> Unit) {
     val uri = LocalUriHandler.current
 
     Column(Modifier.fillMaxSize()) {
@@ -111,6 +111,8 @@ fun ProfileScreen(user: UserProfile, themeMode: ThemeMode, onThemeChange: (Theme
             }
             SectionTitle(stringResource(R.string.theme))
             ThemeSwitcher(themeMode, onThemeChange)
+            SectionTitle(stringResource(R.string.language))
+            LanguageSwitcher(language, onLanguageChange)
             Spacer(Modifier.height(4.dp))
             OutlinedButton({ uri.openUri("https://crm.mensalc.uz") }, shape = MaterialTheme.shapes.medium, modifier = Modifier.fillMaxWidth().height(50.dp)) {
                 Icon(Icons.AutoMirrored.Filled.OpenInNew, null, modifier = Modifier.size(18.dp))

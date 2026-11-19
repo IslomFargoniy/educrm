@@ -78,4 +78,5 @@
     <string name="update_permission">В настройках телефона разрешите EduCrm «Установку неизвестных приложений», затем вернитесь и нажмите «Обновить».</string>
     <string name="update_failed">Не удалось скачать. Проверьте интернет и попробуйте снова.</string>
     <string name="update_in_browser">Скачать в браузере</string>
+    <string name="language">Язык</string>
 </resources>

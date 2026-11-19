@@ -34,7 +34,7 @@ import uz.educrm.app.data.UserProfile
 private data class Tab(val route: String, val label: Int, val icon: ImageVector)
 
 @Composable
-fun MainScreen(api: EduCrmApi, user: UserProfile, themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit, onLogout: () -> Unit) {
+fun MainScreen(api: EduCrmApi, user: UserProfile, themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit, language: String, onLanguageChange: (String) -> Unit, onLogout: () -> Unit) {
     val nav = rememberNavController()
     val isTeacher = user.roles.contains("teacher")
     val tabs = listOfNotNull(
@@ -65,7 +65,7 @@ fun MainScreen(api: EduCrmApi, user: UserProfile, themeMode: ThemeMode, onThemeC
                     StudentScreen(api, user, it.arguments!!.getInt("id")) { nav.popBackStack() }
                 }
                 composable("balance") { BalanceScreen(api) }
-                composable("profile") { ProfileScreen(user, themeMode, onThemeChange, onLogout) }
+                composable("profile") { ProfileScreen(user, themeMode, onThemeChange, language, onLanguageChange, onLogout) }
             }
         }
 

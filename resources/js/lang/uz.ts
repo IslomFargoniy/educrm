@@ -1,5 +1,6 @@
 export const uz: Record<string, string> = {
     '0 — no trial': '0 — sinovsiz',
+    '2FA recovery codes': '2FA tiklash kodlari',
     ':attendance · lesson :seq of :total (:date)':
         ':attendance · :seq/:total-dars (:date)',
     ':count groups': ':count ta guruh',
@@ -23,18 +24,25 @@ export const uz: Record<string, string> = {
         ":total qatordan :valid tasi to'g'ri. Xatoli qatorlar o'tkazib yuboriladi.",
     'A make-up lesson is billed like a normal lesson (within the monthly limit).':
         "Qo'shimcha dars oddiy dars kabi hisoblanadi (oylik limit doirasida).",
+    'A name helps you identify this passkey later.':
+        'Nom keyinchalik bu kalitni tanib olishga yordam beradi.',
     'A parent account is created with this phone.':
         'Shu raqam bilan ota-ona akkaunti yaratiladi.',
     'A student is created and added to the group with trial lessons.':
         "O'quvchi yaratiladi va sinov darslari bilan guruhga qo'shiladi.",
+    'above.': 'tugmasini bosing.',
     Absent: 'Kelmadi',
     'Active students': "Faol o'quvchilar",
     Add: "Qo'shish",
+    'Add a passkey to sign in without a password':
+        "Parolsiz kirish uchun kirish kalitini qo'shing",
     'Add lead': "Lid qo'shish",
     'Add note': "Izoh qo'shish",
     'Add parent': "Ota-ona qo'shish",
+    'Add passkey': "Kirish kalitini qo'shish",
     'Add student': "O'quvchi qo'shish",
     'Add to group': "Guruhga qo'shish",
+    'Added :time': "Qo'shilgan: :time",
     Address: 'Manzil',
     All: 'Hammasi',
     'All branches': 'Barcha filiallar',
@@ -45,11 +53,44 @@ export const uz: Record<string, string> = {
     Amount: 'Summa',
     Appearance: "Ko'rinish",
     'Appearance settings': "Ko'rinish sozlamalari",
+    'Are you sure you want to remove the ":name" passkey? You will no longer be able to use it to sign in.':
+        '":name" kirish kalitini o\'chirmoqchimisiz? Shundan so\'ng u bilan kira olmaysiz.',
+    'Authenticating...': 'Tekshirilmoqda...',
+    Back: 'Orqaga',
     'Change attendance': "Davomatni o'zgartirish",
+    Close: 'Yopish',
+    Confirm: 'Tasdiqlash',
+    'Confirm with passkey': 'Kirish kaliti bilan tasdiqlash',
+    'Confirming...': 'Tasdiqlanmoqda...',
+    Continue: 'Davom etish',
+    'Continue setup': 'Sozlashni davom ettirish',
+    'Current password': 'Joriy parol',
+    'Disable 2FA': "2FA ni o'chirish",
+    'e.g., MacBook Pro, iPhone': 'masalan, MacBook Pro, iPhone',
+    'Each recovery code can be used once to access your account and will be removed after use. If you need more, click':
+        "Har bir tiklash kodi hisobingizga kirish uchun faqat bir marta ishlatiladi va keyin o'chiriladi. Ko'proq kerak bo'lsa, yuqoridagi",
+    'Enable 2FA': '2FA ni yoqish',
+    'Enter recovery code': 'Tiklash kodini kiriting',
+    'Enter the 6-digit code from your authenticator app':
+        'Autentifikator ilovangizdagi 6 xonali kodni kiriting',
+    'Enter the authentication code provided by your authenticator application.':
+        'Autentifikator ilovangizdagi tasdiqlash kodini kiriting.',
     'Excused: the lesson money goes back to the student and the teacher share is taken back.':
         "Sababli: dars puli o'quvchiga qaytadi, o'qituvchi ulushi qaytarib olinadi.",
     'First name': 'Ism',
+    'Hide recovery codes': 'Tiklash kodlarini yashirish',
     'Last name': 'Familiya',
+    'Last used :time': 'Oxirgi marta ishlatilgan: :time',
+    'Loading recovery codes': 'Tiklash kodlari yuklanmoqda',
+    'Log out': 'Chiqish',
+    'login using a recovery code': 'tiklash kodi bilan kiring',
+    'login using an authentication code': 'tasdiqlash kodi bilan kiring',
+    'Navigation menu': 'Navigatsiya menyusi',
+    'No passkeys yet': "Hali kirish kalitlari yo'q",
+    'Or confirm with password': 'Yoki parol bilan tasdiqlang',
+    'Or continue with email': 'Yoki email bilan davom eting',
+    'or you can': 'yoki',
+    'or, enter the code manually': "yoki kodni qo'lda kiriting",
     'Parent first name': 'Ota-ona ismi',
     'Parent last name': 'Ota-ona familiyasi',
     Courses: 'Kurslar',
@@ -60,13 +101,31 @@ export const uz: Record<string, string> = {
     'e.g. IELTS': 'masalan, IELTS',
     'At period start': 'Davr boshida',
     'At period end': 'Davr oxirida',
+    'Passkey name': 'Kirish kaliti nomi',
+    'Passkeys are not supported in this browser.':
+        "Bu brauzer kirish kalitlarini qo'llab-quvvatlamaydi.",
+    'Please confirm access to your account by entering one of your emergency recovery codes.':
+        'Hisobingizga kirishni tasdiqlash uchun zaxira tiklash kodlaringizdan birini kiriting.',
+    'Recovery codes': 'Tiklash kodlari',
+    'Recovery codes let you regain access if you lose your 2FA device. Store them in a secure password manager.':
+        "2FA qurilmangizni yo'qotsangiz, tiklash kodlari hisobingizga qayta kirishga yordam beradi. Ularni xavfsiz parol menejerida saqlang.",
+    'Regenerate codes': 'Kodlarni qayta yaratish',
+    'Register passkey': "Kirish kalitini ro'yxatdan o'tkazish",
+    'Registering...': "Ro'yxatdan o'tkazilmoqda...",
+    'Remove passkey': "Kirish kalitini o'chirish",
+    'Removing...': "O'chirilmoqda...",
+    'Sign in with a passkey': 'Kirish kaliti bilan kirish',
     'Start of period + earned − paid = end of period. Salaries paid in this period can include money earned earlier, so paid may be more than earned.':
         "Davr boshidagi qoldiq + ishlagan − berilgan = davr oxiridagi qoldiq. Bu davrda berilgan oylik oldingi oylarda ishlangan pulni ham o'z ichiga oladi, shuning uchun berilgan summa ishlagandan ko'p bo'lishi mumkin.",
     'Monthly plan': 'Oylik reja',
+    'This is a secure area of the application. Please confirm your password before continuing.':
+        'Bu ilovaning himoyalangan qismi. Davom etishdan oldin parolingizni tasdiqlang.',
     'To be received': 'Qabul qilinishi kerak',
     'Monthly plan: monthly price of active students after discounts. To be received: price of the lessons held in the period. Shares are counted from lessons held and paid in this period, so money paid earlier for these lessons is included.':
         "Oylik reja — faol o'quvchilarning chegirmadan keyingi oylik narxi. Qabul qilinishi kerak — davrda o'tilgan darslar narxi. Ulushlar shu davrda o'tilgan va to'langan darslardan hisoblanadi: bu darslar uchun oldinroq to'langan pul ham kiradi.",
     Contacted: "Bog'lanildi",
+    'To finish enabling two-factor authentication, scan the QR code or enter the setup key in your authenticator app':
+        'Ikki bosqichli himoyani yoqishni yakunlash uchun autentifikator ilovangizda QR kodni skanerlang yoki sozlash kalitini kiriting',
     'Trial lesson': 'Sinov darsi',
     'Joined a group': "Guruhga qo'shildi",
     'Studying now': "Hozir o'qiyapti",
@@ -172,7 +231,7 @@ export const uz: Record<string, string> = {
     Errors: 'Xatolar',
     Everyone: 'Hamma',
     'Everyone else present': 'Qolganlar keldi',
-    'Excel import': 'Excel import',
+    'Excel import': 'Exceldan yuklash',
     Excused: 'Sababli',
     Expense: 'Xarajat',
     'Expense categories': 'Xarajat kategoriyalari',
@@ -429,6 +488,8 @@ export const uz: Record<string, string> = {
         "Sinov: :total ta sinov darsidan :marked tasi belgilandi. Sinov darslari faqat o'quvchi davom etsa hisoblanadi.",
     'Two-factor authentication': 'Ikki bosqichli himoya',
     'Two-factor authentication enabled': 'Ikki bosqichli himoya yoqilgan',
+    'Two-factor authentication is now enabled. Scan the QR code or enter the setup key in your authenticator app.':
+        'Ikki bosqichli himoya yoqildi. Autentifikator ilovangizda QR kodni skanerlang yoki sozlash kalitini kiriting.',
     Unfreeze: 'Muzdan chiqarish',
     'Unused money moves too; this month the lesson limit is shared between both groups.':
         "Ishlatilmagan pul ham ko'chadi; shu oy dars limiti ikki guruh uchun umumiy bo'ladi.",
@@ -439,10 +500,13 @@ export const uz: Record<string, string> = {
     'Update your name, email and language': 'Ism, email va tilni yangilang',
     Users: 'Foydalanuvchilar',
     'Verify authentication code': 'Kodni tasdiqlash',
+    'View recovery codes': "Tiklash kodlarini ko'rish",
     'Waiting for payment': "To'lov kutilmoqda",
     'Weekly timetable by rooms. Red — the room or teacher is busy at the same time.':
         "Xonalar bo'yicha haftalik jadval. Qizil — xona yoki o'qituvchi bir vaqtda band.",
     'What was discussed?': 'Nima haqida gaplashildi?',
+    'When you enable two-factor authentication, you will be prompted for a secure pin during login. This pin can be retrieved from a TOTP-supported application on your phone.':
+        "Ikki bosqichli himoyani yoqsangiz, kirishda sizdan xavfsiz PIN-kod so'raladi. Bu kodni telefoningizdagi TOTP'ni qo'llab-quvvatlaydigan ilovadan olish mumkin.",
     'Withdraw profit': 'Foyda yechish',
     'Write off': 'Hisobdan chiqarish',
     'Write off debt': 'Qarzni hisobdan chiqarish',
@@ -490,7 +554,7 @@ export const uz: Record<string, string> = {
     'perm.groups.prices': "Narxlar va o'qituvchi foizlari",
     'perm.groups.view': "Barcha guruhlarni ko'rish",
     'perm.holidays.manage': 'Bayramlarni boshqarish',
-    'perm.import.run': 'Excel import',
+    'perm.import.run': 'Exceldan yuklash',
     'perm.leads.manage': 'Lidlarni boshqarish',
     'perm.leads.view': "Lidlarni ko'rish",
     'perm.lessons.manage': "Darsni bekor qilish, o'rinbosar, qo'shimcha dars",
@@ -579,4 +643,6 @@ export const uz: Record<string, string> = {
     'Today lessons': 'Bugungi darslar',
     'No lessons today.': "Bugun dars yo'q.",
     Theme: 'Mavzu',
+    'You will be prompted for a secure, random pin during login, which you can retrieve from the TOTP-supported application on your phone.':
+        "Kirishda sizdan xavfsiz, tasodifiy PIN-kod so'raladi. Uni telefoningizdagi TOTP'ni qo'llab-quvvatlaydigan ilovadan olasiz.",
 };

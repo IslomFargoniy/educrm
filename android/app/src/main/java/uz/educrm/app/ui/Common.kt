@@ -160,6 +160,33 @@ fun ThemeSwitcher(mode: ThemeMode, onChange: (ThemeMode) -> Unit, modifier: Modi
     }
 }
 
+/** O'zbekcha / Русский / English segmented switch (names are shown in their own language). */
+@Composable
+fun LanguageSwitcher(language: String, onChange: (String) -> Unit, modifier: Modifier = Modifier) {
+    val options = listOf("uz" to "O'zbekcha", "ru" to "Русский", "en" to "English")
+    Row(
+        modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceVariant).border(1.dp, eduCrm.border, RoundedCornerShape(12.dp)).padding(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        options.forEach { (value, label) ->
+            val selected = value == language
+            val tint = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
+            Text(
+                label,
+                color = tint,
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+                fontSize = 13.sp,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                modifier = Modifier.weight(1f)
+                    .clip(RoundedCornerShape(9.dp))
+                    .background(if (selected) MaterialTheme.colorScheme.surface else Color.Transparent)
+                    .clickable { onChange(value) }
+                    .padding(vertical = 10.dp),
+            )
+        }
+    }
+}
+
 @Composable
 fun MoneyText(value: Long, signed: Boolean = false, bold: Boolean = true) {
     val color = when {

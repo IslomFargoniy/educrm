@@ -15,7 +15,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.launch
+import uz.educrm.app.data.AppLocale
 import uz.educrm.app.data.EduCrmApi
+import uz.educrm.app.data.LocaleRequest
 import uz.educrm.app.data.Session
 import uz.educrm.app.data.UserProfile
 import uz.educrm.app.ui.LoginScreen
@@ -29,6 +31,20 @@ import uz.educrm.app.ui.isDark
 class MainActivity : ComponentActivity() {
     private lateinit var session: Session
     private lateinit var api: EduCrmApi
+
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(AppLocale.wrap(newBase))
+    }
+
+    /** Switch the app language: remember it, tell the server (for notifications) and redraw. */
+    private fun changeLanguage(language: String, scope: kotlinx.coroutines.CoroutineScope) {
+        if (language == AppLocale.current(this)) return
+        AppLocale.save(this, language)
+        scope.launch {
+            runCatching { api.updateLocale(LocaleRequest(language)) }
+            recreate()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,6 +83,8 @@ class MainActivity : ComponentActivity() {
                         user = runCatching { api.me().user }.getOrNull()
                         if (user == null) session.clear()
                     }
+                    // First launch after sign-in: use the language set on the account.
+                    user?.locale?.let { if (AppLocale.saved(this@MainActivity) == null && it in AppLocale.supported && it != AppLocale.current(this@MainActivity)) changeLanguage(it, scope) }
                     checking = false
                 }
 
@@ -76,6 +94,9 @@ class MainActivity : ComponentActivity() {
                         scope.launch {
                             session.save(token)
                             user = profile
+                            if (AppLocale.saved(this@MainActivity) == null && profile.locale in AppLocale.supported && profile.locale != AppLocale.current(this@MainActivity)) {
+                                changeLanguage(profile.locale, scope)
+                            }
                         }
                     }
                     else -> MainScreen(
@@ -83,6 +104,8 @@ class MainActivity : ComponentActivity() {
                         user = user!!,
                         themeMode = mode,
                         onThemeChange = { scope.launch { session.saveTheme(it.name.lowercase()) } },
+                        language = AppLocale.current(this@MainActivity),
+                        onLanguageChange = { changeLanguage(it, scope) },
                         onLogout = {
                             scope.launch {
                                 runCatching { api.logout() }

@@ -158,3 +158,6 @@ data class NewStudentResponse(val student: CreatedPerson)
 
 @Serializable
 data class NewLeadResponse(val lead: CreatedPerson)
+
+@Serializable
+data class LocaleRequest(val locale: String)

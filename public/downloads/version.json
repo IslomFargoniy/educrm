@@ -1,6 +1,6 @@
 {
-    "versionCode": 7,
-    "versionName": "1.2.1",
+    "versionCode": 8,
+    "versionName": "1.3.0",
     "apk": "educrm.apk",
-    "notes": "Sinov yangilanishi: ilova ichidan yangilash tekshiruvi"
+    "notes": "Ilova endi o'zbek, rus va ingliz tillarida: Profil → Til"
 }
