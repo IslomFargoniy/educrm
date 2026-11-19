@@ -284,7 +284,7 @@ function DeviceDetails({
                                 name="isup_id"
                                 defaultValue={device.isup_id}
                                 required
-                                pattern="[A-Za-z0-9_\-]{2,32}"
+                                pattern="[A-Za-z0-9._\-]{2,32}"
                                 className="font-mono"
                             />
                         </label>

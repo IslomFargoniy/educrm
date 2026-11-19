@@ -47,24 +47,31 @@ class Device extends Model
     }
 
     /**
-     * Short Device ID typed into the terminal: edu1, edu2, ...
+     * Device ID typed into the terminal: <crm host>-1, <crm host>-2, ...
      */
     public static function nextIsupId(): string
     {
+        $prefix = (string) config('isup.device_id_prefix');
         $number = (int) self::query()->max('id') + 1;
 
-        while (self::query()->where('isup_id', 'edu'.$number)->exists()) {
+        while (self::query()->where('isup_id', $prefix.'-'.$number)->exists()) {
             $number++;
         }
 
-        return 'edu'.$number;
+        return $prefix.'-'.$number;
     }
 
     /**
-     * ISUP key typed into the terminal: four letters and four digits (e.g. kmtr4827), nothing to confuse.
+     * ISUP key typed into the terminal: the center's common key when set (ISUP_DEFAULT_KEY), otherwise a random easy one.
      */
     public static function newKey(): string
     {
+        $default = (string) config('isup.default_key');
+
+        if ($default !== '') {
+            return $default;
+        }
+
         $letters = 'abcdefghjkmnpqrstuvwxyz';
         $key = '';
 

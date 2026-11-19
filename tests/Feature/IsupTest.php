@@ -187,10 +187,14 @@ it('lets an admin add a device and shows what to type into it', function () {
 
 it('gives a new device a short Device ID and an easy key, and lets the admin type their own', function () {
     $this->actingAs(userWithRole(Role::Superadmin));
+    config(['isup.device_id_prefix' => 'crm.mensalc.uz', 'isup.default_key' => '11221122']);
     $device = Device::factory()->create();
 
-    expect($device->isup_id)->toBe('edu'.$device->id)
-        ->and($device->isup_key)->toMatch('/^[a-z]{4}\d{4}$/');
+    expect($device->isup_id)->toBe('crm.mensalc.uz-'.$device->id)
+        ->and($device->isup_key)->toBe('11221122');
+
+    config(['isup.default_key' => null]);
+    expect(Device::factory()->create()->isup_key)->toMatch('/^[a-z]{4}\d{4}$/');
 
     $this->put(route('admin.devices.update', $device), ['branch_id' => $device->branch_id, 'name' => 'Kirish', 'direction' => 'in', 'isup_id' => 'filial1', 'isup_key' => 'mensa2026'])
         ->assertSessionHasNoErrors();
