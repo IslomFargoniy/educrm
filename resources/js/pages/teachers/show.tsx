@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { NativeSelect } from '@/components/ui/native-select';
 import { useCan } from '@/hooks/use-can';
-import { formatDate, formatMoney } from '@/lib/format';
+import { formatDate, formatMoney, formatPhone } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import teachers from '@/routes/teachers';
 import payouts from '@/routes/teachers/payouts';
@@ -58,7 +58,7 @@ export default function TeacherShow({
                 <PageHeader
                     title={teacher.name}
                     description={[
-                        teacher.phone,
+                        formatPhone(teacher.phone),
                         teacher.groups
                             .map((g) => `${g.name} (${g.teacher_percent}%)`)
                             .join(', '),

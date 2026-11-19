@@ -45,6 +45,7 @@ import {
     formatMonth,
     currentMonth,
     today,
+    formatPhone,
 } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -155,7 +156,9 @@ export default function StudentShow({
                     title={student.full_name}
                     description={
                         <span className="flex flex-wrap gap-x-4 gap-y-1">
-                            {student.phone && <span>{student.phone}</span>}
+                            {student.phone && (
+                                <span>{formatPhone(student.phone)}</span>
+                            )}
                             {student.birth_date && (
                                 <span>
                                     {t('Born')}:{' '}
@@ -196,7 +199,7 @@ export default function StudentShow({
                             {g.name}
                             {g.phone && (
                                 <span className="text-muted-foreground">
-                                    {g.phone}
+                                    {formatPhone(g.phone)}
                                 </span>
                             )}
                             {g.telegram && (

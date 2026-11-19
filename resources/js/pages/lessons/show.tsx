@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { NativeSelect } from '@/components/ui/native-select';
 import { Spinner } from '@/components/ui/spinner';
-import { formatDate, formatDateTime } from '@/lib/format';
+import { formatDate, formatDateTime, formatPhone } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import attendanceRoutes from '@/routes/attendance';
@@ -307,7 +307,9 @@ export default function LessonShow({
                                         )}
                                     </div>
                                     <div className="flex flex-wrap gap-x-3 text-xs text-muted-foreground">
-                                        {r.phone && <span>{r.phone}</span>}
+                                        {r.phone && (
+                                            <span>{formatPhone(r.phone)}</span>
+                                        )}
                                         {r.balance !== null ? (
                                             <span>
                                                 {t('Balance')}:{' '}

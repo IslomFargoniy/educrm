@@ -10,6 +10,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { formatPhone } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import teachers from '@/routes/teachers';
 
@@ -77,7 +78,7 @@ export default function TeachersIndex({
                                                 {teacher.name}
                                             </Link>
                                             <div className="text-xs text-muted-foreground">
-                                                {teacher.phone}
+                                                {formatPhone(teacher.phone)}
                                             </div>
                                         </TableCell>
                                         <TableCell className="text-sm">

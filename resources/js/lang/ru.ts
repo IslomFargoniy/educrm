@@ -171,6 +171,7 @@ export const ru: Record<string, string> = {
     Later: 'Позже',
     'Lead sources': 'Источники лидов',
     Leads: 'Лиды',
+    Lessons: 'Уроки',
     'Leaves the group': 'Уходит из группы',
     Left: 'Ушедшие',
     'Lesson :date re-billed or cancelled': 'Урок :date пересчитан или отменён',

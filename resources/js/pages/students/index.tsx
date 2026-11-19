@@ -21,7 +21,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { useCan } from '@/hooks/use-can';
-import { today } from '@/lib/format';
+import { today, formatPhone } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import students from '@/routes/students';
 
@@ -147,7 +147,9 @@ export default function StudentsIndex({
                                             </Link>
                                         </TableCell>
                                         <TableCell className="text-muted-foreground">
-                                            {s.phone ?? '—'}
+                                            {s.phone
+                                                ? formatPhone(s.phone)
+                                                : '—'}
                                         </TableCell>
                                         <TableCell className="text-sm">
                                             {s.groups

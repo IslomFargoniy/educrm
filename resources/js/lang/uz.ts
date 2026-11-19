@@ -175,6 +175,7 @@ export const uz: Record<string, string> = {
     Later: 'Keyinroq',
     'Lead sources': 'Lid manbalari',
     Leads: 'Lidlar',
+    Lessons: 'Darslar',
     'Leaves the group': 'Guruhdan chiqadi',
     Left: 'Ketganlar',
     'Lesson :date re-billed or cancelled':

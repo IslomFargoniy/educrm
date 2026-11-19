@@ -8,6 +8,8 @@ export type BreadcrumbItem = {
 
 export type NavItem = {
     title: string;
+    /** Shorter label for the mobile tab bar. */
+    shortTitle?: string;
     href: NonNullable<InertiaLinkProps['href']>;
     icon?: LucideIcon | null;
     isActive?: boolean;
