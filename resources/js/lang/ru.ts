@@ -81,6 +81,10 @@ export const ru: Record<string, string> = {
     '+:count moved from other groups': '+:count переведены из других групп',
     'Leads created in the period and how far they got: contacted, came to a trial lesson, joined a group, study now, paid. Conversion = joined a group ÷ leads.':
         'Лиды за период и до какого шага дошли: связались, пришли на пробный урок, добавлены в группу, учатся сейчас, оплатили. Конверсия = добавлены в группу ÷ лиды.',
+    'No course': 'Без курса',
+    'Leads: joined / total': 'Лиды: в группе / всего',
+    'Groups of each course added up for the period. Leads: leads of the period who asked for this course and how many of them joined a group.':
+        'Группы каждого курса суммированы за период. Лиды: лиды за период, спросившие этот курс, и сколько из них попали в группу.',
     'Attendance can be marked only on the lesson day. Later changes are made by the administrator.':
         'Посещаемость отмечается только в день урока. Позже изменения вносит администратор.',
     'Attendance journal': 'Журнал посещаемости',

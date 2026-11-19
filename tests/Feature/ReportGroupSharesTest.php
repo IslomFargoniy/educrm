@@ -45,7 +45,10 @@ it('counts group shares from lessons paid in the period, so prepaid money never 
             ->where('groups.0.charged', 150_000)
             ->where('groups.0.revenue', 150_000)
             ->where('groups.0.teacher_share', 60_000)
-            ->where('groups.0.center_share', 90_000));
+            ->where('groups.0.center_share', 90_000)
+            ->where('courses.0.groups', 1)
+            ->where('courses.0.revenue', 150_000)
+            ->where('courses.0.teacher_share', 60_000));
 
     expect(Enrollment::query()->find($enrollment->id)->balance)->toBe(450_000);
 });

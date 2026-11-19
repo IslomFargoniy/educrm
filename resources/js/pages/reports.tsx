@@ -58,6 +58,20 @@ type Props = {
     }[];
     leadSources: (Funnel & { source: string })[];
     leadCourses: (Funnel & { course: string | null })[];
+    courses: {
+        course: string | null;
+        groups: number;
+        students: number;
+        monthly_plan: number;
+        charged: number;
+        income: number;
+        revenue: number;
+        teacher_share: number;
+        center_share: number;
+        debt: number;
+        leads: number;
+        leads_joined: number;
+    }[];
     studentFlow: {
         leads: Funnel;
         joined: number;
@@ -87,6 +101,7 @@ export default function Reports({
     leadSources,
     leadCourses,
     studentFlow,
+    courses,
 }: Props) {
     const t = useT();
     const funnelHeads = (first: string) => [
@@ -101,7 +116,7 @@ export default function Reports({
         t('Conversion'),
     ];
     const [tab, setTab] = useState<
-        'finance' | 'teachers' | 'debtors' | 'groups' | 'leads'
+        'finance' | 'teachers' | 'debtors' | 'groups' | 'courses' | 'leads'
     >('finance');
     const sum = (type: string) => totals[type]?.total ?? 0;
     const income = sum('student_payment');
@@ -147,6 +162,7 @@ export default function Reports({
                             'teachers',
                             'debtors',
                             'groups',
+                            'courses',
                             'leads',
                         ] as const
                     ).map((key) => (
@@ -167,6 +183,7 @@ export default function Reports({
                                     teachers: 'Teachers',
                                     debtors: 'Debtors',
                                     groups: 'Groups',
+                                    courses: 'Courses',
                                     leads: 'Leads and students',
                                 }[key],
                             )}
@@ -373,6 +390,83 @@ export default function Reports({
                                             )}
                                         />
                                     )),
+                                ]
+                            }
+                        />
+                    </div>
+                )}
+
+                {tab === 'courses' && (
+                    <div className="space-y-2">
+                        <p className="text-sm text-muted-foreground">
+                            {t(
+                                'Groups of each course added up for the period. Leads: leads of the period who asked for this course and how many of them joined a group.',
+                            )}
+                        </p>
+                        <SimpleTable
+                            heads={[
+                                t('Course'),
+                                t('Groups'),
+                                t('Students'),
+                                t('Monthly plan'),
+                                t('To be received'),
+                                t('Payments received'),
+                                t('Lesson revenue'),
+                                t('Teacher share'),
+                                t('Center share'),
+                                t('Debt'),
+                                t('Leads: joined / total'),
+                            ]}
+                            rows={courses.map((c) => [
+                                <span key="n" className="font-semibold">
+                                    {c.course ?? t('No course')}
+                                </span>,
+                                c.groups,
+                                c.students,
+                                <Money key="m" value={c.monthly_plan} />,
+                                <Money key="ch" value={c.charged} />,
+                                <Money key="i" value={c.income} />,
+                                <Money key="r" value={c.revenue} />,
+                                <Money key="t" value={c.teacher_share} />,
+                                <Money
+                                    key="c"
+                                    value={c.center_share}
+                                    className="font-bold"
+                                />,
+                                <Money
+                                    key="d"
+                                    value={c.debt}
+                                    className={c.debt > 0 ? 'text-danger' : ''}
+                                />,
+                                <span key="l" className="tabular-nums">
+                                    {c.leads_joined}/{c.leads}
+                                </span>,
+                            ])}
+                            footer={
+                                courses.length > 1 && [
+                                    t('Total'),
+                                    courses.reduce((s, c) => s + c.groups, 0),
+                                    courses.reduce((s, c) => s + c.students, 0),
+                                    ...(
+                                        [
+                                            'monthly_plan',
+                                            'charged',
+                                            'income',
+                                            'revenue',
+                                            'teacher_share',
+                                            'center_share',
+                                            'debt',
+                                        ] as const
+                                    ).map((key) => (
+                                        <Money
+                                            key={key}
+                                            value={courses.reduce(
+                                                (s, c) => s + c[key],
+                                                0,
+                                            )}
+                                        />
+                                    )),
+                                    `${courses.reduce((s, c) => s + c.leads_joined, 0)}/${courses.reduce((s, c) => s + c.leads, 0)}`,
                                 ]
                             }
                         />

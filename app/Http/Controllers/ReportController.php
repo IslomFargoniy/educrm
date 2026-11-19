@@ -93,7 +93,7 @@ class ReportController extends Controller
                 'group' => $e->group->name, 'debt' => -$e->balance, 'status' => $e->status->value,
             ]);
 
-        $groups = Group::query()->whereIn('branch_id', $branchIds)->with('teacher:id,name')->get()
+        $groups = Group::query()->whereIn('branch_id', $branchIds)->with('teacher:id,name', 'course:id,name')->get()
             ->map(function (Group $group) use ($from, $to) {
                 $income = (int) Transaction::query()->where('type', TransactionType::StudentPayment)->whereNull('reversed_at')
                     ->whereBetween('occurred_at', [$from, $to])->where('meta->group_id', $group->id)->sum('amount');
@@ -118,6 +118,8 @@ class ReportController extends Controller
 
                 return [
                     'is_active' => $group->status === 'active',
+                    'course' => $group->course->name ?? $group->subject,
+                    'debt' => (int) -$group->enrollments()->where('balance', '<', 0)->sum('balance'),
                     'group' => $group->name,
                     'teacher' => $group->teacher?->name,
                     'students' => $studying->count(),
@@ -163,6 +165,23 @@ class ReportController extends Controller
         $leadCourses = $periodLeads->groupBy(fn (Lead $lead) => $lead->interested_course ?? '')
             ->map(fn ($items, $course) => ['course' => $course === '' ? null : $course, ...$funnel($items)])
             ->sortByDesc('total')->values();
+        // Courses: the group rows summed per course, with the leads who asked for that course.
+        $leadsByCourse = $leadCourses->keyBy(fn (array $row) => mb_strtolower((string) $row['course']));
+        $courseRows = $groups->groupBy('course')
+            ->map(function ($rows, $course) use ($leadsByCourse) {
+                $leads = $leadsByCourse->get(mb_strtolower((string) $course));
+
+                return [
+                    'course' => $course === '' ? null : $course,
+                    'groups' => $rows->count(),
+                    ...collect(['students', 'monthly_plan', 'charged', 'income', 'revenue', 'teacher_share', 'center_share', 'debt'])
+                        ->mapWithKeys(fn (string $key) => [$key => (int) $rows->sum($key)])->all(),
+                    'leads' => $leads['total'] ?? 0,
+                    'leads_joined' => $leads['joined'] ?? 0,
+                ];
+            })
+            ->sortByDesc('revenue')->values();
+
         $studentFlow = [
             'leads' => $funnel($periodLeads),
             // Every enrollment, not only ones that came from leads.
@@ -192,6 +211,7 @@ class ReportController extends Controller
             'groups' => $groups,
             'leadSources' => $leadSources,
             'leadCourses' => $leadCourses,
+            'courses' => $courseRows,
             'studentFlow' => $studentFlow,
         ]);
     }

@@ -81,6 +81,10 @@ export const uz: Record<string, string> = {
     '+:count moved from other groups': "+:count ta boshqa guruhdan o'tkazilgan",
     'Leads created in the period and how far they got: contacted, came to a trial lesson, joined a group, study now, paid. Conversion = joined a group ÷ leads.':
         "Davrda kelgan lidlar va ular qayergacha yetgani: bog'lanildi, sinov darsiga keldi, guruhga qo'shildi, hozir o'qiyapti, to'lov qildi. Konversiya = guruhga qo'shilgan ÷ lidlar.",
+    'No course': 'Kurssiz',
+    'Leads: joined / total': "Lidlar: qo'shildi / jami",
+    'Groups of each course added up for the period. Leads: leads of the period who asked for this course and how many of them joined a group.':
+        "Har bir kurs guruhlari davr bo'yicha jamlangan. Lidlar: davrda shu kursni so'ragan lidlar va ulardan nechtasi guruhga qo'shilgani.",
     'Attendance can be marked only on the lesson day. Later changes are made by the administrator.':
         "Davomat faqat dars kuni belgilanadi. Keyingi o'zgarishlarni administrator qiladi.",
     'Attendance journal': 'Davomat jurnali',
