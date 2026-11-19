@@ -20,8 +20,8 @@ class VisitRecorder
     /** A live event whose device clock is further off than this uses the server time. */
     private const MAX_CLOCK_DRIFT_SECONDS = 120;
 
-    /** Standing in front of the terminal repeats the pass every few seconds: one visit per this many seconds. */
-    private const REPEAT_SECONDS = 120;
+    /** Standing in front of the terminal repeats the pass every few seconds: passes this close to the last one are the same. */
+    private const REPEAT_SECONDS = 30;
 
     /** Families hear only about passes this fresh (catch-up after an outage stays silent). */
     private const NOTIFY_WITHIN_MINUTES = 30;
@@ -56,7 +56,7 @@ class VisitRecorder
         $repeat = StudentVisit::query()
             ->where('device_id', $device->id)
             ->where('employee_no', $employeeNo)
-            ->whereBetween('scanned_at', [$scannedAt->subSeconds(self::REPEAT_SECONDS), $scannedAt->addSeconds(self::REPEAT_SECONDS)])
+            ->whereBetween('scanned_at', [$scannedAt->subSeconds(self::REPEAT_SECONDS), $scannedAt])
             ->exists();
 
         if ($repeat) {

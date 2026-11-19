@@ -249,6 +249,9 @@ it('counts standing in front of the terminal as one pass', function () {
 
     expect(StudentVisit::query()->count())->toBe(1);
     Queue::assertPushed(SendNotification::class, 1);
+
+    $this->postJson(route('isup.events'), faceEvent($device, $enrollment->student_id, 9, now()->addMinute()->toIso8601String()), $this->gateway)->assertOk();
+    expect(StudentVisit::query()->count())->toBe(2);
 });
 
 it('points the terminal HTTPS event host at the CRM', function () {
