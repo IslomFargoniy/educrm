@@ -87,6 +87,9 @@ export default function HistoryTable({
                 <Table>
                     <TableHeader>
                         <TableRow>
+                            <TableHead className="w-12 text-center">
+                                №
+                            </TableHead>
                             <TableHead>{t('Date')}</TableHead>
                             <TableHead>{t('Operation')}</TableHead>
                             <TableHead>{t('Details')}</TableHead>
@@ -105,14 +108,14 @@ export default function HistoryTable({
                         {history.rows.length === 0 && (
                             <TableRow>
                                 <TableCell
-                                    colSpan={6}
+                                    colSpan={7}
                                     className="py-8 text-center text-muted-foreground"
                                 >
                                     {t('No operations in this period.')}
                                 </TableCell>
                             </TableRow>
                         )}
-                        {history.rows.map((row) => {
+                        {history.rows.map((row, index) => {
                             const key = String(row.id);
                             const expandable =
                                 Boolean(row.children?.length) ||
@@ -134,6 +137,9 @@ export default function HistoryTable({
                                             })
                                         }
                                     >
+                                        <TableCell className="w-12 text-center text-muted-foreground tabular-nums">
+                                            {index + 1}
+                                        </TableCell>
                                         <TableCell className="whitespace-nowrap text-muted-foreground">
                                             {formatDate(row.date)}
                                         </TableCell>
@@ -206,7 +212,7 @@ export default function HistoryTable({
                                     {open[key] && (
                                         <TableRow className="bg-muted/40 hover:bg-muted/40">
                                             <TableCell
-                                                colSpan={6}
+                                                colSpan={7}
                                                 className="space-y-2 text-sm"
                                             >
                                                 {row.children &&

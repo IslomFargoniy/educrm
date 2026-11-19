@@ -124,6 +124,9 @@ export default function Import({
                             <Table>
                                 <TableHeader>
                                     <TableRow>
+                                        <TableHead className="w-12 text-center">
+                                            №
+                                        </TableHead>
                                         <TableHead>{t('Parent')}</TableHead>
                                         <TableHead>
                                             {t('Login (phone)')}
@@ -133,8 +136,11 @@ export default function Import({
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {result.parents.map((p) => (
+                                    {result.parents.map((p, index) => (
                                         <TableRow key={p.phone}>
+                                            <TableCell className="w-12 text-center text-muted-foreground tabular-nums">
+                                                {index + 1}
+                                            </TableCell>
                                             <TableCell>{p.name}</TableCell>
                                             <TableCell>{p.phone}</TableCell>
                                             <TableCell className="font-mono">

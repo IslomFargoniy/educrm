@@ -311,6 +311,7 @@ function SimpleTable({
             <Table>
                 <TableHeader>
                     <TableRow>
+                        <TableHead className="w-12 text-center">№</TableHead>
                         {heads.map((h, i) => (
                             <TableHead
                                 key={h}
@@ -329,7 +330,7 @@ function SimpleTable({
                     {rows.length === 0 && (
                         <TableRow>
                             <TableCell
-                                colSpan={heads.length}
+                                colSpan={heads.length + 1}
                                 className="py-6 text-center text-muted-foreground"
                             >
                                 {t('No data.')}
@@ -338,6 +339,9 @@ function SimpleTable({
                     )}
                     {rows.map((row, i) => (
                         <TableRow key={i}>
+                            <TableCell className="w-12 text-center text-muted-foreground tabular-nums">
+                                {i + 1}
+                            </TableCell>
                             {row.map((cell, j) => (
                                 <TableCell
                                     key={j}

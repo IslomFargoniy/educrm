@@ -119,6 +119,9 @@ export default function StudentsIndex({
                         <Table>
                             <TableHeader>
                                 <TableRow>
+                                    <TableHead className="w-12 text-center">
+                                        №
+                                    </TableHead>
                                     <TableHead>{t('Student')}</TableHead>
                                     <TableHead>{t('Phone')}</TableHead>
                                     <TableHead>{t('Groups')}</TableHead>
@@ -128,7 +131,7 @@ export default function StudentsIndex({
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {list.data.map((s) => (
+                                {list.data.map((s, index) => (
                                     <TableRow
                                         key={s.id}
                                         className="cursor-pointer"
@@ -138,6 +141,9 @@ export default function StudentsIndex({
                                             )
                                         }
                                     >
+                                        <TableCell className="w-12 text-center text-muted-foreground tabular-nums">
+                                            {(list.from ?? 1) + index}
+                                        </TableCell>
                                         <TableCell className="font-semibold">
                                             <Link
                                                 href={students.show(s.id)}

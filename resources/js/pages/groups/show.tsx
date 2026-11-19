@@ -480,12 +480,15 @@ export default function GroupShow({
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {roster.map((s) => (
+                                    {roster.map((s, index) => (
                                         <tr
                                             key={s.enrollment_id}
                                             className="border-b last:border-0"
                                         >
                                             <td className="sticky left-0 z-10 bg-card px-3 py-1.5 font-medium whitespace-nowrap">
+                                                <span className="mr-2 inline-block w-5 text-right text-xs text-muted-foreground tabular-nums">
+                                                    {index + 1}
+                                                </span>
                                                 {s.full_name}
                                                 {s.status === 'trial' && (
                                                     <span className="ml-1 text-xs text-highlight">
@@ -543,6 +546,9 @@ export default function GroupShow({
                         <Table>
                             <TableHeader>
                                 <TableRow>
+                                    <TableHead className="w-12 text-center">
+                                        №
+                                    </TableHead>
                                     <TableHead>{t('Student')}</TableHead>
                                     <TableHead>{t('Phone')}</TableHead>
                                     <TableHead>{t('Status')}</TableHead>
@@ -556,8 +562,11 @@ export default function GroupShow({
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {roster.map((s) => (
+                                {roster.map((s, index) => (
                                     <TableRow key={s.enrollment_id}>
+                                        <TableCell className="w-12 text-center text-muted-foreground tabular-nums">
+                                            {index + 1}
+                                        </TableCell>
                                         <TableCell className="font-semibold">
                                             {can('students.view') ? (
                                                 <Link
@@ -644,6 +653,9 @@ export default function GroupShow({
                         <Table>
                             <TableHeader>
                                 <TableRow>
+                                    <TableHead className="w-12 text-center">
+                                        №
+                                    </TableHead>
                                     <TableHead>{t('From month')}</TableHead>
                                     <TableHead className="text-right">
                                         {t('Monthly price')}
@@ -657,8 +669,11 @@ export default function GroupShow({
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {group.prices.map((p) => (
+                                {group.prices.map((p, index) => (
                                     <TableRow key={p.id}>
+                                        <TableCell className="w-12 text-center text-muted-foreground tabular-nums">
+                                            {index + 1}
+                                        </TableCell>
                                         <TableCell>
                                             {formatMonth(
                                                 p.effective_from,

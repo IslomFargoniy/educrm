@@ -329,6 +329,9 @@ export default function StudentShow({
                             <Table>
                                 <TableHeader>
                                     <TableRow>
+                                        <TableHead className="w-12 text-center">
+                                            №
+                                        </TableHead>
                                         <TableHead>{t('Date')}</TableHead>
                                         <TableHead>{t('Group')}</TableHead>
                                         <TableHead>{t('Cashbox')}</TableHead>
@@ -340,13 +343,16 @@ export default function StudentShow({
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {payments.map((p) => (
+                                    {payments.map((p, index) => (
                                         <TableRow
                                             key={p.id}
                                             className={cn(
                                                 p.reversed && 'opacity-60',
                                             )}
                                         >
+                                            <TableCell className="w-12 text-center text-muted-foreground tabular-nums">
+                                                {index + 1}
+                                            </TableCell>
                                             <TableCell className="whitespace-nowrap">
                                                 {formatDateTime(p.paid_at)}
                                             </TableCell>

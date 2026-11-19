@@ -149,6 +149,9 @@ export default function LeadsIndex({
                         <Table>
                             <TableHeader>
                                 <TableRow>
+                                    <TableHead className="w-12 text-center">
+                                        №
+                                    </TableHead>
                                     <TableHead>{t('Name')}</TableHead>
                                     <TableHead>{t('Course')}</TableHead>
                                     <TableHead>{t('Source')}</TableHead>
@@ -158,7 +161,7 @@ export default function LeadsIndex({
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {list.data.map((lead) => (
+                                {list.data.map((lead, index) => (
                                     <TableRow
                                         key={lead.id}
                                         className="cursor-pointer"
@@ -168,6 +171,9 @@ export default function LeadsIndex({
                                             )
                                         }
                                     >
+                                        <TableCell className="w-12 text-center text-muted-foreground tabular-nums">
+                                            {(list.from ?? 1) + index}
+                                        </TableCell>
                                         <TableCell>
                                             <Link
                                                 href={leads.show(lead.id)}

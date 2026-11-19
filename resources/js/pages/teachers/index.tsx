@@ -58,6 +58,9 @@ export default function TeachersIndex({
                         <Table>
                             <TableHeader>
                                 <TableRow>
+                                    <TableHead className="w-12 text-center">
+                                        №
+                                    </TableHead>
                                     <TableHead>{t('Teacher')}</TableHead>
                                     <TableHead>{t('Groups')}</TableHead>
                                     <TableHead className="text-right">
@@ -70,7 +73,7 @@ export default function TeachersIndex({
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {list.map((teacher) => (
+                                {list.map((teacher, index) => (
                                     <TableRow
                                         key={teacher.id}
                                         className={
@@ -79,6 +82,9 @@ export default function TeachersIndex({
                                                 : 'opacity-50'
                                         }
                                     >
+                                        <TableCell className="w-12 text-center text-muted-foreground tabular-nums">
+                                            {index + 1}
+                                        </TableCell>
                                         <TableCell>
                                             <Link
                                                 href={teachers.show(teacher.id)}

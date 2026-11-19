@@ -90,6 +90,9 @@ export default function Users({
                     <Table>
                         <TableHeader>
                             <TableRow>
+                                <TableHead className="w-12 text-center">
+                                    №
+                                </TableHead>
                                 <TableHead>{t('Name')}</TableHead>
                                 <TableHead>{t('Role')}</TableHead>
                                 <TableHead>{t('Branches')}</TableHead>
@@ -97,13 +100,16 @@ export default function Users({
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {users.map((user) => (
+                            {users.map((user, index) => (
                                 <TableRow
                                     key={user.id}
                                     className={
                                         user.is_active ? '' : 'opacity-50'
                                     }
                                 >
+                                    <TableCell className="w-12 text-center text-muted-foreground tabular-nums">
+                                        {index + 1}
+                                    </TableCell>
                                     <TableCell>
                                         <div className="font-semibold">
                                             {user.name}
