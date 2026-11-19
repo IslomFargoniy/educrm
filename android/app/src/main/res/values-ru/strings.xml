@@ -98,4 +98,6 @@
     <string name="debtors_of_students">Должников: %1$d из %2$d</string>
     <string name="only_debtors">Только должники</string>
     <string name="groups_tab">Группы</string>
+    <string name="by_student">По ученикам</string>
+    <string name="lesson_on">Урок %1$s</string>
 </resources>

@@ -1,6 +1,6 @@
 {
-    "versionCode": 17,
-    "versionName": "1.4.7",
+    "versionCode": 18,
+    "versionName": "1.4.8",
     "apk": "educrm.apk",
-    "notes": "Qarzlar bitta ro'yxat; pastki menyuda Guruhlar"
+    "notes": "Tushum: o'quvchilar bo'yicha va tarix tablari"
 }

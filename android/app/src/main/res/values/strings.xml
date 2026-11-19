@@ -99,4 +99,6 @@
     <string name="debtors_of_students">%2$d ta o\'quvchidan %1$d tasi qarzdor</string>
     <string name="only_debtors">Faqat qarzdorlar</string>
     <string name="groups_tab">Guruhlar</string>
+    <string name="by_student">O\'quvchilar bo\'yicha</string>
+    <string name="lesson_on">%1$s darsi</string>
 </resources>

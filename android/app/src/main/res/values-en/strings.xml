@@ -98,4 +98,6 @@
     <string name="debtors_of_students">%1$d of %2$d students owe</string>
     <string name="only_debtors">Debtors only</string>
     <string name="groups_tab">Groups</string>
+    <string name="by_student">By student</string>
+    <string name="lesson_on">Lesson %1$s</string>
 </resources>

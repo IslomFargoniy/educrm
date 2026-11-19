@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
 import uz.educrm.app.data.MyStudentsResponse
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.material3.Checkbox
@@ -101,7 +102,7 @@ fun BalanceScreen(api: EduCrmApi) {
                 }
                 when (section) {
                     "all" -> HistoryList(history, signed = false)
-                    "income" -> HistoryList(history.copy(rows = incomeRows), signed = false, title = stringResource(R.string.income_this_month))
+                    "income" -> IncomeDetails(history.copy(rows = incomeRows))
                     "expense" -> HistoryList(history.copy(rows = expenseRows), signed = false, title = stringResource(R.string.paid_out_this_month))
                     "opening" -> EduCrmCard {
                         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -116,6 +117,90 @@ fun BalanceScreen(api: EduCrmApi) {
                             FormulaRow("= " + stringResource(R.string.can_take), money(history.closing), bold = true)
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+/** One payment into the teacher's balance for one student's lesson. */
+private data class IncomeItem(val student: String, val group: String, val lessonDate: String?, val date: String, val amount: Long, val type: String)
+
+/**
+ * This month's income: by student (tap a student for each lesson), or as the plain history.
+ */
+@Composable
+private fun IncomeDetails(history: uz.educrm.app.data.History) {
+    var byStudent by rememberSaveable { mutableStateOf(true) }
+    val items = history.rows.flatMap { row ->
+        val group = row.metaObject.text("group").orEmpty()
+        val lessonDate = row.metaObject.text("lesson_date")
+        if (row.children.isNotEmpty()) {
+            row.children.map { IncomeItem(it.student, group, lessonDate, row.date, it.share, row.type) }
+        } else {
+            listOf(IncomeItem(row.metaObject.text("student").orEmpty(), group, lessonDate, row.date, row.income, row.type))
+        }
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        SectionTitle(stringResource(R.string.income_this_month))
+        Row(
+            Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceVariant).border(1.dp, eduCrm.border, RoundedCornerShape(12.dp)).padding(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            listOf(true to R.string.by_student, false to R.string.history).forEach { (value, label) ->
+                val selected = byStudent == value
+                Text(
+                    stringResource(label),
+                    textAlign = TextAlign.Center,
+                    fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+                    fontSize = 13.sp,
+                    color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f).clip(RoundedCornerShape(9.dp))
+                        .background(if (selected) MaterialTheme.colorScheme.surface else Color.Transparent)
+                        .clickable { byStudent = value }
+                        .padding(vertical = 10.dp),
+                )
+            }
+        }
+        if (!byStudent) {
+            HistoryList(history, signed = false, title = null, showTitle = false)
+        } else {
+            EduCrmCard {
+                Column(Modifier.padding(16.dp)) {
+                    val groups = items.groupBy { it.student to it.group }.entries.sortedByDescending { e -> e.value.sumOf { it.amount } }
+                    if (groups.isEmpty()) Text("—", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    groups.forEachIndexed { index, (key, list) ->
+                        if (index > 0) HorizontalDivider(Modifier.padding(vertical = 8.dp), color = eduCrm.border)
+                        IncomeStudentRow(index + 1, key.first, key.second, list)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun IncomeStudentRow(number: Int, student: String, group: String, items: List<IncomeItem>) {
+    var expanded by remember { mutableStateOf(false) }
+    Column(Modifier.fillMaxWidth().clickable { expanded = !expanded }) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            RowNumber(number)
+            Column(Modifier.weight(1f)) {
+                Text(student, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                Text("$group · ${stringResource(R.string.lessons_count, items.size)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Text("+" + money(items.sumOf { it.amount }), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium, color = eduCrm.success)
+            Icon(if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 4.dp).size(20.dp))
+        }
+        if (expanded) {
+            items.sortedBy { it.lessonDate ?: it.date }.forEach {
+                Row(Modifier.fillMaxWidth().padding(start = 26.dp, end = 24.dp, top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text(stringResource(R.string.lesson_on, date(it.lessonDate ?: it.date)), style = MaterialTheme.typography.bodySmall)
+                        Text("${txLabel(it.type)} · ${date(it.date)}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Text("+" + money(it.amount), style = MaterialTheme.typography.bodySmall, color = eduCrm.success, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
