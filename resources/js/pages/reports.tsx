@@ -46,12 +46,33 @@ type Props = {
         group: string;
         teacher: string | null;
         students: number;
+        teacher_percent: number;
+        percent_range: [number, number] | null;
+        monthly_plan: number;
+        charged: number;
         income: number;
         revenue: number;
         teacher_share: number;
         center_share: number;
     }[];
-    leadSources: { source: string; total: number; converted: number }[];
+    leadSources: (Funnel & { source: string })[];
+    leadCourses: (Funnel & { course: string | null })[];
+    studentFlow: {
+        leads: Funnel;
+        joined: number;
+        transferred: number;
+        left: number;
+    };
+};
+
+type Funnel = {
+    total: number;
+    contacted: number;
+    trial: number;
+    joined: number;
+    studying: number;
+    paid: number;
+    rejected: number;
 };
 
 export default function Reports({
@@ -63,8 +84,21 @@ export default function Reports({
     debtors,
     groups,
     leadSources,
+    leadCourses,
+    studentFlow,
 }: Props) {
     const t = useT();
+    const funnelHeads = (first: string) => [
+        first,
+        t('Leads'),
+        t('Contacted'),
+        t('Trial lesson'),
+        t('Joined a group'),
+        t('Studying now'),
+        t('Paid'),
+        t('Rejected'),
+        t('Conversion'),
+    ];
     const [tab, setTab] = useState<
         'finance' | 'teachers' | 'debtors' | 'groups' | 'leads'
     >('finance');
@@ -132,7 +166,7 @@ export default function Reports({
                                     teachers: 'Teachers',
                                     debtors: 'Debtors',
                                     groups: 'Groups',
-                                    leads: 'Lead sources',
+                                    leads: 'Leads and students',
                                 }[key],
                             )}
                         </button>
@@ -271,7 +305,7 @@ export default function Reports({
                     <div className="space-y-2">
                         <p className="text-sm text-muted-foreground">
                             {t(
-                                'Shares are counted from lessons held and paid in this period, so money paid earlier for these lessons is included.',
+                                'Monthly plan: monthly price of active students after discounts. To be received: price of the lessons held in the period. Shares are counted from lessons held and paid in this period, so money paid earlier for these lessons is included.',
                             )}
                         </p>
                         <SimpleTable
@@ -279,6 +313,9 @@ export default function Reports({
                                 t('Group'),
                                 t('Teacher'),
                                 t('Students'),
+                                t('Teacher percent'),
+                                t('Monthly plan'),
+                                t('To be received'),
                                 t('Payments received'),
                                 t('Lesson revenue'),
                                 t('Teacher share'),
@@ -288,6 +325,13 @@ export default function Reports({
                                 g.group,
                                 g.teacher ?? '—',
                                 g.students,
+                                <span key="pct" className="tabular-nums">
+                                    {g.percent_range
+                                        ? `${g.percent_range[0]}–${g.percent_range[1]}%`
+                                        : `${g.teacher_percent}%`}
+                                </span>,
+                                <Money key="m" value={g.monthly_plan} />,
+                                <Money key="ch" value={g.charged} />,
                                 <Money key="i" value={g.income} />,
                                 <Money key="r" value={g.revenue} />,
                                 <Money key="t" value={g.teacher_share} />,
@@ -297,42 +341,145 @@ export default function Reports({
                                     className="font-bold"
                                 />,
                             ])}
+                            footer={
+                                groups.length > 1 && [
+                                    t('Total'),
+                                    '',
+                                    groups.reduce(
+                                        (sum, g) => sum + g.students,
+                                        0,
+                                    ),
+                                    '',
+                                    ...(
+                                        [
+                                            'monthly_plan',
+                                            'charged',
+                                            'income',
+                                            'revenue',
+                                            'teacher_share',
+                                            'center_share',
+                                        ] as const
+                                    ).map((key) => (
+                                        <Money
+                                            key={key}
+                                            value={groups.reduce(
+                                                (sum, g) => sum + g[key],
+                                                0,
+                                            )}
+                                        />
+                                    )),
+                                ]
+                            }
                         />
                     </div>
                 )}
 
                 {tab === 'leads' && (
-                    <SimpleTable
-                        heads={[
-                            t('Source'),
-                            t('Leads'),
-                            t('Became students'),
-                            t('Conversion'),
-                        ]}
-                        rows={leadSources.map((l) => [
-                            t(`source.${l.source}`),
-                            l.total,
-                            l.converted,
-                            `${l.total ? Math.round((l.converted / l.total) * 100) : 0}%`,
-                        ])}
-                    />
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+                            {[
+                                {
+                                    label: t('New leads'),
+                                    value: studentFlow.leads.total,
+                                },
+                                {
+                                    label: t('Leads who joined a group'),
+                                    value: studentFlow.leads.joined,
+                                    hint: `${percentOf(studentFlow.leads.joined, studentFlow.leads.total)}%`,
+                                },
+                                {
+                                    label: t('Students added to groups'),
+                                    value: studentFlow.joined,
+                                    hint: studentFlow.transferred
+                                        ? t('+:count moved from other groups', {
+                                              count: studentFlow.transferred,
+                                          })
+                                        : undefined,
+                                },
+                                {
+                                    label: t('Left groups'),
+                                    value: studentFlow.left,
+                                },
+                            ].map((card) => (
+                                <div
+                                    key={card.label}
+                                    className="rounded-xl border bg-card p-3"
+                                >
+                                    <div className="text-xs text-muted-foreground">
+                                        {card.label}
+                                    </div>
+                                    <div className="text-2xl font-bold tabular-nums">
+                                        {card.value}
+                                    </div>
+                                    {card.hint && (
+                                        <div className="text-xs text-muted-foreground">
+                                            {card.hint}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                            {t(
+                                'Leads created in the period and how far they got: contacted, came to a trial lesson, joined a group, study now, paid. Conversion = joined a group ÷ leads.',
+                            )}
+                        </p>
+                        <h3 className="font-bold">{t('By source')}</h3>
+                        <SimpleTable
+                            heads={funnelHeads(t('Source'))}
+                            rows={leadSources.map((l) =>
+                                funnelCells(t(`source.${l.source}`), l),
+                            )}
+                            footer={
+                                leadSources.length > 1 &&
+                                funnelCells(t('Total'), studentFlow.leads)
+                            }
+                        />
+                        <h3 className="font-bold">{t('By course')}</h3>
+                        <SimpleTable
+                            heads={funnelHeads(t('Course'))}
+                            rows={leadCourses.map((l) =>
+                                funnelCells(l.course ?? '—', l),
+                            )}
+                        />
+                    </div>
                 )}
             </div>
         </>
     );
 }
 
+function percentOf(part: number, total: number): number {
+    return total ? Math.round((part / total) * 100) : 0;
+}
+
+function funnelCells(label: string, f: Funnel): React.ReactNode[] {
+    return [
+        label,
+        f.total,
+        f.contacted,
+        f.trial,
+        f.joined,
+        f.studying,
+        f.paid,
+        f.rejected,
+        `${percentOf(f.joined, f.total)}%`,
+    ];
+}
+
 function SimpleTable({
     heads,
     rows,
+    footer,
 }: {
     heads: string[];
     rows: React.ReactNode[][];
+    footer?: React.ReactNode[] | false;
 }) {
     const t = useT();
 
     return (
-        <div className="overflow-hidden rounded-xl border bg-card">
+        <div className="overflow-x-auto rounded-xl border bg-card">
             <Table>
                 <TableHeader>
                     <TableRow>
@@ -381,6 +528,23 @@ function SimpleTable({
                             ))}
                         </TableRow>
                     ))}
+                    {footer && (
+                        <TableRow className="bg-muted/50 font-bold hover:bg-muted/50">
+                            <TableCell />
+                            {footer.map((cell, j) => (
+                                <TableCell
+                                    key={j}
+                                    className={
+                                        j > 0 && j === footer.length - 1
+                                            ? 'text-right'
+                                            : ''
+                                    }
+                                >
+                                    {cell}
+                                </TableCell>
+                            ))}
+                        </TableRow>
+                    )}
                 </TableBody>
             </Table>
         </div>

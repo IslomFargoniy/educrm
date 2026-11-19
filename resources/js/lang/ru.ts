@@ -62,6 +62,25 @@ export const ru: Record<string, string> = {
     'At period end': 'На конец',
     'Start of period + earned − paid = end of period. Salaries paid in this period can include money earned earlier, so paid may be more than earned.':
         'Остаток на начало + заработано − выплачено = остаток на конец. Выплаты за период могут включать деньги, заработанные раньше, поэтому выплачено может быть больше заработанного.',
+    'Monthly plan': 'План в месяц',
+    'To be received': 'К получению',
+    'Monthly plan: monthly price of active students after discounts. To be received: price of the lessons held in the period. Shares are counted from lessons held and paid in this period, so money paid earlier for these lessons is included.':
+        'План в месяц — месячная цена активных учеников со скидками. К получению — стоимость уроков, проведённых за период. Доли считаются по урокам, проведённым и оплаченным за период, включая деньги, заплаченные раньше.',
+    Contacted: 'Связались',
+    'Trial lesson': 'Пробный урок',
+    'Joined a group': 'Добавлен в группу',
+    'Studying now': 'Учится сейчас',
+    Paid: 'Оплатил',
+    Rejected: 'Отказ',
+    'By source': 'По источникам',
+    'By course': 'По курсам',
+    'Leads who joined a group': 'Лиды, попавшие в группу',
+    'Students added to groups': 'Добавлено в группы',
+    'Left groups': 'Ушли из групп',
+    'Leads and students': 'Лиды и ученики',
+    '+:count moved from other groups': '+:count переведены из других групп',
+    'Leads created in the period and how far they got: contacted, came to a trial lesson, joined a group, study now, paid. Conversion = joined a group ÷ leads.':
+        'Лиды за период и до какого шага дошли: связались, пришли на пробный урок, добавлены в группу, учатся сейчас, оплатили. Конверсия = добавлены в группу ÷ лиды.',
     'Attendance can be marked only on the lesson day. Later changes are made by the administrator.':
         'Посещаемость отмечается только в день урока. Позже изменения вносит администратор.',
     'Attendance journal': 'Журнал посещаемости',

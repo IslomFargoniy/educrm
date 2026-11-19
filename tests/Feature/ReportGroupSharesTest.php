@@ -5,6 +5,7 @@ use App\Models\Cashbox;
 use App\Models\Enrollment;
 use App\Models\ExpenseCategory;
 use App\Models\Group;
+use App\Models\Lead;
 use App\Models\Lesson;
 use App\Models\Student;
 use App\Services\AttendanceService;
@@ -39,6 +40,9 @@ it('counts group shares from lessons paid in the period, so prepaid money never 
     $this->get(route('reports', ['from' => '2026-11-01', 'to' => '2026-11-19']))
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->where('groups.0.income', 0)
+            ->where('groups.0.teacher_percent', 40)
+            ->where('groups.0.monthly_plan', 600_000)
+            ->where('groups.0.charged', 150_000)
             ->where('groups.0.revenue', 150_000)
             ->where('groups.0.teacher_share', 60_000)
             ->where('groups.0.center_share', 90_000));
@@ -113,4 +117,31 @@ it('shows teacher money as start of period + earned − paid = end of period', f
             ->where('teachers.0.earned', 20_000)
             ->where('teachers.0.paid', 40_000)
             ->where('teachers.0.closing', 0));
+});
+
+it('shows the lead funnel: how many leads joined a group and paid', function () {
+    $this->travelTo('2026-11-10 10:00:00');
+    $this->actingAs(userWithRole(Role::Superadmin));
+    $group = Group::factory()->priced(600_000, 12, '2026-11-01')->create();
+    $cashbox = Cashbox::factory()->create(['branch_id' => $group->branch_id]);
+    $lead = fn (string $name, string $status) => Lead::query()->create(['branch_id' => $group->branch_id, 'full_name' => $name, 'phone' => '+998901234567', 'source' => 'instagram', 'status' => $status]);
+
+    $lead('New One', 'new');
+    $lead('Said No', 'rejected');
+    $joined = $lead('Joined One', 'converted');
+    $student = Student::factory()->create(['branch_id' => $group->branch_id]);
+    $joined->update(['student_id' => $student->id]);
+    $enrollment = app(EnrollmentService::class)->enroll($student, $group, CarbonImmutable::parse('2026-11-10'));
+    app(FinanceService::class)->receivePayment($enrollment, $cashbox, 100_000);
+
+    $this->get(route('reports', ['from' => '2026-11-01', 'to' => '2026-11-19']))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('leadSources.0.total', 3)
+            ->where('leadSources.0.contacted', 2)
+            ->where('leadSources.0.joined', 1)
+            ->where('leadSources.0.studying', 1)
+            ->where('leadSources.0.paid', 1)
+            ->where('leadSources.0.rejected', 1)
+            ->where('studentFlow.joined', 1)
+            ->where('studentFlow.left', 0));
 });

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ChargeStatus;
 use App\Enums\EnrollmentStatus;
+use App\Enums\LeadStatus;
 use App\Enums\LedgerAccount;
 use App\Enums\TransactionType;
 use App\Models\Cashbox;
@@ -11,11 +13,13 @@ use App\Models\Enrollment;
 use App\Models\Group;
 use App\Models\Lead;
 use App\Models\LedgerEntry;
+use App\Models\LessonCharge;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Support\Exports\XlsxExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -101,12 +105,27 @@ class ReportController extends Controller
                     ->first();
                 $revenue = (int) $earned?->getAttribute('revenue');
                 $teacher = (int) $earned?->getAttribute('teacher');
+                // What students must pay for the lessons held in the period (written-off part excluded).
+                $charged = (int) LessonCharge::query()->where('status', ChargeStatus::Active)
+                    ->whereBetween('lesson_date', [$from->toDateString(), $to->toDateString()])
+                    ->whereHas('enrollment', fn ($q) => $q->where('group_id', $group->id))
+                    ->sum(DB::raw('amount - written_off_amount'));
+                $studying = $group->enrollments()->whereIn('status', [EnrollmentStatus::Active, EnrollmentStatus::Trial])->get();
+                $price = $group->priceFor($to);
+                $monthlyPlan = $price === null ? 0 : (int) $studying->where('status', EnrollmentStatus::Active)
+                    ->sum(fn (Enrollment $e) => $e->discountedMonthlyPrice($price->monthly_price));
+                $percents = $studying->map(fn (Enrollment $e) => $e->teacher_percent ?? $group->teacher_percent)->unique()->values();
 
                 return [
                     'is_active' => $group->status === 'active',
                     'group' => $group->name,
                     'teacher' => $group->teacher?->name,
-                    'students' => $group->enrollments()->whereIn('status', [EnrollmentStatus::Active, EnrollmentStatus::Trial])->count(),
+                    'students' => $studying->count(),
+                    'teacher_percent' => $group->teacher_percent,
+                    // Some students have their own percent: show the range.
+                    'percent_range' => $percents->count() > 1 ? [$percents->min(), $percents->max()] : null,
+                    'monthly_plan' => $monthlyPlan,
+                    'charged' => $charged,
                     'income' => $income,
                     'revenue' => $revenue,
                     'teacher_share' => $teacher,
@@ -114,17 +133,49 @@ class ReportController extends Controller
                 ];
             })
             // Closed groups stay in the report for the periods they had money in.
-            ->filter(fn (array $row, int $key) => $row['income'] !== 0 || $row['revenue'] !== 0 || $row['is_active'])
+            ->filter(fn (array $row, int $key) => $row['income'] !== 0 || $row['revenue'] !== 0 || $row['charged'] !== 0 || $row['is_active'])
             ->map(fn (array $row) => collect($row)->except('is_active')->all())
             ->sortByDesc('income')->values();
 
-        $leadSources = Lead::query()->whereIn('branch_id', $branchIds)->whereBetween('created_at', [$from, $to])->get()
-            ->groupBy(fn (Lead $lead) => $lead->source->value)
-            ->map(fn ($items, $source) => [
-                'source' => $source,
+        // Lead funnel for leads created in the period: contacted → trial → joined a group → paid.
+        $periodLeads = Lead::query()->whereIn('branch_id', $branchIds)->whereBetween('created_at', [$from, $to])
+            ->with('student.enrollments.payments')
+            ->get();
+        $funnel = function ($items): array {
+            $enrollments = fn (Lead $lead) => $lead->student === null ? collect() : $lead->student->enrollments;
+
+            return [
                 'total' => $items->count(),
-                'converted' => $items->where('status.value', 'converted')->count(),
-            ])->sortByDesc('total')->values();
+                'contacted' => $items->filter(fn (Lead $lead) => $lead->status !== LeadStatus::New)->count(),
+                'trial' => $items->filter(fn (Lead $lead) => $lead->status === LeadStatus::Trial
+                    || $enrollments($lead)->contains(fn (Enrollment $e) => $e->trial_lessons > 0))->count(),
+                'joined' => $items->filter(fn (Lead $lead) => $enrollments($lead)->isNotEmpty())->count(),
+                'studying' => $items->filter(fn (Lead $lead) => $enrollments($lead)
+                    ->contains(fn (Enrollment $e) => $e->status === EnrollmentStatus::Active))->count(),
+                'paid' => $items->filter(fn (Lead $lead) => $enrollments($lead)
+                    ->contains(fn (Enrollment $e) => $e->payments->whereNull('reversed_at')->isNotEmpty()))->count(),
+                'rejected' => $items->filter(fn (Lead $lead) => $lead->status === LeadStatus::Rejected)->count(),
+            ];
+        };
+        $leadSources = $periodLeads->groupBy(fn (Lead $lead) => $lead->source->value)
+            ->map(fn ($items, $source) => ['source' => $source, ...$funnel($items)])
+            ->sortByDesc('total')->values();
+        $leadCourses = $periodLeads->groupBy(fn (Lead $lead) => $lead->interested_course ?? '')
+            ->map(fn ($items, $course) => ['course' => $course === '' ? null : $course, ...$funnel($items)])
+            ->sortByDesc('total')->values();
+        $studentFlow = [
+            'leads' => $funnel($periodLeads),
+            // Every enrollment, not only ones that came from leads.
+            'joined' => Enrollment::query()->whereHas('group', fn ($q) => $q->whereIn('branch_id', $branchIds))
+                ->whereNull('transferred_from_id')
+                ->whereBetween('joined_at', [$from->toDateString(), $to->toDateString()])->count(),
+            'transferred' => Enrollment::query()->whereHas('group', fn ($q) => $q->whereIn('branch_id', $branchIds))
+                ->whereNotNull('transferred_from_id')
+                ->whereBetween('joined_at', [$from->toDateString(), $to->toDateString()])->count(),
+            'left' => Enrollment::query()->whereHas('group', fn ($q) => $q->whereIn('branch_id', $branchIds))
+                ->where('status', EnrollmentStatus::Left)
+                ->whereBetween('left_at', [$from->toDateString(), $to->toDateString()])->count(),
+        ];
 
         if ($request->query('export') === 'debtors') {
             return XlsxExport::download('qarzdorlar.xlsx', ['Student', 'Phone', 'Group', 'Debt'],
@@ -140,6 +191,8 @@ class ReportController extends Controller
             'debtors' => $debtors,
             'groups' => $groups,
             'leadSources' => $leadSources,
+            'leadCourses' => $leadCourses,
+            'studentFlow' => $studentFlow,
         ]);
     }
 }

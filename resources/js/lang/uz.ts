@@ -62,6 +62,25 @@ export const uz: Record<string, string> = {
     'At period end': 'Davr oxirida',
     'Start of period + earned − paid = end of period. Salaries paid in this period can include money earned earlier, so paid may be more than earned.':
         "Davr boshidagi qoldiq + ishlagan − berilgan = davr oxiridagi qoldiq. Bu davrda berilgan oylik oldingi oylarda ishlangan pulni ham o'z ichiga oladi, shuning uchun berilgan summa ishlagandan ko'p bo'lishi mumkin.",
+    'Monthly plan': 'Oylik reja',
+    'To be received': 'Qabul qilinishi kerak',
+    'Monthly plan: monthly price of active students after discounts. To be received: price of the lessons held in the period. Shares are counted from lessons held and paid in this period, so money paid earlier for these lessons is included.':
+        "Oylik reja — faol o'quvchilarning chegirmadan keyingi oylik narxi. Qabul qilinishi kerak — davrda o'tilgan darslar narxi. Ulushlar shu davrda o'tilgan va to'langan darslardan hisoblanadi: bu darslar uchun oldinroq to'langan pul ham kiradi.",
+    Contacted: "Bog'lanildi",
+    'Trial lesson': 'Sinov darsi',
+    'Joined a group': "Guruhga qo'shildi",
+    'Studying now': "Hozir o'qiyapti",
+    Paid: "To'lov qildi",
+    Rejected: 'Rad etdi',
+    'By source': "Manba bo'yicha",
+    'By course': "Kurs bo'yicha",
+    'Leads who joined a group': "Guruhga qo'shilgan lidlar",
+    'Students added to groups': "Guruhga qo'shilgan o'quvchilar",
+    'Left groups': 'Guruhdan chiqqanlar',
+    'Leads and students': "Lidlar va o'quvchilar",
+    '+:count moved from other groups': "+:count ta boshqa guruhdan o'tkazilgan",
+    'Leads created in the period and how far they got: contacted, came to a trial lesson, joined a group, study now, paid. Conversion = joined a group ÷ leads.':
+        "Davrda kelgan lidlar va ular qayergacha yetgani: bog'lanildi, sinov darsiga keldi, guruhga qo'shildi, hozir o'qiyapti, to'lov qildi. Konversiya = guruhga qo'shilgan ÷ lidlar.",
     'Attendance can be marked only on the lesson day. Later changes are made by the administrator.':
         "Davomat faqat dars kuni belgilanadi. Keyingi o'zgarishlarni administrator qiladi.",
     'Attendance journal': 'Davomat jurnali',
