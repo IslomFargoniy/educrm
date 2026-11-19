@@ -34,9 +34,12 @@ rsync -az --delete "$ROOT/landing/" "$SERVER:/tmp/mensalc-upload/landing/"
 echo "→ Installing on the server"
 ssh "$SERVER" bash -s <<REMOTE
 set -euo pipefail
-sudo rsync -a --delete --exclude '.env' --exclude 'storage/' --exclude 'docroot-index.php' /tmp/mensalc-upload/app/ ${APP_DIR}/
+artisan() { sudo -u ${SITE_USER} -H bash -c "cd ${APP_DIR} && php artisan \$*"; }
+# Maintenance page while files change; files land with the site owner right away, so PHP never sees unreadable files.
+artisan down --retry=15 || true
+sudo rsync -a --delete --chown=${SITE_USER}:${SITE_USER} --exclude '.env' --exclude 'storage/' --exclude 'docroot-index.php' /tmp/mensalc-upload/app/ ${APP_DIR}/
 sudo mkdir -p ${APP_DIR}/storage/{app/public,framework/{cache/data,sessions,views},logs} ${APP_DIR}/bootstrap/cache
-sudo rsync -a --exclude 'index.php' --exclude 'storage' ${APP_DIR}/public/ ${DOC_ROOT}/
+sudo rsync -a --chown=${SITE_USER}:${SITE_USER} --exclude 'index.php' --exclude 'storage' ${APP_DIR}/public/ ${DOC_ROOT}/
 sudo install -m 644 /tmp/mensalc-upload/app/docroot-index.php ${DOC_ROOT}/index.php
 sudo ln -sfn ${APP_DIR}/storage/app/public ${DOC_ROOT}/storage
 sudo chown -R ${SITE_USER}:${SITE_USER} ${APP_DIR} ${DOC_ROOT}
@@ -44,8 +47,6 @@ sudo chown -h ${SITE_USER}:${SITE_USER} ${DOC_ROOT}/storage
 sudo rsync -a --delete /tmp/mensalc-upload/landing/ ${LANDING_ROOT}/
 sudo chown -R ${LANDING_USER}:${LANDING_USER} ${LANDING_ROOT}
 sudo rm -rf /tmp/mensalc-upload
-artisan() { sudo -u ${SITE_USER} -H bash -c "cd ${APP_DIR} && php artisan \$*"; }
-artisan down --retry=15 || true
 artisan migrate --force
 artisan db:seed --force
 artisan optimize:clear >/dev/null
