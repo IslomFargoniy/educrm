@@ -164,7 +164,11 @@ fun LessonScreen(api: EduCrmApi, lessonId: Int, onBack: () -> Unit) {
     LaunchedEffect(reload) {
         state = runCatching { api.lesson(lessonId) }.fold({ data ->
             statuses.clear()
-            data.students.forEach { s -> s.status?.let { statuses[s.enrollment_id] = it } }
+            // Students the face terminal saw come in are pre-marked present; saving confirms it.
+            data.students.forEach { s ->
+                val prefill = if (data.can_mark && data.lesson.status != "cancelled" && s.arrived_at != null) "present" else null
+                (s.status ?: prefill)?.let { statuses[s.enrollment_id] = it }
+            }
             Load.Ready(data)
         }, { Load.Failed(it.readableMessage(networkError)) })
     }
@@ -187,6 +191,15 @@ fun LessonScreen(api: EduCrmApi, lessonId: Int, onBack: () -> Unit) {
         )
         LoadBox(state, { reload++ }) { data ->
             Column(Modifier.fillMaxSize().padding(bottom = LocalBottomBarInset.current - 12.dp)) {
+                val arrived = data.students.count { it.arrived_at != null }
+                if (data.can_mark && arrived > 0) {
+                    Text(
+                        stringResource(R.string.face_arrived_summary, arrived, data.students.size),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp),
+                    )
+                }
                 if (!data.can_mark) {
                     Text(
                         stringResource(R.string.cannot_mark),
@@ -201,7 +214,10 @@ fun LessonScreen(api: EduCrmApi, lessonId: Int, onBack: () -> Unit) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     RowNumber(index + 1)
                                     Initials(student.full_name, size = 38)
-                                    Text(student.full_name, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f).padding(horizontal = 10.dp))
+                                    Column(Modifier.weight(1f).padding(horizontal = 10.dp)) {
+                                        Text(student.full_name, fontWeight = FontWeight.Bold)
+                                        student.arrived_at?.let { Text("● " + stringResource(R.string.came_at, it), color = eduCrm.success, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold) }
+                                    }
                                     if (student.is_trial) Pill(stringResource(R.string.trial), Orange)
                                     if (student.is_debtor == true) Box(Modifier.padding(start = 4.dp)) { Pill(stringResource(R.string.debtor), eduCrm.danger) }
                                 }

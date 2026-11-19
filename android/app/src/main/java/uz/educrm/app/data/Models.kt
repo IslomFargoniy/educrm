@@ -58,6 +58,7 @@ data class RosterStudent(
     val enrollment_id: Int,
     val full_name: String,
     val status: String? = null,
+    val arrived_at: String? = null,
     val is_trial: Boolean = false,
     val is_debtor: Boolean? = null,
 )

@@ -646,4 +646,46 @@ export const uz: Record<string, string> = {
     Theme: 'Mavzu',
     'You will be prompted for a secure, random pin during login, which you can retrieve from the TOTP-supported application on your phone.':
         "Kirishda sizdan xavfsiz, tasodifiy PIN-kod so'raladi. Uni telefoningizdagi TOTP'ni qo'llab-quvvatlaydigan ilovadan olasiz.",
+    Devices: 'Qurilmalar',
+    'Hikvision face terminals connected over ISUP. A student who passes is pre-marked as present in the lesson attendance.':
+        "ISUP orqali ulangan Hikvision Face ID qurilmalari. Qurilmadan o'tgan o'quvchi dars davomatida oldindan «Keldi» deb belgilanadi.",
+    'The device gateway is not running on the server, so devices cannot connect.':
+        'Serverda qurilmalar shlyuzi ishlamayapti, qurilmalar ulana olmaydi.',
+    'e.g. Main entrance': 'masalan: Asosiy kirish',
+    Entrance: 'Kirish',
+    Exit: 'Chiqish',
+    Online: 'Ulangan',
+    Offline: 'Uzilgan',
+    'Last seen :time': "So'nggi ulanish: :time",
+    'Never connected': 'Hali ulanmagan',
+    ':count failed': ':count ta xato',
+    'Server address': 'Server manzili',
+    Port: 'Port',
+    'ISUP key': 'ISUP kalit',
+    'On the terminal: Network → Platform Access → ISUP 5.0, turn it on and enter:':
+        'Qurilmada: Network → Platform Access → ISUP 5.0 ni yoqing va kiriting:',
+    Copy: 'Nusxalash',
+    'Copied.': 'Nusxalandi.',
+    'Protocol version ISUP 5.0, address type IP. The device connects by itself; no port needs to be opened at the center.':
+        "Protokol versiyasi ISUP 5.0, manzil turi IP. Qurilma o'zi ulanadi, markazda port ochish shart emas.",
+    'Last IP: :ip': "So'nggi IP: :ip",
+    'Send all students again': "Barcha o'quvchilarni qayta yuborish",
+    Delete: "O'chirish",
+    'Face photo': 'Yuz rasmi',
+    Change: "O'zgartirish",
+    'Add photo': "Rasm qo'shish",
+    'Delete the photo? The student is removed from the devices.':
+        "Rasm o'chirilsinmi? O'quvchi qurilmalardan ham o'chiriladi.",
+    'A clear front photo of the face. It is sent to the devices of the branches the student studies in.':
+        "Yuzning old tomondan aniq rasmi. U o'quvchi o'qiydigan filiallar qurilmalariga yuboriladi.",
+    'Arrivals and departures': 'Kelib-ketish',
+    'Came in': 'Kirdi',
+    'Went out': 'Chiqdi',
+    'Came in through the face terminal': "Face ID qurilmasidan o'tib kirdi",
+    'came at :time': ':time da keldi',
+    'Face terminal: :arrived of :total students came in. Check and save.':
+        "Face ID bo'yicha :total ta o'quvchidan :arrived tasi keldi. Tekshirib, saqlang.",
+    'From the face terminals: for each day, when the student first came in and last went out.':
+        "Face ID qurilmalaridan: har kuni o'quvchi birinchi marta qachon kirgani va oxirgi marta qachon chiqqani.",
+    Passes: "O'tishlar",
 };

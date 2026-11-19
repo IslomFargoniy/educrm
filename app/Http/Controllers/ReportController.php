@@ -14,6 +14,7 @@ use App\Models\Group;
 use App\Models\Lead;
 use App\Models\LedgerEntry;
 use App\Models\LessonCharge;
+use App\Models\StudentVisit;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Support\Exports\XlsxExport;
@@ -196,6 +197,32 @@ class ReportController extends Controller
                 ->whereBetween('left_at', [$from->toDateString(), $to->toDateString()])->count(),
         ];
 
+        // Face terminal passes: one row per student per day (first entrance, last exit).
+        $visits = StudentVisit::query()
+            ->whereIn('branch_id', $branchIds)
+            ->whereNotNull('student_id')
+            ->whereBetween('scanned_at', [$from, $to])
+            ->with('student:id,full_name')
+            ->orderByDesc('scanned_at')
+            ->limit(5000)
+            ->get()
+            ->groupBy(fn (StudentVisit $visit) => $visit->scanned_at->toDateString().'|'.$visit->student_id)
+            ->map(function ($passes) {
+                $first = $passes->where('direction', 'in')->sortBy('scanned_at')->first();
+                $last = $passes->where('direction', 'out')->sortByDesc('scanned_at')->first();
+                $any = $passes->first();
+
+                return [
+                    'date' => $any->scanned_at->toDateString(),
+                    'student_id' => $any->student_id,
+                    'student' => $any->student?->full_name,
+                    'first_in' => $first?->scanned_at->format('H:i'),
+                    'last_out' => $last?->scanned_at->format('H:i'),
+                    'passes' => $passes->count(),
+                ];
+            })
+            ->values();
+
         if ($request->query('export') === 'debtors') {
             return XlsxExport::download('qarzdorlar.xlsx', ['Student', 'Phone', 'Group', 'Debt'],
                 array_values($debtors->map(fn ($d) => [$d['student'], $d['phone'], $d['group'], $d['debt']])->all()));
@@ -213,6 +240,7 @@ class ReportController extends Controller
             'leadCourses' => $leadCourses,
             'courses' => $courseRows,
             'studentFlow' => $studentFlow,
+            'visits' => $visits,
         ]);
     }
 }

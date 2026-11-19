@@ -18,6 +18,7 @@ use App\Services\AttendanceService;
 use App\Services\CoverageService;
 use App\Services\EnrollmentService;
 use App\Services\FinanceService;
+use App\Services\Isup\Arrivals;
 use App\Support\Phone;
 use App\Support\Presenters\History;
 use Illuminate\Http\JsonResponse;
@@ -69,20 +70,23 @@ class MobileController extends Controller
         return response()->json(['date' => $date->toDateString(), 'lessons' => $lessons]);
     }
 
-    public function lesson(Request $request, Lesson $lesson, AttendanceService $attendance): JsonResponse
+    public function lesson(Request $request, Lesson $lesson, AttendanceService $attendance, Arrivals $arrivals): JsonResponse
     {
         $user = $request->user();
         $this->authorizeBranch($lesson->group->branch_id);
         abort_unless($lesson->teacher_id === $user->id || $user->can('groups.view'), 403);
         $statuses = $lesson->attendances()->pluck('status', 'enrollment_id');
+        $roster = $attendance->rosterFor($lesson);
+        $arrived = $arrivals->forLesson($lesson, $roster->pluck('student_id')->map(fn ($id) => (int) $id)->all());
 
         return response()->json([
             'lesson' => ['id' => $lesson->id, 'group' => $lesson->group->name, 'date' => $lesson->date->toDateString(), 'status' => $lesson->status->value],
             'can_mark' => $attendance->canMark($user, $lesson),
-            'students' => $attendance->rosterFor($lesson)->map(fn (Enrollment $e) => [
+            'students' => $roster->map(fn (Enrollment $e) => [
                 'enrollment_id' => $e->id,
                 'full_name' => $e->student->full_name,
                 'status' => $statuses[$e->id] ?? null,
+                'arrived_at' => $arrived[$e->student_id] ?? null,
                 'is_trial' => $e->status->value === 'trial',
                 'is_debtor' => $user->can('students.view_debt') ? $e->balance < 0 : null,
             ])->values(),

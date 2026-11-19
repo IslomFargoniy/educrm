@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\CashboxSettingsController;
 use App\Http\Controllers\Admin\CourseController;
+use App\Http\Controllers\Admin\DeviceController;
 use App\Http\Controllers\Admin\ExpenseCategoryController;
 use App\Http\Controllers\Admin\HolidayController;
 use App\Http\Controllers\Admin\ImportController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\PreferenceController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\StudentFaceController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\TelegramController;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -29,6 +31,9 @@ use Illuminate\Support\Facades\Route;
 Route::redirect('/', '/home');
 Route::permanentRedirect('mensa.apk', '/downloads/educrm.apk');
 Route::post('locale', [PreferenceController::class, 'locale'])->name('locale.update');
+
+// Face photo a terminal downloads (signed, expires).
+Route::get('isup/faces/{student}', [StudentFaceController::class, 'forDevice'])->middleware(['signed:relative', 'throttle:120,1'])->name('isup.face');
 
 Route::post('telegram/webhook/{secret}', [TelegramController::class, 'webhook'])
     ->withoutMiddleware([PreventRequestForgery::class])
@@ -49,6 +54,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('students/{student}', [StudentController::class, 'show'])->name('students.show');
     });
     Route::post('students', [StudentController::class, 'store'])->middleware('permission:students.create')->name('students.store');
+    Route::post('students/{student}/face', [StudentFaceController::class, 'store'])->middleware('permission:students.update')->name('students.face.store');
+    Route::delete('students/{student}/face', [StudentFaceController::class, 'destroy'])->middleware('permission:students.update')->name('students.face.destroy');
+    Route::get('students/{student}/face', [StudentFaceController::class, 'show'])->middleware('permission:students.update')->name('students.face.show');
     Route::patch('students/{student}', [StudentController::class, 'update'])->middleware('permission:students.update')->name('students.update');
     Route::post('students/{student}/guardians', [StudentController::class, 'storeGuardian'])->middleware('permission:students.update')->name('students.guardians.store');
     Route::delete('students/{student}/guardians/{guardian}', [StudentController::class, 'destroyGuardian'])->middleware('permission:students.update')->name('students.guardians.destroy');
@@ -121,6 +129,11 @@ Route::middleware(['auth'])->group(function () {
             Route::put('branches/{branch}', [BranchController::class, 'update'])->name('branches.update');
         });
         Route::middleware('permission:settings.manage')->group(function () {
+            Route::get('devices', [DeviceController::class, 'index'])->name('devices.index');
+            Route::post('devices', [DeviceController::class, 'store'])->name('devices.store');
+            Route::put('devices/{device}', [DeviceController::class, 'update'])->name('devices.update');
+            Route::delete('devices/{device}', [DeviceController::class, 'destroy'])->name('devices.destroy');
+            Route::post('devices/{device}/sync', [DeviceController::class, 'sync'])->name('devices.sync');
             Route::post('branches/{branch}/cashboxes', [CashboxSettingsController::class, 'store'])->name('cashboxes.store');
             Route::put('cashboxes/{cashbox}', [CashboxSettingsController::class, 'update'])->name('cashboxes.update');
             Route::get('courses', [CourseController::class, 'index'])->name('courses.index');

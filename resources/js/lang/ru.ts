@@ -640,4 +640,46 @@ export const ru: Record<string, string> = {
     Theme: 'Тема',
     'You will be prompted for a secure, random pin during login, which you can retrieve from the TOTP-supported application on your phone.':
         'При входе будет запрошен случайный PIN-код, который можно получить в приложении с поддержкой TOTP на вашем телефоне.',
+    Devices: 'Устройства',
+    'Hikvision face terminals connected over ISUP. A student who passes is pre-marked as present in the lesson attendance.':
+        'Терминалы Hikvision Face ID, подключённые по ISUP. Прошедший ученик заранее отмечается «Пришёл» в посещаемости урока.',
+    'The device gateway is not running on the server, so devices cannot connect.':
+        'Шлюз устройств на сервере не запущен, устройства не могут подключиться.',
+    'e.g. Main entrance': 'например: Главный вход',
+    Entrance: 'Вход',
+    Exit: 'Выход',
+    Online: 'В сети',
+    Offline: 'Не в сети',
+    'Last seen :time': 'Был в сети: :time',
+    'Never connected': 'Ещё не подключалось',
+    ':count failed': 'ошибок: :count',
+    'Server address': 'Адрес сервера',
+    Port: 'Порт',
+    'ISUP key': 'Ключ ISUP',
+    'On the terminal: Network → Platform Access → ISUP 5.0, turn it on and enter:':
+        'На терминале: Network → Platform Access → ISUP 5.0, включите и введите:',
+    Copy: 'Копировать',
+    'Copied.': 'Скопировано.',
+    'Protocol version ISUP 5.0, address type IP. The device connects by itself; no port needs to be opened at the center.':
+        'Версия протокола ISUP 5.0, тип адреса IP. Устройство подключается само, открывать порт в центре не нужно.',
+    'Last IP: :ip': 'Последний IP: :ip',
+    'Send all students again': 'Отправить всех учеников заново',
+    Delete: 'Удалить',
+    'Face photo': 'Фото лица',
+    Change: 'Изменить',
+    'Add photo': 'Добавить фото',
+    'Delete the photo? The student is removed from the devices.':
+        'Удалить фото? Ученик будет удалён и с устройств.',
+    'A clear front photo of the face. It is sent to the devices of the branches the student studies in.':
+        'Чёткое фото лица анфас. Оно отправляется на устройства филиалов, где учится ученик.',
+    'Arrivals and departures': 'Приход и уход',
+    'Came in': 'Вошёл',
+    'Went out': 'Вышел',
+    'Came in through the face terminal': 'Вошёл через терминал Face ID',
+    'came at :time': 'пришёл в :time',
+    'Face terminal: :arrived of :total students came in. Check and save.':
+        'По Face ID пришли :arrived из :total учеников. Проверьте и сохраните.',
+    'From the face terminals: for each day, when the student first came in and last went out.':
+        'С терминалов Face ID: за каждый день — когда ученик впервые вошёл и последний раз вышел.',
+    Passes: 'Проходы',
 };

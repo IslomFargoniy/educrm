@@ -25,6 +25,8 @@ import Money from '@/components/money';
 import PageHeader from '@/components/page-header';
 import PeriodFilter from '@/components/period-filter';
 import StatusBadge from '@/components/status-badge';
+import StudentFace from '@/components/student-face';
+import type { StudentFaceProps, StudentVisit } from '@/components/student-face';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import MoneyInput from '@/components/money-input';
@@ -126,6 +128,8 @@ type Props = {
     };
     enrollments: Enrollment[];
     payments: Payment[];
+    face: StudentFaceProps;
+    visits: StudentVisit[];
     period: { from: string; to: string };
     groups: { id: number; name: string; branch_id: number }[];
     cashboxes: {
@@ -140,6 +144,8 @@ export default function StudentShow({
     student,
     enrollments,
     payments,
+    face,
+    visits,
     period,
     groups,
     cashboxes,
@@ -260,6 +266,12 @@ export default function StudentShow({
                         <GuardianDialog studentId={student.id} />
                     )}
                 </section>
+
+                <StudentFace
+                    studentId={student.id}
+                    face={face}
+                    visits={visits}
+                />
 
                 {enrollments.length === 0 ? (
                     <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">

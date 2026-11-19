@@ -22,7 +22,7 @@ class SendNotification implements ShouldQueue
     /**
      * @param  array<string, scalar>  $params
      */
-    public function __construct(public int $userId, public string $template, public array $params) {}
+    public function __construct(public int $userId, public string $template, public array $params, public bool $telegramOnly = false) {}
 
     public function handle(TelegramClient $telegram, SmsSender $sms): void
     {
@@ -35,7 +35,7 @@ class SendNotification implements ShouldQueue
         $text = __('notifications.'.$this->template, $this->params, $user->locale ?? 'uz')."\n— ".config('app.name');
         $channel = $user->telegram_chat_id && $telegram->isConfigured() ? 'telegram' : 'sms';
 
-        if ($channel === 'sms' && (! $sms->isEnabled() || ! $user->phone)) {
+        if ($channel === 'sms' && ($this->telegramOnly || ! $sms->isEnabled() || ! $user->phone)) {
             return;
         }
 

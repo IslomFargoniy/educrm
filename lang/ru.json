@@ -96,5 +96,15 @@
     "Choose a teacher of this branch.": "Выберите преподавателя этого филиала.",
     "The teacher does not work in the branch of this cashbox.": "Преподаватель не работает в филиале этой кассы.",
     "With this price the discounted price of :students does not divide by :lessons lessons. Change their discount first.": "При этой цене цена со скидкой у :students не делится на :lessons уроков без остатка. Сначала измените их скидку.",
-    "Course added.": "Курс добавлен."
+    "Course added.": "Курс добавлен.",
+    "The device gateway is not running.": "Шлюз устройств не запущен.",
+    "The device is offline.": "Устройство не в сети.",
+    "The device did not answer (code :code).": "Устройство не ответило (код :code).",
+    "The device gave an unexpected answer.": "Устройство вернуло неожиданный ответ.",
+    "Device added. Enter its Device ID and ISUP key on the terminal.": "Устройство добавлено. Введите Device ID и ключ ISUP на терминале.",
+    "Device deleted.": "Устройство удалено.",
+    "Students are being sent to the device. It takes a few minutes.": "Ученики отправляются на устройство. Это займёт несколько минут.",
+    "Photo saved. It is being sent to the devices.": "Фото сохранено и отправляется на устройства.",
+    "Photo deleted. The student is removed from the devices.": "Фото удалено. Ученик удаляется с устройств.",
+    "The photo could not be read.": "Не удалось прочитать фото."
 }

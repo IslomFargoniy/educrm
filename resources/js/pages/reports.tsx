@@ -15,7 +15,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { formatMoney } from '@/lib/format';
+import { formatDate, formatMoney } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { reports } from '@/routes';
@@ -78,6 +78,14 @@ type Props = {
         transferred: number;
         left: number;
     };
+    visits: {
+        date: string;
+        student_id: number;
+        student: string | null;
+        first_in: string | null;
+        last_out: string | null;
+        passes: number;
+    }[];
 };
 
 type Funnel = {
@@ -102,6 +110,7 @@ export default function Reports({
     leadCourses,
     studentFlow,
     courses,
+    visits,
 }: Props) {
     const t = useT();
     const funnelHeads = (first: string) => [
@@ -116,7 +125,13 @@ export default function Reports({
         t('Conversion'),
     ];
     const [tab, setTab] = useState<
-        'finance' | 'teachers' | 'debtors' | 'groups' | 'courses' | 'leads'
+        | 'finance'
+        | 'teachers'
+        | 'debtors'
+        | 'groups'
+        | 'courses'
+        | 'leads'
+        | 'visits'
     >('finance');
     const sum = (type: string) => totals[type]?.total ?? 0;
     const income = sum('student_payment');
@@ -164,6 +179,7 @@ export default function Reports({
                             'groups',
                             'courses',
                             'leads',
+                            ...(visits.length > 0 ? (['visits'] as const) : []),
                         ] as const
                     ).map((key) => (
                         <button
@@ -185,6 +201,7 @@ export default function Reports({
                                     groups: 'Groups',
                                     courses: 'Courses',
                                     leads: 'Leads and students',
+                                    visits: 'Arrivals and departures',
                                 }[key],
                             )}
                         </button>
@@ -469,6 +486,38 @@ export default function Reports({
                                     `${courses.reduce((s, c) => s + c.leads_joined, 0)}/${courses.reduce((s, c) => s + c.leads, 0)}`,
                                 ]
                             }
+                        />
+                    </div>
+                )}
+
+                {tab === 'visits' && (
+                    <div className="space-y-2">
+                        <p className="text-sm text-muted-foreground">
+                            {t(
+                                'From the face terminals: for each day, when the student first came in and last went out.',
+                            )}
+                        </p>
+                        <SimpleTable
+                            heads={[
+                                t('Date'),
+                                t('Student'),
+                                t('Came in'),
+                                t('Went out'),
+                                t('Passes'),
+                            ]}
+                            rows={visits.map((v) => [
+                                formatDate(v.date),
+                                <Link
+                                    key="s"
+                                    href={students.show(v.student_id)}
+                                    className="font-semibold hover:underline"
+                                >
+                                    {v.student}
+                                </Link>,
+                                v.first_in ?? '—',
+                                v.last_out ?? '—',
+                                v.passes,
+                            ])}
                         />
                     </div>
                 )}

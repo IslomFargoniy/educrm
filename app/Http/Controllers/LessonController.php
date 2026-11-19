@@ -11,6 +11,7 @@ use App\Models\Lesson;
 use App\Models\User;
 use App\Services\AttendanceService;
 use App\Services\BillingService;
+use App\Services\Isup\Arrivals;
 use App\Services\ScheduleConflicts;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -56,14 +57,17 @@ class LessonController extends Controller
         return Inertia::render('lessons/index', ['lessons' => $lessons, 'date' => $date->toDateString()]);
     }
 
-    public function show(Request $request, Lesson $lesson, AttendanceService $attendance): Response
+    public function show(Request $request, Lesson $lesson, AttendanceService $attendance, Arrivals $arrivals): Response
     {
         $this->authorizeLesson($request, $lesson);
         $lesson->load('group.branch', 'teacher:id,name', 'room:id,name', 'attendances.audits.user:id,name');
         $user = $request->user();
         $statuses = $lesson->attendances->keyBy('enrollment_id');
 
-        $roster = $attendance->rosterFor($lesson)->map(function (Enrollment $enrollment) use ($statuses, $user) {
+        $enrollments = $attendance->rosterFor($lesson);
+        $arrived = $arrivals->forLesson($lesson, $enrollments->pluck('student_id')->map(fn ($id) => (int) $id)->all());
+
+        $roster = $enrollments->map(function (Enrollment $enrollment) use ($statuses, $user, $arrived) {
             $record = $statuses->get($enrollment->id);
             $trialMarked = $enrollment->status === EnrollmentStatus::Trial
                 ? $enrollment->charges()->where('status', ChargeStatus::PendingTrial)->count() : 0;
@@ -74,6 +78,7 @@ class LessonController extends Controller
                 'full_name' => $enrollment->student->full_name,
                 'phone' => $user->can('students.view_phone') ? $enrollment->student->phone : null,
                 'status' => $record?->status->value,
+                'arrived_at' => $arrived[$enrollment->student_id] ?? null,
                 'enrollment_status' => $enrollment->status->value,
                 'trial_left' => $enrollment->status === EnrollmentStatus::Trial ? max(0, $enrollment->trial_lessons - $trialMarked) : null,
                 'is_debtor' => $user->can('students.view_debt') ? $enrollment->balance < 0 : null,

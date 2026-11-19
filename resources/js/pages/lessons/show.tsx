@@ -41,6 +41,7 @@ type Props = {
         full_name: string;
         phone: string | null;
         status: Status | null;
+        arrived_at: string | null;
         enrollment_status: string;
         trial_left: number | null;
         is_debtor: boolean | null;
@@ -86,8 +87,18 @@ export default function LessonShow({
 }: Props) {
     const t = useT();
     const [statuses, setStatuses] = useState<Record<number, Status | null>>(
-        Object.fromEntries(roster.map((r) => [r.enrollment_id, r.status])),
+        // Students the face terminal saw come in are pre-marked present; the teacher confirms by saving.
+        Object.fromEntries(
+            roster.map((r) => [
+                r.enrollment_id,
+                r.status ??
+                    (canMark && lesson.status !== 'cancelled' && r.arrived_at
+                        ? 'present'
+                        : null),
+            ]),
+        ),
     );
+    const arrivedCount = roster.filter((r) => r.arrived_at).length;
     const [saving, setSaving] = useState(false);
     const changed = roster.some((r) => statuses[r.enrollment_id] !== r.status);
     const unmarked = roster.filter((r) => !statuses[r.enrollment_id]).length;
@@ -291,6 +302,17 @@ export default function LessonShow({
                                 </Button>
                             </div>
                         )}
+                        {arrivedCount > 0 && (
+                            <p className="text-sm text-muted-foreground">
+                                {t(
+                                    'Face terminal: :arrived of :total students came in. Check and save.',
+                                    {
+                                        arrived: arrivedCount,
+                                        total: roster.length,
+                                    },
+                                )}
+                            </p>
+                        )}
                         {roster.map((r, index) => (
                             <div
                                 key={r.enrollment_id}
@@ -312,6 +334,19 @@ export default function LessonShow({
                                         )}
                                     </div>
                                     <div className="flex flex-wrap gap-x-3 text-xs text-muted-foreground">
+                                        {r.arrived_at && (
+                                            <span
+                                                className="font-semibold text-success"
+                                                title={t(
+                                                    'Came in through the face terminal',
+                                                )}
+                                            >
+                                                ●{' '}
+                                                {t('came at :time', {
+                                                    time: r.arrived_at,
+                                                })}
+                                            </span>
+                                        )}
                                         {r.phone && (
                                             <span>{formatPhone(r.phone)}</span>
                                         )}

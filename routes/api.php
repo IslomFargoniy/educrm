@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\IsupGatewayController;
 use App\Http\Controllers\Api\MobileController;
 use App\Http\Controllers\Api\PublicController;
+use App\Http\Middleware\VerifyIsupGateway;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->name('api.')->group(function () {
@@ -26,4 +28,11 @@ Route::prefix('v1')->name('api.')->group(function () {
         Route::post('leads', [MobileController::class, 'storeLead'])->name('leads.store');
         Route::get('me/balance', [MobileController::class, 'myBalance'])->name('me.balance');
     });
+});
+
+// Callbacks of the ISUP gateway (scripts/isup-gateway), shared token only.
+Route::prefix('isup')->name('isup.')->middleware(VerifyIsupGateway::class)->group(function () {
+    Route::get('device-key', [IsupGatewayController::class, 'deviceKey'])->name('device-key');
+    Route::post('device-status', [IsupGatewayController::class, 'deviceStatus'])->name('device-status');
+    Route::post('events', [IsupGatewayController::class, 'events'])->name('events');
 });

@@ -6,10 +6,12 @@ use App\Enums\ChargeStatus;
 use App\Enums\LeadStatus;
 use App\Enums\Role;
 use App\Models\Cashbox;
+use App\Models\Device;
 use App\Models\Enrollment;
 use App\Models\Group;
 use App\Models\Lead;
 use App\Models\Student;
+use App\Models\StudentVisit;
 use App\Models\User;
 use App\Services\BillingService;
 use App\Services\CoverageService;
@@ -205,6 +207,23 @@ class StudentController extends Controller
             ],
             'enrollments' => $enrollments,
             'payments' => $payments,
+            'face' => [
+                'photo' => $student->face_photo !== null ? route('students.face.show', ['student' => $student->id, 'v' => md5($student->face_photo)]) : null,
+                'devices' => $student->devices()->with('branch:id,name')->get()->map(fn (Device $device) => [
+                    'id' => $device->id,
+                    'name' => $device->name.' · '.$device->branch->name,
+                    'status' => $device->sync->status,
+                    'error' => $device->sync->error,
+                    'synced_at' => $device->sync->synced_at?->toIso8601String(),
+                ])->values(),
+                'has_devices' => Device::query()->whereIn('branch_id', $branchIds)->exists(),
+            ],
+            'visits' => $student->visits()->with('device:id,name')->latest('scanned_at')->limit(50)->get()->map(fn (StudentVisit $visit) => [
+                'id' => $visit->id,
+                'scanned_at' => $visit->scanned_at->toIso8601String(),
+                'direction' => $visit->direction,
+                'device' => $visit->device?->name,
+            ])->values(),
             'period' => ['from' => $from->toDateString(), 'to' => $to->toDateString()],
             'groups' => Group::query()->whereIn('branch_id', $branchIds)->where('status', 'active')->orderBy('name')->get(['id', 'name', 'branch_id']),
             'cashboxes' => Cashbox::query()->whereIn('branch_id', $branchIds)->where('is_active', true)->orderBy('name')->get(['id', 'name', 'branch_id', 'method']),

@@ -96,5 +96,15 @@
     "Choose a teacher of this branch.": "Shu filialning o'qituvchisini tanlang.",
     "The teacher does not work in the branch of this cashbox.": "O'qituvchi bu kassa filialida ishlamaydi.",
     "With this price the discounted price of :students does not divide by :lessons lessons. Change their discount first.": "Bu narxda :students uchun chegirmali narx :lessons darsga qoldiqsiz bo'linmaydi. Avval ularning chegirmasini o'zgartiring.",
-    "Course added.": "Kurs qo'shildi."
+    "Course added.": "Kurs qo'shildi.",
+    "The device gateway is not running.": "Qurilmalar shlyuzi ishlamayapti.",
+    "The device is offline.": "Qurilma ulanmagan.",
+    "The device did not answer (code :code).": "Qurilma javob bermadi (kod :code).",
+    "The device gave an unexpected answer.": "Qurilma kutilmagan javob qaytardi.",
+    "Device added. Enter its Device ID and ISUP key on the terminal.": "Qurilma qo'shildi. Device ID va ISUP kalitni qurilmaga kiriting.",
+    "Device deleted.": "Qurilma o'chirildi.",
+    "Students are being sent to the device. It takes a few minutes.": "O'quvchilar qurilmaga yuborilmoqda. Bir necha daqiqa davom etadi.",
+    "Photo saved. It is being sent to the devices.": "Rasm saqlandi va qurilmalarga yuborilmoqda.",
+    "Photo deleted. The student is removed from the devices.": "Rasm o'chirildi. O'quvchi qurilmalardan o'chiriladi.",
+    "The photo could not be read.": "Rasmni o'qib bo'lmadi."
 }

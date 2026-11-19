@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
-#[Fillable(['full_name', 'first_name', 'last_name', 'phone', 'birth_date', 'branch_id', 'user_id', 'lead_id', 'status', 'note'])]
+#[Fillable(['full_name', 'first_name', 'last_name', 'phone', 'birth_date', 'branch_id', 'user_id', 'lead_id', 'status', 'note', 'face_photo'])]
 class Student extends Model
 {
     /** @use HasFactory<StudentFactory> */
@@ -72,5 +72,47 @@ class Student extends Model
         $query->where(fn (Builder $q) => $q
             ->whereIn('branch_id', $branchIds)
             ->orWhereHas('enrollments.group', fn (Builder $g) => $g->whereIn('branch_id', $branchIds)));
+    }
+
+    /**
+     * Face terminals the student was written to.
+     *
+     * @return BelongsToMany<Device, $this, DeviceStudent, 'sync'>
+     */
+    public function devices(): BelongsToMany
+    {
+        return $this->belongsToMany(Device::class)->using(DeviceStudent::class)->as('sync')->withPivot('status', 'error', 'synced_at')->withTimestamps();
+    }
+
+    /**
+     * @return HasMany<StudentVisit, $this>
+     */
+    public function visits(): HasMany
+    {
+        return $this->hasMany(StudentVisit::class);
+    }
+
+    /**
+     * Branches whose terminals should know the student: own branch and branches of groups being studied.
+     *
+     * @return list<int>
+     */
+    public function faceBranchIds(): array
+    {
+        $groupBranches = $this->enrollments()
+            ->whereIn('enrollments.status', ['trial', 'active'])
+            ->join('groups', 'groups.id', '=', 'enrollments.group_id')
+            ->pluck('groups.branch_id')
+            ->all();
+
+        return array_values(array_unique(array_map('intval', [$this->branch_id, ...$groupBranches])));
+    }
+
+    /**
+     * Whether the student currently studies in some group (only they are kept on the terminals).
+     */
+    public function isStudying(): bool
+    {
+        return $this->enrollments()->whereIn('status', ['trial', 'active'])->exists();
     }
 }
