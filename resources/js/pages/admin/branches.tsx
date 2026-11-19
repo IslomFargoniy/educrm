@@ -6,6 +6,7 @@ import Money from '@/components/money';
 import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import PhoneInput from '@/components/phone-input';
 import { NativeSelect } from '@/components/ui/native-select';
 import { useCan } from '@/hooks/use-can';
 import { useT } from '@/lib/i18n';
@@ -326,7 +327,7 @@ function BranchFields({
                 <Input name="address" defaultValue={branch?.address ?? ''} />
             </Field>
             <Field label={t('Phone')} error={errors.phone}>
-                <Input name="phone" defaultValue={branch?.phone ?? ''} />
+                <PhoneInput name="phone" defaultValue={branch?.phone ?? ''} />
             </Field>
             {branch && (
                 <Field label={t('Status')}>

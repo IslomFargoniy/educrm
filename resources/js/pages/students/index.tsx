@@ -10,6 +10,7 @@ import Pagination from '@/components/pagination';
 import type { Paginated } from '@/components/pagination';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import PhoneInput from '@/components/phone-input';
 import { NativeSelect } from '@/components/ui/native-select';
 import {
     Table,
@@ -193,11 +194,7 @@ function NewStudentDialog({ groups }: { groups: Props['groups'] }) {
                         <Input name="full_name" required autoFocus />
                     </Field>
                     <Field label={t('Phone')} error={errors.phone}>
-                        <Input
-                            name="phone"
-                            type="tel"
-                            placeholder="+998 90 123 45 67"
-                        />
+                        <PhoneInput name="phone" />
                     </Field>
                     <Field label={t('Birth date')} error={errors.birth_date}>
                         <Input name="birth_date" type="date" />
@@ -213,11 +210,7 @@ function NewStudentDialog({ groups }: { groups: Props['groups'] }) {
                         error={errors.guardian_phone}
                         hint={t('A parent account is created with this phone.')}
                     >
-                        <Input
-                            name="guardian_phone"
-                            type="tel"
-                            placeholder="+998 90 123 45 67"
-                        />
+                        <PhoneInput name="guardian_phone" />
                     </Field>
                     <Field label={t('Group')} error={errors.group_id}>
                         <NativeSelect name="group_id" defaultValue="">

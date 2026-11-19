@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import PhoneInput from '@/components/phone-input';
 import { Label } from '@/components/ui/label';
 import { NativeSelect } from '@/components/ui/native-select';
 import {
@@ -17,6 +18,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { formatPhone } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import admin from '@/routes/admin';
 
@@ -107,7 +109,7 @@ export default function Users({
                                             {user.name}
                                         </div>
                                         <div className="text-xs text-muted-foreground">
-                                            {user.phone}
+                                            {formatPhone(user.phone)}
                                         </div>
                                     </TableCell>
                                     <TableCell>
@@ -194,13 +196,7 @@ function UserFields({
                 <Input name="name" defaultValue={user?.name} required />
             </Field>
             <Field label={t('Phone')} error={errors.phone}>
-                <Input
-                    name="phone"
-                    type="tel"
-                    defaultValue={user?.phone}
-                    required
-                    placeholder="+998 90 123 45 67"
-                />
+                <PhoneInput name="phone" defaultValue={user?.phone} required />
             </Field>
             <Field label={t('Email (optional)')} error={errors.email}>
                 <Input

@@ -6,6 +6,7 @@ import PageHeader from '@/components/page-header';
 import StatusBadge from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import PhoneInput from '@/components/phone-input';
 import { NativeSelect } from '@/components/ui/native-select';
 import { Textarea } from '@/components/ui/textarea';
 import { useCan } from '@/hooks/use-can';
@@ -116,7 +117,7 @@ export default function LeadShow({
                                                         errors.guardian_phone
                                                     }
                                                 >
-                                                    <Input
+                                                    <PhoneInput
                                                         name="guardian_phone"
                                                         defaultValue={
                                                             lead.phone

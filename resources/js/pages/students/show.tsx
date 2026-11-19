@@ -27,6 +27,7 @@ import StatusBadge from '@/components/status-badge';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import PhoneInput from '@/components/phone-input';
 import { NativeSelect } from '@/components/ui/native-select';
 import {
     Table,
@@ -1042,7 +1043,7 @@ function EditStudentDialog({ student }: { student: Props['student'] }) {
                         />
                     </Field>
                     <Field label={t('Phone')} error={errors.phone}>
-                        <Input
+                        <PhoneInput
                             name="phone"
                             defaultValue={student.phone ?? ''}
                         />
@@ -1086,12 +1087,7 @@ function GuardianDialog({ studentId }: { studentId: number }) {
                         <Input name="name" required />
                     </Field>
                     <Field label={t('Phone')} error={errors.phone}>
-                        <Input
-                            name="phone"
-                            type="tel"
-                            required
-                            placeholder="+998 90 123 45 67"
-                        />
+                        <PhoneInput name="phone" required />
                     </Field>
                     <Field label={t('Relation')} error={errors.relation}>
                         <NativeSelect name="relation" defaultValue="mother">

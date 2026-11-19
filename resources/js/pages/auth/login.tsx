@@ -3,7 +3,7 @@ import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
+import PhoneInput from '@/components/phone-input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { useT } from '@/lib/i18n';
@@ -25,16 +25,12 @@ export default function Login({ status }: { status?: string }) {
                     <div className="grid gap-5">
                         <div className="grid gap-2">
                             <Label htmlFor="phone">{t('Phone number')}</Label>
-                            <Input
+                            <PhoneInput
                                 id="phone"
-                                type="tel"
                                 name="phone"
                                 required
                                 autoFocus
                                 tabIndex={1}
-                                autoComplete="tel"
-                                inputMode="tel"
-                                placeholder="+998 90 123 45 67"
                             />
                             <InputError message={errors.phone} />
                         </div>

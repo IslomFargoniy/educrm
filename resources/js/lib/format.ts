@@ -138,3 +138,44 @@ export function shiftMonth(value: string, by: number): string {
 function pad(value: number): string {
     return value.toString().padStart(2, '0');
 }
+
+/**
+ * Extracts the 9 local digits of an Uzbek phone number from any input
+ * ("+998 90 123 45 67", "998901234567", "901234567").
+ */
+export function phoneLocalDigits(value: string | null | undefined): string {
+    const raw = (value ?? '').trim();
+
+    if (raw.startsWith('+998')) {
+        return raw.slice(4).replace(/\D/g, '').slice(0, 9);
+    }
+
+    const digits = raw.replace(/\D/g, '');
+
+    return (
+        digits.length >= 12 && digits.startsWith('998')
+            ? digits.slice(3)
+            : digits
+    ).slice(0, 9);
+}
+
+/**
+ * Formats a phone number as "+998 90 123 45 67" (partial input is formatted
+ * as far as it goes; an empty value stays empty).
+ */
+export function formatPhone(value: string | null | undefined): string {
+    const local = phoneLocalDigits(value);
+
+    if (local === '') {
+        return '';
+    }
+
+    const parts = [
+        local.slice(0, 2),
+        local.slice(2, 5),
+        local.slice(5, 7),
+        local.slice(7, 9),
+    ].filter(Boolean);
+
+    return `+998 ${parts.join(' ')}`;
+}

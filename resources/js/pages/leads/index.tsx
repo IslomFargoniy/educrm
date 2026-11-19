@@ -9,6 +9,7 @@ import type { Paginated } from '@/components/pagination';
 import StatusBadge from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import PhoneInput from '@/components/phone-input';
 import { NativeSelect } from '@/components/ui/native-select';
 import {
     Table,
@@ -19,7 +20,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { useCan } from '@/hooks/use-can';
-import { formatDate, today } from '@/lib/format';
+import { formatDate, today, formatPhone } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import leads from '@/routes/leads';
@@ -175,7 +176,7 @@ export default function LeadsIndex({
                                                 {lead.full_name}
                                             </Link>
                                             <div className="text-xs text-muted-foreground">
-                                                {lead.phone}
+                                                {formatPhone(lead.phone)}
                                             </div>
                                         </TableCell>
                                         <TableCell>
@@ -241,12 +242,10 @@ export function LeadFields({
                 />
             </Field>
             <Field label={t('Phone')} error={errors.phone}>
-                <Input
+                <PhoneInput
                     name="phone"
-                    type="tel"
                     defaultValue={values?.phone}
                     required
-                    placeholder="+998 90 123 45 67"
                 />
             </Field>
             <Field label={t('Source')} error={errors.source}>

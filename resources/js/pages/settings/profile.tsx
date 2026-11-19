@@ -5,6 +5,7 @@ import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { NativeSelect } from '@/components/ui/native-select';
+import { formatPhone } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import { edit } from '@/routes/profile';
 
@@ -50,7 +51,10 @@ export default function Profile() {
                                     'The phone number is changed by the administrator.',
                                 )}
                             >
-                                <Input value={auth.user.phone ?? ''} disabled />
+                                <Input
+                                    value={formatPhone(auth.user.phone)}
+                                    disabled
+                                />
                             </Field>
 
                             <Field

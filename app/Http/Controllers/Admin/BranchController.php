@@ -6,6 +6,7 @@ use App\Enums\CashboxMethod;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\Room;
+use App\Support\Phone;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -87,10 +88,12 @@ class BranchController extends Controller
      */
     private function validated(Request $request): array
     {
+        $request->merge(['phone' => Phone::normalize($request->input('phone'))]);
+
         return $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'address' => ['nullable', 'string', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:20'],
+            'phone' => ['nullable', 'regex:/^\+998\d{9}$/'],
             'is_active' => ['boolean'],
         ]);
     }
