@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Enums\EnrollmentStatus;
+use App\Enums\LedgerAccount;
 use App\Enums\TransactionType;
+use App\Models\Cashbox;
 use App\Models\ChargeCoverage;
 use App\Models\Enrollment;
 use App\Models\Group;
 use App\Models\Lead;
+use App\Models\LedgerEntry;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Support\Exports\XlsxExport;
@@ -32,6 +35,13 @@ class ReportController extends Controller
 
         $totals = $transactions()->selectRaw('type, SUM(amount) as total, COUNT(*) as count')->groupBy('type')->get()
             ->mapWithKeys(fn ($row) => [$row->type->value => ['total' => (int) $row->getAttribute('total'), 'count' => (int) $row->getAttribute('count')]]);
+
+        // Exact change of money in the cashboxes: every cash movement, reversals and withdrawals included.
+        $cashChange = (int) LedgerEntry::query()
+            ->where('account_type', LedgerAccount::Cashbox)
+            ->whereIn('account_id', Cashbox::query()->whereIn('branch_id', $branchIds)->select('id'))
+            ->whereHas('transaction', fn ($q) => $q->whereBetween('occurred_at', [$from, $to]))
+            ->sum('amount');
 
         $expenses = $transactions()->where('type', TransactionType::Expense)
             ->with('expenseCategory:id,name')->get()
@@ -62,7 +72,7 @@ class ReportController extends Controller
                 'group' => $e->group->name, 'debt' => -$e->balance, 'status' => $e->status->value,
             ]);
 
-        $groups = Group::query()->whereIn('branch_id', $branchIds)->where('status', 'active')->with('teacher:id,name')->get()
+        $groups = Group::query()->whereIn('branch_id', $branchIds)->with('teacher:id,name')->get()
             ->map(function (Group $group) use ($from, $to) {
                 $income = (int) Transaction::query()->where('type', TransactionType::StudentPayment)->whereNull('reversed_at')
                     ->whereBetween('occurred_at', [$from, $to])->where('meta->group_id', $group->id)->sum('amount');
@@ -76,6 +86,7 @@ class ReportController extends Controller
                 $teacher = (int) $earned?->getAttribute('teacher');
 
                 return [
+                    'is_active' => $group->status === 'active',
                     'group' => $group->name,
                     'teacher' => $group->teacher?->name,
                     'students' => $group->enrollments()->whereIn('status', [EnrollmentStatus::Active, EnrollmentStatus::Trial])->count(),
@@ -84,7 +95,11 @@ class ReportController extends Controller
                     'teacher_share' => $teacher,
                     'center_share' => $revenue - $teacher,
                 ];
-            })->sortByDesc('income')->values();
+            })
+            // Closed groups stay in the report for the periods they had money in.
+            ->filter(fn (array $row, int $key) => $row['income'] !== 0 || $row['revenue'] !== 0 || $row['is_active'])
+            ->map(fn (array $row) => collect($row)->except('is_active')->all())
+            ->sortByDesc('income')->values();
 
         $leadSources = Lead::query()->whereIn('branch_id', $branchIds)->whereBetween('created_at', [$from, $to])->get()
             ->groupBy(fn (Lead $lead) => $lead->source->value)
@@ -102,6 +117,7 @@ class ReportController extends Controller
         return Inertia::render('reports', [
             'period' => ['from' => $from->toDateString(), 'to' => $to->toDateString()],
             'totals' => $totals,
+            'cashChange' => $cashChange,
             'expenses' => $expenses,
             'teachers' => $teacherEarnings,
             'debtors' => $debtors,

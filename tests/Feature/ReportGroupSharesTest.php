@@ -3,6 +3,7 @@
 use App\Enums\Role;
 use App\Models\Cashbox;
 use App\Models\Enrollment;
+use App\Models\ExpenseCategory;
 use App\Models\Group;
 use App\Models\Lesson;
 use App\Models\Student;
@@ -43,4 +44,43 @@ it('counts group shares from lessons paid in the period, so prepaid money never 
             ->where('groups.0.center_share', 90_000));
 
     expect(Enrollment::query()->find($enrollment->id)->balance)->toBe(450_000);
+});
+
+it('shows the exact change in cashboxes for the period, reversals and expenses included', function () {
+    $this->travelTo('2026-11-10 10:00:00');
+    $this->actingAs(userWithRole(Role::Superadmin));
+    $group = Group::factory()->priced(600_000, 12, '2026-11-01')->create();
+    $cashbox = Cashbox::factory()->create(['branch_id' => $group->branch_id]);
+    $student = Student::factory()->create(['branch_id' => $group->branch_id]);
+    $enrollment = app(EnrollmentService::class)->enroll($student, $group, CarbonImmutable::parse('2026-11-01'));
+    $finance = app(FinanceService::class);
+
+    $finance->receivePayment($enrollment, $cashbox, 600_000);
+    $mistake = $finance->receivePayment($enrollment->fresh(), $cashbox->fresh(), 200_000);
+    $this->travelTo('2026-11-11 10:00:00');
+    $finance->reversePayment($mistake->fresh(), 'Xato');
+    $finance->expense($cashbox->fresh(), ExpenseCategory::query()->create(['name' => 'Ijara']), 50_000);
+
+    $this->get(route('reports', ['from' => '2026-11-01', 'to' => '2026-11-30']))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('cashChange', 550_000)
+            ->where('totals.student_payment.total', 600_000));
+
+    expect($cashbox->fresh()->balance)->toBe(550_000);
+});
+
+it('keeps a closed group in the report for a period it had payments in', function () {
+    $this->travelTo('2026-11-10 10:00:00');
+    $this->actingAs(userWithRole(Role::Superadmin));
+    $group = Group::factory()->priced(600_000, 12, '2026-11-01')->create();
+    $cashbox = Cashbox::factory()->create(['branch_id' => $group->branch_id]);
+    $enrollment = app(EnrollmentService::class)->enroll(Student::factory()->create(['branch_id' => $group->branch_id]), $group, CarbonImmutable::parse('2026-11-01'));
+    app(FinanceService::class)->receivePayment($enrollment, $cashbox, 300_000);
+    $group->update(['status' => 'closed']);
+
+    $this->get(route('reports', ['from' => '2026-11-01', 'to' => '2026-11-30']))
+        ->assertInertia(fn (AssertableInertia $page) => $page->has('groups', 1)->where('groups.0.income', 300_000));
+
+    $this->get(route('reports', ['from' => '2026-12-01', 'to' => '2026-12-31']))
+        ->assertInertia(fn (AssertableInertia $page) => $page->has('groups', 0));
 });

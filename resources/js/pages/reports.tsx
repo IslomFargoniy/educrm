@@ -24,6 +24,7 @@ import teachers from '@/routes/teachers';
 type Props = {
     period: { from: string; to: string };
     totals: Record<string, { total: number; count: number }>;
+    cashChange: number;
     expenses: { category: string; total: number }[];
     teachers: {
         teacher: string | null;
@@ -55,6 +56,7 @@ type Props = {
 export default function Reports({
     period,
     totals,
+    cashChange,
     expenses,
     teachers: teacherRows,
     debtors,
@@ -67,7 +69,6 @@ export default function Reports({
     >('finance');
     const sum = (type: string) => totals[type]?.total ?? 0;
     const income = sum('student_payment');
-    const spent = sum('expense') + sum('teacher_payout') + sum('refund');
     const maxExpense = Math.max(1, ...expenses.map((e) => e.total));
 
     return (
@@ -99,7 +100,7 @@ export default function Reports({
                         tone="success"
                         label={t('Profit withdrawn')}
                         value={formatMoney(sum('owner_withdrawal'))}
-                        hint={`${t('Cash flow')}: ${formatMoney(income - spent)}`}
+                        hint={`${t('Change in cashboxes')}: ${formatMoney(cashChange)}`}
                     />
                 </div>
 

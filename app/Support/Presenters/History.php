@@ -119,7 +119,8 @@ final class History
                 'student' => $charge->enrollment->student->full_name,
                 'group' => $charge->enrollment->group->name,
                 'lesson_date' => $charge->lesson_date->toDateString(),
-                'amount' => $charge->teacherShareOf($charge->amount) - $charge->teacherShareOf($charge->covered_amount),
+                // Written-off money never arrives, so the teacher waits only for the rest.
+                'amount' => $charge->teacherShareOf($charge->amount - $charge->written_off_amount) - $charge->teacherShareOf($charge->covered_amount),
                 'is_substitute' => $charge->is_substitute,
             ]);
 

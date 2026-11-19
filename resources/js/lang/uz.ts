@@ -185,6 +185,7 @@ export const uz: Record<string, string> = {
     'Lesson revenue': 'Darslar daromadi',
     'Shares are counted from lessons held and paid in this period, so money paid earlier for these lessons is included.':
         "Ulushlar shu davrda o'tilgan va to'langan darslardan hisoblanadi: bu darslar uchun oldinroq to'langan pul ham kiradi.",
+    'Change in cashboxes': "Kassalardagi o'zgarish",
     Leads: 'Lidlar',
     Lessons: 'Darslar',
     'Leaves the group': 'Guruhdan chiqadi',

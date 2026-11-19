@@ -181,6 +181,7 @@ export const ru: Record<string, string> = {
     'Lesson revenue': 'Доход с уроков',
     'Shares are counted from lessons held and paid in this period, so money paid earlier for these lessons is included.':
         'Доли считаются по урокам, проведённым и оплаченным за период, включая деньги, внесённые за эти уроки заранее.',
+    'Change in cashboxes': 'Изменение в кассах',
     Leads: 'Лиды',
     Lessons: 'Уроки',
     'Leaves the group': 'Уходит из группы',
