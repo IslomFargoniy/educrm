@@ -148,35 +148,13 @@ private fun FormulaRow(label: String, value: String, color: Color = MaterialThem
 }
 
 /**
- * Debts: the teacher's share waiting for payment, and the students' own debts, in two tabs.
+ * Lessons taught whose students have not paid yet (the teacher's share waits for them), by student.
  */
 @Composable
 fun DebtsScreen(api: EduCrmApi) {
-    var tab by rememberSaveable { mutableStateOf(0) }
-
     Column(Modifier.fillMaxSize()) {
-        ScreenHeader(title = stringResource(R.string.debts), bottom = {
-            Row(
-                Modifier.padding(end = 12.dp, top = 6.dp).fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Color.White.copy(alpha = 0.10f)).padding(4.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                listOf(R.string.tab_share_waiting, R.string.tab_student_debts).forEachIndexed { index, label ->
-                    val selected = tab == index
-                    Text(
-                        stringResource(label),
-                        color = if (selected) eduCrm.bar else Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.weight(1f).clip(RoundedCornerShape(9.dp))
-                            .background(if (selected) Color.White else Color.Transparent)
-                            .clickable { tab = index }
-                            .padding(vertical = 9.dp),
-                    )
-                }
-            }
-        })
-        if (tab == 0) ShareWaitingTab(api) else StudentDebtsTab(api)
+        ScreenHeader(title = stringResource(R.string.debts))
+        ShareWaitingTab(api)
     }
 }
 
@@ -204,58 +182,6 @@ private fun ShareWaitingTab(api: EduCrmApi) {
                     data.pending.items.groupBy { it.student to it.group }.entries.forEachIndexed { index, (key, lessons) ->
                         HorizontalDivider(Modifier.padding(vertical = 8.dp), color = eduCrm.border)
                         PendingStudentRow(index + 1, key.first, key.second, lessons)
-                    }
-                }
-            }
-        }
-    }
-}
-
-/** Students of the teacher's groups and what they owe the center (debtors first). */
-@Composable
-private fun StudentDebtsTab(api: EduCrmApi) {
-    var state by remember { mutableStateOf<Load<MyStudentsResponse>>(Load.Loading) }
-    var reload by remember { mutableStateOf(0) }
-    var onlyDebtors by rememberSaveable { mutableStateOf(false) }
-    val networkError = stringResource(R.string.error_network)
-
-    LaunchedEffect(reload) {
-        state = runCatching { api.myStudents() }.fold({ Load.Ready(it) }, { Load.Failed(it.readableMessage(networkError)) })
-    }
-
-    LoadBox(state, { reload++ }) { data ->
-        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(contentPadding()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            EduCrmCard {
-                Column(Modifier.padding(16.dp)) {
-                    Text(stringResource(R.string.students_debt_total), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text(money(-data.debt) + " " + stringResource(R.string.sum), fontWeight = FontWeight.ExtraBold, fontSize = 22.sp, color = if (data.debt > 0) eduCrm.danger else MaterialTheme.colorScheme.onSurface)
-                    Text(stringResource(R.string.debtors_of_students, data.debtors, data.students.size), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Row(Modifier.padding(top = 6.dp).clip(RoundedCornerShape(10.dp)).clickable { onlyDebtors = !onlyDebtors }, verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(checked = onlyDebtors, onCheckedChange = { onlyDebtors = it })
-                        Text(stringResource(R.string.only_debtors), fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(end = 8.dp))
-                    }
-                    val rows = if (onlyDebtors) data.students.filter { it.balance < 0 } else data.students
-                    if (rows.isEmpty()) Text("—", modifier = Modifier.padding(top = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    rows.forEachIndexed { index, s ->
-                        HorizontalDivider(Modifier.padding(vertical = 8.dp), color = eduCrm.border)
-                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                            RowNumber(index + 1)
-                            Column(Modifier.weight(1f)) {
-                                Text(s.student, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
-                                val details = listOfNotNull(s.group, if (s.status == "trial") stringResource(R.string.trial) else null, s.phone?.let { formatPhone(it) }).joinToString(" · ")
-                                Text(details, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                            Text(
-                                money(s.balance),
-                                fontWeight = FontWeight.Bold,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = when {
-                                    s.balance < 0 -> eduCrm.danger
-                                    s.balance > 0 -> eduCrm.success
-                                    else -> MaterialTheme.colorScheme.onSurfaceVariant
-                                },
-                            )
-                        }
                     }
                 }
             }
