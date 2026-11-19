@@ -10,7 +10,7 @@ return [
     /*
     | What the admin types into the terminal (Platform Access → ISUP).
     */
-    'server_address' => env('ISUP_SERVER_ADDRESS', '93.92.112.90'),
+    'server_address' => env('ISUP_SERVER_ADDRESS', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST) ?: 'localhost'),
     'server_port' => (int) env('ISUP_SERVER_PORT', 7660),
 
     /*

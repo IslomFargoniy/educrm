@@ -12,6 +12,8 @@
 #include <chrono>
 #include <cstdlib>
 #include <cstring>
+#include <arpa/inet.h>
+#include <netdb.h>
 #include <iostream>
 #include <map>
 #include <mutex>
@@ -74,6 +76,21 @@ static std::string randomKey() {
     std::string key;
     for (int i = 0; i < 16; ++i) key += chars[rd() % (sizeof(chars) - 1)];
     return key;
+}
+
+/** IPv4 address of a host name (or the address itself); devices need a numeric alarm server address. */
+static std::string resolveIp(const std::string& host) {
+    in_addr probe{};
+    if (inet_pton(AF_INET, host.c_str(), &probe) == 1) return host;
+
+    addrinfo hints{};
+    hints.ai_family = AF_INET;
+    addrinfo* result = nullptr;
+    if (getaddrinfo(host.c_str(), nullptr, &hints, &result) != 0 || !result) return "";
+    char buf[INET_ADDRSTRLEN] = {0};
+    inet_ntop(AF_INET, &((sockaddr_in*)result->ai_addr)->sin_addr, buf, sizeof(buf));
+    freeaddrinfo(result);
+    return buf;
 }
 
 static std::string urlEncode(const std::string& value) {
@@ -236,13 +253,22 @@ int main() {
         env("CRM_HOST", "127.0.0.1"),
         std::stoi(env("CRM_PORT", "80")),
         env("CRM_HOSTNAME", "localhost"),
-        env("PUBLIC_IP", "127.0.0.1"),
+        env("PUBLIC_ADDRESS", env("PUBLIC_IP", "127.0.0.1")),
         std::stoi(env("CMS_PORT", "7660")),
         std::stoi(env("ALARM_PORT", "7662")),
         env("API_HOST", "127.0.0.1"),
         std::stoi(env("API_PORT", "7671")),
         env("GATEWAY_TOKEN", ""),
     };
+    // PUBLIC_ADDRESS is the CRM domain; it points at whatever server runs the CRM now.
+    std::string publicIp = resolveIp(g_cfg.publicIp);
+    if (publicIp.empty()) {
+        std::cerr << "cannot resolve PUBLIC_ADDRESS " << g_cfg.publicIp << std::endl;
+        return 1;
+    }
+    std::cout << "Public address " << g_cfg.publicIp << " = " << publicIp << std::endl;
+    g_cfg.publicIp = publicIp;
+
     if (g_cfg.token.size() < 24) {
         std::cerr << "GATEWAY_TOKEN must be set (24+ characters)" << std::endl;
         return 1;

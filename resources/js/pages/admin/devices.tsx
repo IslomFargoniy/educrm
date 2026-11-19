@@ -243,7 +243,7 @@ function DeviceDetails({
                 </dl>
                 <p className="mt-2 text-xs text-muted-foreground">
                     {t(
-                        'Protocol version ISUP 5.0, address type IP. The device connects by itself; no port needs to be opened at the center.',
+                        'Protocol version ISUP 5.0, address type: domain name. The device connects by itself; no port needs to be opened at the center, and it keeps working if the CRM moves to another server.',
                     )}
                     {device.ip && ' ' + t('Last IP: :ip', { ip: device.ip })}
                 </p>

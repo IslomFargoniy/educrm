@@ -666,8 +666,8 @@ export const uz: Record<string, string> = {
         'Qurilmada: Network → Platform Access → ISUP 5.0 ni yoqing va kiriting:',
     Copy: 'Nusxalash',
     'Copied.': 'Nusxalandi.',
-    'Protocol version ISUP 5.0, address type IP. The device connects by itself; no port needs to be opened at the center.':
-        "Protokol versiyasi ISUP 5.0, manzil turi IP. Qurilma o'zi ulanadi, markazda port ochish shart emas.",
+    'Protocol version ISUP 5.0, address type: domain name. The device connects by itself; no port needs to be opened at the center, and it keeps working if the CRM moves to another server.':
+        "Protokol versiyasi ISUP 5.0, manzil turi: domen nomi. Qurilma o'zi ulanadi, markazda port ochish shart emas. CRM boshqa serverga ko'chsa ham ishlayveradi.",
     'Last IP: :ip': "So'nggi IP: :ip",
     'Send all students again': "Barcha o'quvchilarni qayta yuborish",
     Delete: "O'chirish",

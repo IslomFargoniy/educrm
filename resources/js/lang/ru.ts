@@ -660,8 +660,8 @@ export const ru: Record<string, string> = {
         'На терминале: Network → Platform Access → ISUP 5.0, включите и введите:',
     Copy: 'Копировать',
     'Copied.': 'Скопировано.',
-    'Protocol version ISUP 5.0, address type IP. The device connects by itself; no port needs to be opened at the center.':
-        'Версия протокола ISUP 5.0, тип адреса IP. Устройство подключается само, открывать порт в центре не нужно.',
+    'Protocol version ISUP 5.0, address type: domain name. The device connects by itself; no port needs to be opened at the center, and it keeps working if the CRM moves to another server.':
+        'Версия протокола ISUP 5.0, тип адреса: доменное имя. Устройство подключается само, открывать порт в центре не нужно, и оно продолжит работать после переезда CRM на другой сервер.',
     'Last IP: :ip': 'Последний IP: :ip',
     'Send all students again': 'Отправить всех учеников заново',
     Delete: 'Удалить',
