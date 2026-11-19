@@ -864,4 +864,5 @@ export const uz: Record<string, string> = {
         "KPI: yangi o'quvchining birinchi to'lovi uchun",
     'Taken in by': 'Qabul qilgan',
     'Taken in by (for the KPI)': 'Qabul qilgan xodim (KPI uchun)',
+    'My salary': 'Mening oyligim',
 };

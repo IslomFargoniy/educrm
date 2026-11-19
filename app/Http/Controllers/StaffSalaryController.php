@@ -19,12 +19,17 @@ class StaffSalaryController extends Controller
     public function index(Request $request, StaffSalary $salaries): Response
     {
         $month = preg_match('/^\d{4}-\d{2}$/', (string) $request->input('month')) ? (string) $request->input('month') : now()->format('Y-m');
-        $branchIds = $this->branchIds();
+        $user = $request->user();
+        // Without the reports permission a staff member sees only their own pay.
+        $own = ! $user->can('reports.view');
+        abort_if($own && $user->salary_fixed === null && $user->kpi_first_payment === null, 403);
+        $branchIds = $own ? $user->accessibleBranchIds() : $this->branchIds();
 
         return Inertia::render('staff-salaries', [
             'month' => $month,
-            'staff' => $salaries->forMonth($month, $branchIds),
-            'cashboxes' => $request->user()->can('payouts.create')
+            'own' => $own,
+            'staff' => $salaries->forMonth($month, $branchIds, $own ? $user->id : null),
+            'cashboxes' => ! $own && $user->can('payouts.create')
                 ? Cashbox::query()->whereIn('branch_id', $branchIds)->where('is_active', true)->orderBy('name')->get(['id', 'name', 'balance', 'branch_id'])
                 : [],
         ]);

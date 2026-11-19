@@ -21,7 +21,7 @@ class StaffSalary
      * @param  list<int>  $branchIds
      * @return array<int, array<string, mixed>>
      */
-    public function forMonth(string $month, array $branchIds): array
+    public function forMonth(string $month, array $branchIds, ?int $onlyUserId = null): array
     {
         $start = CarbonImmutable::parse($month.'-01')->startOfMonth();
         $end = $start->endOfMonth();
@@ -35,6 +35,7 @@ class StaffSalary
 
         $staff = User::query()
             ->where('is_active', true)
+            ->when($onlyUserId, fn ($q, $id) => $q->whereKey($id))
             ->where(fn ($q) => $q->whereNotNull('salary_fixed')->orWhereNotNull('kpi_first_payment'))
             ->where(fn ($q) => $q->whereHas('roles', fn ($r) => $r->where('name', 'superadmin'))
                 ->orWhereHas('branches', fn ($b) => $b->whereIn('branches.id', $branchIds)))

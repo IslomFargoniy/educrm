@@ -47,7 +47,11 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'locale' => app()->getLocale(),
             'auth' => [
-                'user' => $user?->only(['id', 'name', 'first_name', 'last_name', 'phone', 'email', 'locale', 'two_factor_enabled', 'created_at', 'updated_at']),
+                'user' => $user === null ? null : [
+                    ...$user->only(['id', 'name', 'first_name', 'last_name', 'phone', 'email', 'locale', 'two_factor_enabled', 'created_at', 'updated_at']),
+                    // Staff with a fixed salary or a KPI see their own pay page.
+                    'has_salary' => $user->salary_fixed !== null || $user->kpi_first_payment !== null,
+                ],
                 'roles' => fn () => $user?->getRoleNames()->all() ?? [],
                 'permissions' => fn () => $user === null ? [] : ($user->isSuperadmin()
                     ? Permissions::all()

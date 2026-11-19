@@ -53,3 +53,20 @@ it('pays an administrator the fixed salary plus 20 000 for each new student whos
     $this->get(route('staff-salaries.index', ['month' => '2026-11']))->assertInertia(fn (AssertableInertia $page) => $page
         ->where('staff.0.paid', 300_000)->where('staff.0.left', 2_240_000));
 });
+
+it('shows a manager only their own salary and KPI', function () {
+    $group = Group::factory()->create();
+    $manager = userWithRole(Role::Manager, [$group->branch]);
+    $admin = userWithRole(Role::Admin, [$group->branch]);
+    $admin->update(['salary_fixed' => 2_500_000]);
+
+    $this->actingAs($manager)->get(route('staff-salaries.index'))->assertForbidden();
+
+    $manager->update(['salary_fixed' => 2_000_000, 'kpi_first_payment' => 15_000]);
+    $this->actingAs($manager->fresh())->get(route('staff-salaries.index'))->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('own', true)
+        ->has('staff', 1)
+        ->where('staff.0.id', $manager->id)
+        ->where('staff.0.total', 2_000_000)
+        ->where('cashboxes', []));
+});

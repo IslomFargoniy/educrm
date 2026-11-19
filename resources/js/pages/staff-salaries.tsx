@@ -49,14 +49,16 @@ type Staff = {
 
 type Props = {
     month: string;
+    own: boolean;
     staff: Staff[];
     cashboxes: { id: number; name: string; balance: number }[];
 };
 
-export default function StaffSalaries({ month, staff, cashboxes }: Props) {
+export default function StaffSalaries({ month, own, staff, cashboxes }: Props) {
     const t = useT();
     const locale = useLocale();
-    const { can } = useCan();
+    const { can: canDo } = useCan();
+    const can = (permission: string) => !own && canDo(permission);
     const [open, setOpen] = useState<number | null>(null);
     const go = (value: string) =>
         router.get(
@@ -106,10 +108,10 @@ export default function StaffSalaries({ month, staff, cashboxes }: Props) {
 
     return (
         <>
-            <Head title={t('Staff salaries')} />
+            <Head title={own ? t('My salary') : t('Staff salaries')} />
             <div className="flex flex-col gap-4 p-4 md:p-6">
                 <PageHeader
-                    title={t('Staff salaries')}
+                    title={own ? t('My salary') : t('Staff salaries')}
                     description={t(
                         'Fixed salary + KPI for every new student the staff member took in who made the first payment this month. The KPI comes out of the center’s share.',
                     )}

@@ -1,3 +1,4 @@
+import { usePage } from '@inertiajs/react';
 import {
     BarChart3,
     BookOpen,
@@ -33,6 +34,7 @@ import type { NavItem } from '@/types';
  */
 export function useNavItems(): { main: NavItem[]; settings: NavItem[] } {
     const { can, hasRole } = useCan();
+    const { auth } = usePage().props;
     const t = useT();
     const isPortalUser = hasRole('parent') || hasRole('student');
     const isTeacher = hasRole('teacher');
@@ -107,8 +109,8 @@ export function useNavItems(): { main: NavItem[]; settings: NavItem[] } {
             href: teachers.index(),
             icon: Users,
         },
-        can('reports.view') && {
-            title: t('Staff salaries'),
+        (can('reports.view') || Boolean(auth.user?.has_salary)) && {
+            title: can('reports.view') ? t('Staff salaries') : t('My salary'),
             href: staffSalaries.index(),
             icon: HandCoins,
         },

@@ -859,4 +859,5 @@ export const ru: Record<string, string> = {
         'KPI за первую оплату нового ученика',
     'Taken in by': 'Принял',
     'Taken in by (for the KPI)': 'Принял сотрудник (для KPI)',
+    'My salary': 'Моя зарплата',
 };
