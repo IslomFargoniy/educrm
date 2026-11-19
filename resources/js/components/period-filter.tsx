@@ -18,7 +18,15 @@ export default function PeriodFilter({
     const apply = (next: { from?: string; to?: string }) =>
         router.get(
             window.location.pathname,
-            { from, to, ...next },
+            {
+                // Keep the page's other filters (group, teacher, ...) when the period changes.
+                ...Object.fromEntries(
+                    new URLSearchParams(window.location.search),
+                ),
+                from,
+                to,
+                ...next,
+            },
             { preserveScroll: true, preserveState: true, only },
         );
 

@@ -148,3 +148,32 @@ it('shows the lead funnel: how many leads joined a group and paid', function () 
             ->where('studentFlow.joined', 1)
             ->where('studentFlow.left', 0));
 });
+
+it('filters the report by group, teacher, course, student and lesson days', function () {
+    $this->travelTo('2026-11-10 10:00:00');
+    $this->actingAs(userWithRole(Role::Superadmin));
+    $teacher = userWithRole(Role::Teacher);
+    $odd = Group::factory()->priced(600_000, 12, '2026-11-01')->create(['name' => 'Toq', 'days' => [1, 3, 5], 'teacher_id' => $teacher->id]);
+    $even = Group::factory()->priced(600_000, 12, '2026-11-01')->create(['name' => 'Juft', 'days' => [2, 4, 6], 'branch_id' => $odd->branch_id]);
+    $cashbox = Cashbox::factory()->create(['branch_id' => $odd->branch_id]);
+    $ali = Student::factory()->create(['branch_id' => $odd->branch_id]);
+    $vali = Student::factory()->create(['branch_id' => $odd->branch_id]);
+    app(FinanceService::class)->receivePayment(app(EnrollmentService::class)->enroll($ali, $odd, CarbonImmutable::parse('2026-11-02')), $cashbox, 100_000);
+    app(FinanceService::class)->receivePayment(app(EnrollmentService::class)->enroll($vali, $even, CarbonImmutable::parse('2026-11-03')), $cashbox, 200_000);
+    $range = ['from' => '2026-11-01', 'to' => '2026-11-30'];
+
+    $this->get(route('reports', $range))->assertInertia(fn (AssertableInertia $page) => $page
+        ->has('groups', 2)->where('totals.student_payment.total', 300_000)->where('cashChange', 300_000));
+
+    $this->get(route('reports', [...$range, 'days' => [2, 4]]))->assertInertia(fn (AssertableInertia $page) => $page
+        ->has('groups', 1)->where('groups.0.group', 'Juft')->where('totals.student_payment.total', 200_000)->where('cashChange', null));
+
+    $this->get(route('reports', [...$range, 'teacher_id' => $teacher->id]))->assertInertia(fn (AssertableInertia $page) => $page
+        ->has('groups', 1)->where('groups.0.group', 'Toq')->where('totals.student_payment.total', 100_000));
+
+    $this->get(route('reports', [...$range, 'student_id' => $vali->id]))->assertInertia(fn (AssertableInertia $page) => $page
+        ->has('groups', 1)->where('groups.0.income', 200_000)->where('filters.student_id', $vali->id));
+
+    $this->get(route('reports', [...$range, 'group_id' => $odd->id]))->assertInertia(fn (AssertableInertia $page) => $page
+        ->has('groups', 1)->where('groups.0.group', 'Toq')->has('filterOptions.groups', 2));
+});

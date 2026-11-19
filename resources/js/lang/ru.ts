@@ -727,4 +727,11 @@ export const ru: Record<string, string> = {
     ':n excused': 'уважительная: :n',
     'This lesson has not happened yet. Attendance is marked on the lesson day.':
         'Этот урок ещё не прошёл. Посещаемость отмечается в день урока.',
+    'All teachers': 'Все преподаватели',
+    'All courses': 'Все курсы',
+    'Find student': 'Найти ученика',
+    'Lesson days': 'Дни уроков',
+    'Clear filters': 'Сбросить фильтры',
+    'Filtered: payments, groups, courses, debtors and leads follow the filter. Expenses and cashbox change are not tied to a group, so they are not shown.':
+        'Фильтр включён: оплаты, группы, курсы, должники и лиды по фильтру. Расходы и изменение касс не привязаны к группе, поэтому не показаны.',
 };

@@ -6,14 +6,17 @@ use App\Enums\ChargeStatus;
 use App\Enums\EnrollmentStatus;
 use App\Enums\LeadStatus;
 use App\Enums\LedgerAccount;
+use App\Enums\Role;
 use App\Enums\TransactionType;
 use App\Models\Cashbox;
 use App\Models\ChargeCoverage;
+use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Group;
 use App\Models\Lead;
 use App\Models\LedgerEntry;
 use App\Models\LessonCharge;
+use App\Models\Student;
 use App\Models\StudentVisit;
 use App\Models\Transaction;
 use App\Models\User;
@@ -33,16 +36,44 @@ class ReportController extends Controller
         $from = Carbon::parse($request->input('from', now()->startOfMonth()))->startOfDay();
         $to = Carbon::parse($request->input('to', today()))->endOfDay();
 
+        // Filters: group, teacher, course, student, lesson weekdays. Group-level money follows them;
+        // expenses and cashbox totals are not tied to a group, so they are left out while a filter is on.
+        $filters = $request->validate([
+            'group_id' => ['nullable', 'integer'],
+            'teacher_id' => ['nullable', 'integer'],
+            'course_id' => ['nullable', 'integer'],
+            'student_id' => ['nullable', 'integer'],
+            'days' => ['nullable', 'array'],
+            'days.*' => ['integer', 'between:1,7'],
+        ]);
+        $studentId = isset($filters['student_id']) ? (int) $filters['student_id'] : null;
+        $days = array_values(array_map('intval', $filters['days'] ?? []));
+        $filtered = ! empty($filters['group_id']) || ! empty($filters['teacher_id']) || ! empty($filters['course_id']) || $studentId !== null || $days !== [];
+        $groupQuery = fn () => Group::query()
+            ->whereIn('branch_id', $branchIds)
+            ->when($filters['group_id'] ?? null, fn ($q, $id) => $q->whereKey($id))
+            ->when($filters['teacher_id'] ?? null, fn ($q, $id) => $q->where('teacher_id', $id))
+            ->when($filters['course_id'] ?? null, fn ($q, $id) => $q->where('course_id', $id))
+            ->when($studentId, fn ($q, $id) => $q->whereHas('enrollments', fn ($e) => $e->where('student_id', $id)))
+            ->when($days !== [], fn ($q) => $q->where(function ($w) use ($days) {
+                foreach ($days as $day) {
+                    $w->orWhereJsonContains('days', $day);
+                }
+            }));
+        $groupIds = $filtered ? $groupQuery()->pluck('id')->map(fn ($id) => (int) $id)->all() : null;
+
         $transactions = fn () => Transaction::query()
             ->whereIn('branch_id', $branchIds)
             ->whereBetween('occurred_at', [$from, $to])
-            ->whereNull('reversed_at');
+            ->whereNull('reversed_at')
+            ->when($groupIds !== null, fn ($q) => $q->whereIn('meta->group_id', $groupIds))
+            ->when($studentId, fn ($q, $id) => $q->where('meta->student_id', $id));
 
         $totals = $transactions()->selectRaw('type, SUM(amount) as total, COUNT(*) as count')->groupBy('type')->get()
             ->mapWithKeys(fn ($row) => [$row->type->value => ['total' => (int) $row->getAttribute('total'), 'count' => (int) $row->getAttribute('count')]]);
 
         // Exact change of money in the cashboxes: every cash movement, reversals and withdrawals included.
-        $cashChange = (int) LedgerEntry::query()
+        $cashChange = $filtered ? null : (int) LedgerEntry::query()
             ->where('account_type', LedgerAccount::Cashbox)
             ->whereIn('account_id', Cashbox::query()->whereIn('branch_id', $branchIds)->select('id'))
             ->whereHas('transaction', fn ($q) => $q->whereBetween('occurred_at', [$from, $to]))
@@ -67,6 +98,9 @@ class ReportController extends Controller
             ->selectRaw('SUM(CASE WHEN transactions.occurred_at >= ? AND transactions.type IN (?, ?) THEN ledger_entries.amount ELSE 0 END) as earned', [$from, TransactionType::TeacherEarning->value, TransactionType::EarningReversal->value])
             ->selectRaw('SUM(CASE WHEN transactions.occurred_at >= ? AND transactions.type = ? THEN ledger_entries.amount ELSE 0 END) as paid', [$from, TransactionType::TeacherPayout->value])
             ->selectRaw('SUM(ledger_entries.amount) as closing')
+            ->when($filtered, fn ($q) => $q->whereIn('ledger_entries.account_id', $filters['teacher_id'] ?? null
+                ? [(int) $filters['teacher_id']]
+                : Group::query()->whereKey($groupIds ?? [])->whereNotNull('teacher_id')->pluck('teacher_id')->all()))
             ->get();
         $teacherNames = User::query()->whereIn('id', $teacherEntries->pluck('teacher_id'))->pluck('name', 'id');
 
@@ -86,6 +120,8 @@ class ReportController extends Controller
         $debtors = Enrollment::query()
             ->where('balance', '<', 0)
             ->whereHas('group', fn ($q) => $q->whereIn('branch_id', $branchIds))
+            ->when($groupIds !== null, fn ($q) => $q->whereIn('group_id', $groupIds))
+            ->when($studentId, fn ($q, $id) => $q->where('student_id', $id))
             ->with('student:id,full_name,phone', 'group:id,name')
             ->orderBy('balance')
             ->get()
@@ -94,14 +130,15 @@ class ReportController extends Controller
                 'group' => $e->group->name, 'debt' => -$e->balance, 'status' => $e->status->value,
             ]);
 
-        $groups = Group::query()->whereIn('branch_id', $branchIds)->with('teacher:id,name', 'course:id,name')->get()
-            ->map(function (Group $group) use ($from, $to) {
+        $groups = $groupQuery()->with('teacher:id,name', 'course:id,name')->get()
+            ->map(function (Group $group) use ($from, $to, $studentId) {
                 $income = (int) Transaction::query()->where('type', TransactionType::StudentPayment)->whereNull('reversed_at')
-                    ->whereBetween('occurred_at', [$from, $to])->where('meta->group_id', $group->id)->sum('amount');
+                    ->whereBetween('occurred_at', [$from, $to])->where('meta->group_id', $group->id)
+                    ->when($studentId, fn ($q, $id) => $q->where('meta->student_id', $id))->sum('amount');
                 // Shares come from lesson money recognised in the period (charge coverages), not from
                 // payments received: a payment made last month can pay for this month's lessons.
                 $earned = ChargeCoverage::query()->whereNull('reversed_at')->whereBetween('covered_at', [$from, $to])
-                    ->whereHas('charge.enrollment', fn ($q) => $q->where('group_id', $group->id))
+                    ->whereHas('charge.enrollment', fn ($q) => $q->where('group_id', $group->id)->when($studentId, fn ($e, $id) => $e->where('student_id', $id)))
                     ->selectRaw('COALESCE(SUM(amount), 0) as revenue, COALESCE(SUM(teacher_amount), 0) as teacher')
                     ->first();
                 $revenue = (int) $earned?->getAttribute('revenue');
@@ -109,9 +146,10 @@ class ReportController extends Controller
                 // What students must pay for the lessons held in the period (written-off part excluded).
                 $charged = (int) LessonCharge::query()->where('status', ChargeStatus::Active)
                     ->whereBetween('lesson_date', [$from->toDateString(), $to->toDateString()])
-                    ->whereHas('enrollment', fn ($q) => $q->where('group_id', $group->id))
+                    ->whereHas('enrollment', fn ($q) => $q->where('group_id', $group->id)->when($studentId, fn ($e, $id) => $e->where('student_id', $id)))
                     ->sum(DB::raw('amount - written_off_amount'));
-                $studying = $group->enrollments()->whereIn('status', [EnrollmentStatus::Active, EnrollmentStatus::Trial])->get();
+                $studying = $group->enrollments()->whereIn('status', [EnrollmentStatus::Active, EnrollmentStatus::Trial])
+                    ->when($studentId, fn ($q, $id) => $q->where('student_id', $id))->get();
                 $price = $group->priceFor($to);
                 $monthlyPlan = $price === null ? 0 : (int) $studying->where('status', EnrollmentStatus::Active)
                     ->sum(fn (Enrollment $e) => $e->discountedMonthlyPrice($price->monthly_price));
@@ -120,7 +158,7 @@ class ReportController extends Controller
                 return [
                     'is_active' => $group->status === 'active',
                     'course' => $group->course->name ?? $group->subject,
-                    'debt' => (int) -$group->enrollments()->where('balance', '<', 0)->sum('balance'),
+                    'debt' => (int) -$group->enrollments()->where('balance', '<', 0)->when($studentId, fn ($q, $id) => $q->where('student_id', $id))->sum('balance'),
                     'group' => $group->name,
                     'teacher' => $group->teacher?->name,
                     'students' => $studying->count(),
@@ -142,6 +180,9 @@ class ReportController extends Controller
 
         // Lead funnel for leads created in the period: contacted → trial → joined a group → paid.
         $periodLeads = Lead::query()->whereIn('branch_id', $branchIds)->whereBetween('created_at', [$from, $to])
+            ->when($filters['course_id'] ?? null, fn ($q, $id) => $q->where('course_id', $id))
+            ->when(isset($filters['group_id']) || isset($filters['teacher_id']) || $studentId || $days !== [],
+                fn ($q) => $q->whereHas('student.enrollments', fn ($e) => $e->whereIn('group_id', $groupIds ?? [])->when($studentId, fn ($x, $id) => $x->where('student_id', $id))))
             ->with('student.enrollments.payments')
             ->get();
         $funnel = function ($items): array {
@@ -187,12 +228,15 @@ class ReportController extends Controller
             'leads' => $funnel($periodLeads),
             // Every enrollment, not only ones that came from leads.
             'joined' => Enrollment::query()->whereHas('group', fn ($q) => $q->whereIn('branch_id', $branchIds))
+                ->when($groupIds !== null, fn ($q) => $q->whereIn('group_id', $groupIds))->when($studentId, fn ($q, $id) => $q->where('student_id', $id))
                 ->whereNull('transferred_from_id')
                 ->whereBetween('joined_at', [$from->toDateString(), $to->toDateString()])->count(),
             'transferred' => Enrollment::query()->whereHas('group', fn ($q) => $q->whereIn('branch_id', $branchIds))
+                ->when($groupIds !== null, fn ($q) => $q->whereIn('group_id', $groupIds))->when($studentId, fn ($q, $id) => $q->where('student_id', $id))
                 ->whereNotNull('transferred_from_id')
                 ->whereBetween('joined_at', [$from->toDateString(), $to->toDateString()])->count(),
             'left' => Enrollment::query()->whereHas('group', fn ($q) => $q->whereIn('branch_id', $branchIds))
+                ->when($groupIds !== null, fn ($q) => $q->whereIn('group_id', $groupIds))->when($studentId, fn ($q, $id) => $q->where('student_id', $id))
                 ->where('status', EnrollmentStatus::Left)
                 ->whereBetween('left_at', [$from->toDateString(), $to->toDateString()])->count(),
         ];
@@ -201,6 +245,8 @@ class ReportController extends Controller
         $visits = StudentVisit::query()
             ->whereIn('branch_id', $branchIds)
             ->whereNotNull('student_id')
+            ->when($studentId, fn ($q, $id) => $q->where('student_id', $id))
+            ->when($groupIds !== null && ! $studentId, fn ($q) => $q->whereIn('student_id', Enrollment::query()->whereIn('group_id', $groupIds)->select('student_id')))
             ->whereBetween('scanned_at', [$from, $to])
             ->with('student:id,full_name')
             ->orderByDesc('scanned_at')
@@ -241,6 +287,13 @@ class ReportController extends Controller
             'courses' => $courseRows,
             'studentFlow' => $studentFlow,
             'visits' => $visits,
+            'filters' => ['group_id' => $filters['group_id'] ?? null, 'teacher_id' => $filters['teacher_id'] ?? null, 'course_id' => $filters['course_id'] ?? null, 'student_id' => $studentId, 'days' => $days],
+            'filterOptions' => [
+                'groups' => Group::query()->whereIn('branch_id', $branchIds)->orderBy('name')->get(['id', 'name', 'teacher_id', 'course_id', 'days']),
+                'teachers' => User::role(Role::Teacher->value)->whereHas('branches', fn ($q) => $q->whereIn('branches.id', $branchIds))->orderBy('name')->get(['id', 'name']),
+                'courses' => Course::query()->orderBy('name')->get(['id', 'name']),
+                'students' => Student::query()->inBranches($branchIds)->whereHas('enrollments')->orderBy('full_name')->get(['id', 'full_name']),
+            ],
         ]);
     }
 }

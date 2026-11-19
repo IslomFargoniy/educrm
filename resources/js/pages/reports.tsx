@@ -5,6 +5,11 @@ import RowNumber from '@/components/row-number';
 import Money from '@/components/money';
 import PageHeader from '@/components/page-header';
 import PeriodFilter from '@/components/period-filter';
+import ReportFilters from '@/components/report-filters';
+import type {
+    ReportFilterOptions,
+    ReportFilterValues,
+} from '@/components/report-filters';
 import StatCard from '@/components/stat-card';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,7 +30,7 @@ import teachers from '@/routes/teachers';
 type Props = {
     period: { from: string; to: string };
     totals: Record<string, { total: number; count: number }>;
-    cashChange: number;
+    cashChange: number | null;
     expenses: { category: string; total: number }[];
     teachers: {
         teacher: string | null;
@@ -78,6 +83,8 @@ type Props = {
         transferred: number;
         left: number;
     };
+    filters: ReportFilterValues;
+    filterOptions: ReportFilterOptions;
     visits: {
         date: string;
         student_id: number;
@@ -111,6 +118,8 @@ export default function Reports({
     studentFlow,
     courses,
     visits,
+    filters,
+    filterOptions,
 }: Props) {
     const t = useT();
     const funnelHeads = (first: string) => [
@@ -145,6 +154,7 @@ export default function Reports({
                     title={t('Reports')}
                     actions={<PeriodFilter from={period.from} to={period.to} />}
                 />
+                <ReportFilters filters={filters} options={filterOptions} />
                 <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                     <StatCard
                         tone="primary"
@@ -166,7 +176,11 @@ export default function Reports({
                         tone="success"
                         label={t('Profit withdrawn')}
                         value={formatMoney(sum('owner_withdrawal'))}
-                        hint={`${t('Change in cashboxes')}: ${formatMoney(cashChange)}`}
+                        hint={
+                            cashChange === null
+                                ? undefined
+                                : `${t('Change in cashboxes')}: ${formatMoney(cashChange)}`
+                        }
                     />
                 </div>
 

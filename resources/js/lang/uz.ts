@@ -733,4 +733,11 @@ export const uz: Record<string, string> = {
     ':n excused': ':n ta sababli',
     'This lesson has not happened yet. Attendance is marked on the lesson day.':
         "Bu dars hali bo'lmagan. Davomat dars kuni qilinadi.",
+    'All teachers': "Barcha o'qituvchilar",
+    'All courses': 'Barcha kurslar',
+    'Find student': "O'quvchi qidirish",
+    'Lesson days': 'Dars kunlari',
+    'Clear filters': 'Filtrni tozalash',
+    'Filtered: payments, groups, courses, debtors and leads follow the filter. Expenses and cashbox change are not tied to a group, so they are not shown.':
+        "Filtr qo'llangan: to'lovlar, guruhlar, kurslar, qarzdorlar va lidlar shu filtr bo'yicha. Xarajatlar va kassa o'zgarishi guruhga bog'liq emas, shuning uchun ular ko'rsatilmaydi.",
 };
