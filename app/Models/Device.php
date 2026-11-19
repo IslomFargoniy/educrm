@@ -71,6 +71,19 @@ class Device extends Model
     }
 
     /**
+     * Path the terminal posts its live events to (HTTPS notification host); signed so nobody else can post.
+     */
+    public function pushPath(): string
+    {
+        return '/api/isup/push/'.$this->isup_id.'/'.self::pushSignature($this->isup_id);
+    }
+
+    public static function pushSignature(string $isupId): string
+    {
+        return substr(hash_hmac('sha256', 'isup-push:'.$isupId, (string) config('app.key')), 0, 24);
+    }
+
+    /**
      * @return BelongsTo<Branch, $this>
      */
     public function branch(): BelongsTo

@@ -56,6 +56,30 @@ class IsupGatewayController extends Controller
     }
 
     /**
+     * Live event posted by the terminal itself (HTTPS notification host): a JSON part plus the snapshot.
+     */
+    public function push(Request $request, string $isupId, string $signature, VisitRecorder $visits): JsonResponse
+    {
+        abort_unless(hash_equals(Device::pushSignature($isupId), $signature), 404);
+        $device = Device::query()->where('isup_id', $isupId)->where('is_active', true)->firstOrFail();
+
+        $raw = $request->input('AccessControllerEvent') ?? $request->input('event_log');
+        $payload = is_string($raw) ? (json_decode($raw, true) ?: []) : (is_array($raw) ? $raw : $request->all());
+
+        if (! isset($payload['AccessControllerEvent']) && isset($payload['employeeNoString'])) {
+            $payload = ['AccessControllerEvent' => $payload];
+        }
+
+        $device->forceFill(['is_online' => true, 'last_seen_at' => now()])->save();
+
+        if (is_array($payload['AccessControllerEvent'] ?? null)) {
+            $visits->record($device, $payload['AccessControllerEvent'], $payload['dateTime'] ?? null, live: true);
+        }
+
+        return response()->json(['ok' => true]);
+    }
+
+    /**
      * An access event pushed by a terminal (face recognised, card, etc.).
      */
     public function events(Request $request, VisitRecorder $visits): JsonResponse

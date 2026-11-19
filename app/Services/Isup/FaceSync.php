@@ -130,6 +130,46 @@ class FaceSync
     }
 
     /**
+     * Point the terminal's HTTPS event notification at this CRM (the slot after the ISUP one), so passes arrive live.
+     */
+    public function ensureEventHost(Device $device): void
+    {
+        $list = $this->gateway->isapi($device, 'GET', '/ISAPI/Event/notification/httpHosts');
+        $host = (string) parse_url((string) config('app.url'), PHP_URL_HOST);
+        $slot = null;
+
+        if (preg_match_all('#<HttpHostNotification>(.*?)</HttpHostNotification>#s', $list, $matches)) {
+            foreach ($matches[1] as $block) {
+                preg_match('#<id>(\d+)</id>#', $block, $id);
+                preg_match('#<protocolType>([^<]*)</protocolType>#', $block, $protocol);
+
+                if (($protocol[1] ?? '') === 'EHome') {
+                    continue;
+                }
+
+                if (str_contains($block, '<hostName>'.$host.'</hostName>') && str_contains($block, $device->pushPath())) {
+                    return;
+                }
+
+                $slot ??= $id[1] ?? null;
+            }
+        }
+
+        if ($slot === null) {
+            return;
+        }
+
+        $this->gateway->isapi($device, 'PUT', "/ISAPI/Event/notification/httpHosts/{$slot}", '<?xml version="1.0" encoding="UTF-8"?>'
+            .'<HttpHostNotification version="2.0" xmlns="http://www.isapi.org/ver20/XMLSchema">'
+            ."<id>{$slot}</id><url>{$device->pushPath()}</url><protocolType>HTTPS</protocolType>"
+            .'<parameterFormatType>JSON</parameterFormatType><addressingFormatType>hostname</addressingFormatType>'
+            ."<hostName>{$host}</hostName><portNo>443</portNo><httpAuthenticationMethod>none</httpAuthenticationMethod>"
+            .'<SubscribeEvent><heartbeat>30</heartbeat><eventMode>list</eventMode><EventList><Event><type>AccessControllerEvent</type>'
+            .'<minorAlarm></minorAlarm><minorException></minorException><minorOperation></minorOperation><minorEvent></minorEvent>'
+            .'<pictureURLType>binary</pictureURLType></Event></EventList></SubscribeEvent></HttpHostNotification>');
+    }
+
+    /**
      * Access events (face recognised) the terminal stored between the two moments.
      *
      * @return list<array<string, mixed>>

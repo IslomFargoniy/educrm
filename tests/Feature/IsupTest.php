@@ -222,3 +222,39 @@ it('gives a new device a Device ID from the domain and the same text as its key,
     $this->put(route('admin.devices.update', $device), ['branch_id' => $device->branch_id, 'name' => 'Kirish', 'direction' => 'in', 'isup_id' => 'crm.mensalc.uz-1'])
         ->assertSessionHasErrors('isup_id');
 });
+
+it('takes live events the terminal posts to its signed path, and refuses a wrong signature', function () {
+    Queue::fake();
+    [$device, $enrollment] = studyingStudent();
+    $event = json_encode(['dateTime' => now()->toIso8601String(), 'eventType' => 'AccessControllerEvent', 'AccessControllerEvent' => ['majorEventType' => 5, 'subEventType' => 75, 'employeeNoString' => (string) $enrollment->student_id, 'serialNo' => 7]]);
+
+    $this->post('/api/isup/push/'.$device->isup_id.'/wrong', ['AccessControllerEvent' => $event])->assertNotFound();
+    $this->post($device->pushPath(), ['AccessControllerEvent' => $event, 'Picture' => UploadedFile::fake()->image('p.jpg')])->assertOk();
+    $this->post($device->pushPath(), ['AccessControllerEvent' => json_encode(['eventType' => 'heartBeat'])])->assertOk();
+
+    expect(StudentVisit::query()->where('student_id', $enrollment->student_id)->count())->toBe(1);
+});
+
+it('counts standing in front of the terminal as one pass', function () {
+    Queue::fake();
+    [$device, $enrollment] = studyingStudent();
+
+    foreach ([1, 2, 3] as $serial) {
+        $this->postJson(route('isup.events'), faceEvent($device, $enrollment->student_id, $serial, now()->addSeconds($serial * 4)->toIso8601String()), $this->gateway)->assertOk();
+    }
+
+    expect(StudentVisit::query()->count())->toBe(1);
+    Queue::assertPushed(SendNotification::class, 1);
+});
+
+it('points the terminal HTTPS event host at the CRM', function () {
+    config(['app.url' => 'https://crm.example.uz']);
+    $hosts = '<HttpHostNotificationList><HttpHostNotification><id>1</id><protocolType>EHome</protocolType></HttpHostNotification><HttpHostNotification><id>2</id><url>/api/hikvision-callback</url><protocolType>HTTPS</protocolType><hostName>panel.other.uz</hostName></HttpHostNotification></HttpHostNotificationList>';
+    Http::fake(['gateway.test/*' => Http::sequence()->push(['success' => true, 'response' => $hosts])->push(['success' => true, 'response' => '<statusCode>1</statusCode>'])]);
+    $device = Device::factory()->create();
+
+    app(FaceSync::class)->ensureEventHost($device);
+
+    Http::assertSent(fn (HttpRequest $r) => $r['method'] === 'PUT' && $r['url'] === '/ISAPI/Event/notification/httpHosts/2'
+        && str_contains($r['body'], '<hostName>crm.example.uz</hostName>') && str_contains($r['body'], $device->pushPath()));
+});

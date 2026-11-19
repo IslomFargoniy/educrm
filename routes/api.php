@@ -36,3 +36,6 @@ Route::prefix('isup')->name('isup.')->middleware(VerifyIsupGateway::class)->grou
     Route::post('device-status', [IsupGatewayController::class, 'deviceStatus'])->name('device-status');
     Route::post('events', [IsupGatewayController::class, 'events'])->name('events');
 });
+
+// Live events posted by the terminals themselves (signed path, no token: devices cannot send headers).
+Route::post('isup/push/{isupId}/{signature}', [IsupGatewayController::class, 'push'])->middleware('throttle:600,1')->name('isup.push');

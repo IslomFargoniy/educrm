@@ -39,6 +39,12 @@ class PrepareDevice implements ShouldBeUnique, ShouldQueue
             // The device may still be finishing its login; students are written anyway.
         }
 
+        try {
+            $faces->ensureEventHost($device);
+        } catch (Throwable) {
+            // Live events then fall back to reading the device every two minutes.
+        }
+
         $faces->restoreDevice($device, $this->all, $this->all ? 2000 : 200);
     }
 }
