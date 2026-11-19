@@ -30,7 +30,8 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleAppearance::class,
             SetLocale::class,
             HandleInertiaRequests::class,
-            AddLinkHeadersForPreloadedAssets::class,
+            // Keep the preload header small: nginx's default 4 KB FastCGI header buffer returns 502 otherwise.
+            AddLinkHeadersForPreloadedAssets::using(8),
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
