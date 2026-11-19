@@ -107,7 +107,7 @@ export default function TeacherMonthReport({
             {
                 preserveScroll: true,
                 preserveState: true,
-                only: ['report', 'month'],
+                only: ['report', 'month', 'kpi'],
             },
         );
 

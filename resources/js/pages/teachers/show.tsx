@@ -8,6 +8,8 @@ import PageHeader from '@/components/page-header';
 import PayoutDialog from '@/components/payout-dialog';
 import PeriodFilter from '@/components/period-filter';
 import StatCard from '@/components/stat-card';
+import TeacherKpi from '@/components/teacher-kpi';
+import type { TeacherKpiData } from '@/components/teacher-kpi';
 import TeacherMonthReport from '@/components/teacher-month-report';
 import type { ReportGroup } from '@/components/teacher-month-report';
 import { useCan } from '@/hooks/use-can';
@@ -38,6 +40,7 @@ type Props = {
     period: { from: string; to: string };
     month: string;
     report: ReportGroup[];
+    kpi: TeacherKpiData;
     cashboxes: { id: number; name: string; balance: number }[];
 };
 
@@ -82,6 +85,7 @@ export default function TeacherShow({
     period,
     month,
     report,
+    kpi,
     cashboxes,
 }: Props) {
     const t = useT();
@@ -208,6 +212,8 @@ export default function TeacherShow({
                         </div>
                     </section>
                 )}
+
+                <TeacherKpi kpi={kpi} month={month} />
 
                 <TeacherMonthReport
                     teacherName={teacher.name}

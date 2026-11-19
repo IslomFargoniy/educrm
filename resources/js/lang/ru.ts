@@ -821,4 +821,22 @@ export const ru: Record<string, string> = {
     'Cancel the first lesson': 'Отменить первый урок',
     'call.initial': 'Начальное состояние',
     'Back to the initial state': 'Вернуть в начальное состояние',
+    'Teacher effectiveness': 'Эффективность преподавателя',
+    'New students kept': 'Удержание новых учеников',
+    'Joined the teacher’s groups this month (transfers not counted) and still study.':
+        'Пришли в группы преподавателя в этом месяце (без переводов) и учатся сейчас.',
+    'Still studying': 'Остались',
+    'Have paid': 'Оплатили',
+    'Graduated and left': 'Окончили и ушли',
+    'Who left the teacher’s groups this month and why; studying is the number now.':
+        'Кто ушёл из групп преподавателя в этом месяце и почему; «Учатся сейчас» — текущее число.',
+    graduated: 'окончили',
+    'Moved to another group': 'Переведены в другую группу',
+    'Lessons held': 'Проведённые уроки',
+    'Lessons of the month up to today.': 'Уроки месяца до сегодняшнего дня.',
+    Held: 'Проведён',
+    'Not marked': 'Не отмечен',
+    'Student attendance': 'Посещаемость учеников',
+    'Marks in the teacher’s lessons this month.':
+        'Отметки на уроках преподавателя в этом месяце.',
 };

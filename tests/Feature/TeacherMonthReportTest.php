@@ -57,3 +57,29 @@ it('downloads a table as an Excel file', function () {
 it('does not export for guests', function () {
     $this->postJson(route('export.xlsx'), ['filename' => 'x', 'headers' => ['A'], 'rows' => []])->assertUnauthorized();
 });
+
+it('rates the teacher: new students kept, graduated and left, lessons held, attendance', function () {
+    $this->travelTo('2026-11-20 10:00:00');
+    $admin = userWithRole(Role::Superadmin);
+    $this->actingAs($admin);
+    $teacher = userWithRole(Role::Teacher);
+    $group = Group::factory()->priced(600_000, 12, '2026-11-01')->create(['teacher_id' => $teacher->id]);
+    $teacher->branches()->attach($group->branch_id);
+    $enroll = fn (string $day) => app(EnrollmentService::class)->enroll(Student::factory()->create(['branch_id' => $group->branch_id]), $group, CarbonImmutable::parse($day));
+
+    $stays = $enroll('2026-11-02');
+    $quits = $enroll('2026-11-03');
+    $old = $enroll('2026-10-01');
+    app(EnrollmentService::class)->leave($quits, CarbonImmutable::parse('2026-11-10'), 'dropped');
+    app(EnrollmentService::class)->leave($old, CarbonImmutable::parse('2026-11-15'), 'graduated');
+    app(FinanceService::class)->receivePayment($stays, Cashbox::factory()->create(['branch_id' => $group->branch_id]), 50_000);
+
+    $this->get(route('teachers.show', ['teacher' => $teacher->id, 'month' => '2026-11']))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('kpi.retention.joined', 2)
+            ->where('kpi.retention.stayed', 1)
+            ->where('kpi.retention.paid', 1)
+            ->where('kpi.outcomes.graduated', 1)
+            ->where('kpi.outcomes.dropped', 1)
+            ->where('kpi.outcomes.studying', 1));
+});

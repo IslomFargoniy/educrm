@@ -826,4 +826,22 @@ export const uz: Record<string, string> = {
     'Cancel the first lesson': 'Birinchi darsni bekor qilish',
     'call.initial': 'Dastlabki holat',
     'Back to the initial state': 'Dastlabki holatga qaytarish',
+    'Teacher effectiveness': "O'qituvchi samaradorligi",
+    'New students kept': "Yangi o'quvchilarni ushlab qolish",
+    'Joined the teacher’s groups this month (transfers not counted) and still study.':
+        "Shu oy o'qituvchining guruhlariga qo'shilgan (o'tkazilganlar hisobga olinmaydi) va hozir ham o'qiyotganlar.",
+    'Still studying': "Qoldi (o'qiyapti)",
+    'Have paid': "To'lov qilgan",
+    'Graduated and left': 'Bitirganlar va chiqib ketganlar',
+    'Who left the teacher’s groups this month and why; studying is the number now.':
+        'Shu oy o\'qituvchining guruhlaridan kim va nima sababdan chiqdi; "Hozir o\'qiyapti" — hozirgi soni.',
+    graduated: 'bitirdi',
+    'Moved to another group': "Boshqa guruhga o'tkazildi",
+    'Lessons held': "O'tilgan darslar",
+    'Lessons of the month up to today.': "Oyning bugungacha bo'lgan darslari.",
+    Held: "O'tildi",
+    'Not marked': 'Davomat qilinmagan',
+    'Student attendance': "O'quvchilar davomati",
+    'Marks in the teacher’s lessons this month.':
+        "Shu oy o'qituvchi darslaridagi belgilar.",
 };
