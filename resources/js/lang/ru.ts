@@ -177,6 +177,7 @@ export const ru: Record<string, string> = {
     'Must be at least :amount': 'Не меньше :amount',
     'Must be at most :amount': 'Не больше :amount',
     ':p% (group)': ':p% (группа)',
+    'Android app': 'Мобильное приложение (Android)',
     Leads: 'Лиды',
     Lessons: 'Уроки',
     'Leaves the group': 'Уходит из группы',

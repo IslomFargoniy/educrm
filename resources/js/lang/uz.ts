@@ -181,6 +181,7 @@ export const uz: Record<string, string> = {
     'Must be at least :amount': "Kamida :amount bo'lishi kerak",
     'Must be at most :amount': "Ko'pi bilan :amount bo'lishi mumkin",
     ':p% (group)': ':p% (guruh)',
+    'Android app': 'Mobil ilova (Android)',
     Leads: 'Lidlar',
     Lessons: 'Darslar',
     'Leaves the group': 'Guruhdan chiqadi',
