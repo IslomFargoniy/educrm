@@ -51,6 +51,11 @@ class AttendanceService
             return true;
         }
 
+        // Teachers allowed to catch up: their own lessons of earlier days.
+        if ($lesson->date->isPast() && $user->can('attendance.mark_past') && $lesson->teacher_id === $user->id) {
+            return true;
+        }
+
         return $user->can('attendance.edit_past') && $user->canAccessBranch($lesson->group->branch_id);
     }
 

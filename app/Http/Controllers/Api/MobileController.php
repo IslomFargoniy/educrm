@@ -105,6 +105,7 @@ class MobileController extends Controller
         return response()->json([
             'lesson' => ['id' => $lesson->id, 'group' => $lesson->group->name, 'date' => $lesson->date->toDateString(), 'status' => $lesson->status->value],
             'can_mark' => $attendance->canMark($user, $lesson),
+            'is_future' => $lesson->date->isFuture(),
             'students' => $roster->map(fn (Enrollment $e) => [
                 'enrollment_id' => $e->id,
                 'full_name' => $e->student->full_name,

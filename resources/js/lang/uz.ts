@@ -540,6 +540,7 @@ export const uz: Record<string, string> = {
     'moved from :group': ":group dan o'tkazilgan",
     'orange — substitute teacher': "to'q sariq — o'rinbosar o'qituvchi",
     'paid in advance': "oldindan to'langan",
+    'perm.attendance.mark_past': "O'z o'tgan darslariga davomat qilish",
     'perm.attendance.edit_past': "O'tgan davomatni o'zgartirish",
     'perm.attendance.mark': 'Davomat belgilash (dars kuni)',
     'perm.balance.transfer': "Balansni guruhlar orasida ko'chirish",
@@ -730,4 +731,6 @@ export const uz: Record<string, string> = {
     left: 'ketgan',
     ':n absent': ':n ta kelmadi',
     ':n excused': ':n ta sababli',
+    'This lesson has not happened yet. Attendance is marked on the lesson day.':
+        "Bu dars hali bo'lmagan. Davomat dars kuni qilinadi.",
 };

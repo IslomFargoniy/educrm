@@ -244,7 +244,7 @@ fun LessonScreen(api: EduCrmApi, lessonId: Int, onBack: () -> Unit) {
                 }
                 if (!data.can_mark) {
                     Text(
-                        stringResource(R.string.cannot_mark),
+                        stringResource(if (data.is_future) R.string.cannot_mark_future else R.string.cannot_mark),
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
                         modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp).fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.secondaryContainer).padding(12.dp),
                     )

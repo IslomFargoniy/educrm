@@ -1,6 +1,6 @@
 {
-    "versionCode": 20,
-    "versionName": "1.5.0",
+    "versionCode": 21,
+    "versionName": "1.5.1",
     "apk": "educrm.apk",
-    "notes": "Darsni bosib tursangiz — guruh: o'quvchilar balansi, telefoni va davomat tarixi"
+    "notes": "Kelajakdagi darsga davomat yo'q; o'tgan darslar uchun ruxsat"
 }

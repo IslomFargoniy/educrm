@@ -21,7 +21,7 @@ final class Permissions
             'settings' => ['branches.manage', 'rooms.manage', 'holidays.manage', 'users.manage', 'roles.manage', 'settings.manage', 'import.run'],
             'students' => ['students.view', 'students.create', 'students.update', 'students.view_phone', 'students.view_debt', 'students.view_payments', 'enrollments.manage'],
             'leads' => ['leads.view', 'leads.manage'],
-            'groups' => ['groups.view', 'groups.manage', 'groups.prices', 'lessons.manage', 'attendance.mark', 'attendance.edit_past'],
+            'groups' => ['groups.view', 'groups.manage', 'groups.prices', 'lessons.manage', 'attendance.mark', 'attendance.mark_past', 'attendance.edit_past'],
             'finance' => ['payments.create', 'payments.reverse_today', 'payments.reverse', 'refunds.create', 'balance.transfer', 'debts.writeoff', 'teachers.view', 'payouts.create', 'cashboxes.view', 'cashboxes.transfer', 'expenses.create', 'profit.withdraw', 'reports.view'],
         ];
     }

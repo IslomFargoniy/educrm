@@ -109,4 +109,5 @@
     <string name="left_group">left</string>
     <string name="not_marked">Not marked</string>
     <string name="long_press_hint">Press and hold a lesson to open its group</string>
+    <string name="cannot_mark_future">This lesson has not happened yet. Attendance is marked on the lesson day.</string>
 </resources>

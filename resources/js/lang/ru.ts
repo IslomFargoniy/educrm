@@ -534,6 +534,7 @@ export const ru: Record<string, string> = {
     'moved from :group': 'переведён из :group',
     'orange — substitute teacher': 'оранжевым — замена учителя',
     'paid in advance': 'предоплата',
+    'perm.attendance.mark_past': 'Отмечать посещаемость своих прошедших уроков',
     'perm.attendance.edit_past': 'Менять прошлую посещаемость',
     'perm.attendance.mark': 'Отмечать посещаемость (в день урока)',
     'perm.balance.transfer': 'Перенос баланса между группами',
@@ -724,4 +725,6 @@ export const ru: Record<string, string> = {
     left: 'ушёл',
     ':n absent': 'не пришёл: :n',
     ':n excused': 'уважительная: :n',
+    'This lesson has not happened yet. Attendance is marked on the lesson day.':
+        'Этот урок ещё не прошёл. Посещаемость отмечается в день урока.',
 };

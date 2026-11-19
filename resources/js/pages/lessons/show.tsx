@@ -56,6 +56,7 @@ type Props = {
             | null;
     }[];
     canMark: boolean;
+    isFuture: boolean;
     canManage: boolean;
     teachers: { id: number; name: string }[];
 };
@@ -82,6 +83,7 @@ export default function LessonShow({
     lesson,
     roster,
     canMark,
+    isFuture,
     canManage,
     teachers,
 }: Props) {
@@ -272,9 +274,13 @@ export default function LessonShow({
 
                 {!canMark && lesson.status !== 'cancelled' && (
                     <div className="rounded-xl border border-highlight/50 bg-highlight/10 p-3 text-sm">
-                        {t(
-                            'Attendance can be marked only on the lesson day. Later changes are made by the administrator.',
-                        )}
+                        {isFuture
+                            ? t(
+                                  'This lesson has not happened yet. Attendance is marked on the lesson day.',
+                              )
+                            : t(
+                                  'Attendance can be marked only on the lesson day. Later changes are made by the administrator.',
+                              )}
                     </div>
                 )}
 

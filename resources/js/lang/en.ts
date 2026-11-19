@@ -7,6 +7,7 @@ export const en: Record<string, string> = {
     'method.cash': 'Cash',
     'method.click': 'Click',
     'method.payme': 'Payme',
+    'perm.attendance.mark_past': 'Mark attendance of own past lessons',
     'perm.attendance.edit_past': 'Change past attendance',
     'perm.attendance.mark': 'Mark attendance (lesson day)',
     'perm.balance.transfer': 'Move balance between groups',

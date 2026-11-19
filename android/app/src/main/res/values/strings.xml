@@ -110,4 +110,5 @@
     <string name="left_group">ketgan</string>
     <string name="not_marked">Davomat qilinmagan</string>
     <string name="long_press_hint">Guruh ma\'lumoti uchun darsni bosib turing</string>
+    <string name="cannot_mark_future">Bu dars hali bo\'lmagan. Davomat dars kuni qilinadi.</string>
 </resources>

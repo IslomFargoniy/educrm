@@ -109,4 +109,5 @@
     <string name="left_group">ушёл</string>
     <string name="not_marked">Не отмечено</string>
     <string name="long_press_hint">Удерживайте урок, чтобы открыть группу</string>
+    <string name="cannot_mark_future">Этот урок ещё не прошёл. Посещаемость отмечается в день урока.</string>
 </resources>

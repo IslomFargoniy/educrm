@@ -70,7 +70,7 @@ data class RosterStudent(
 )
 
 @Serializable
-data class LessonResponse(val lesson: LessonInfo, val can_mark: Boolean, val students: List<RosterStudent>)
+data class LessonResponse(val lesson: LessonInfo, val can_mark: Boolean, val students: List<RosterStudent>, val is_future: Boolean = false)
 
 @Serializable
 data class AttendanceRequest(val statuses: Map<String, String>)

@@ -106,6 +106,7 @@ class LessonController extends Controller
             ],
             'roster' => $roster,
             'canMark' => $attendance->canMark($user, $lesson),
+            'isFuture' => $lesson->date->isFuture(),
             'canManage' => $user->can('lessons.manage'),
             'teachers' => $user->can('lessons.manage')
                 ? User::role(Role::Teacher->value)->where('is_active', true)
