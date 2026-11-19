@@ -95,5 +95,5 @@ export const en: Record<string, string> = {
     'tx.refund': 'Money returned',
     'tx.student_payment': 'Payment',
     'tx.teacher_earning': 'Debt paid',
-    'tx.teacher_payout': 'Salary paid',
+    'tx.teacher_payout': 'Paid out',
 };

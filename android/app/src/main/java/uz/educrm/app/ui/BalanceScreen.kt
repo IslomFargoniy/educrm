@@ -53,6 +53,7 @@ import uz.educrm.app.data.readableMessage
 fun BalanceScreen(api: EduCrmApi) {
     var state by remember { mutableStateOf<Load<BalanceResponse>>(Load.Loading) }
     var reload by remember { mutableStateOf(0) }
+    var section by remember { mutableStateOf<String?>(null) }
     val networkError = stringResource(R.string.error_network)
 
     LaunchedEffect(reload) {
@@ -63,15 +64,71 @@ fun BalanceScreen(api: EduCrmApi) {
         ScreenHeader(title = stringResource(R.string.my_balance))
         LoadBox(state, { reload++ }) { data ->
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(contentPadding()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Card(shape = MaterialTheme.shapes.large, colors = CardDefaults.cardColors(containerColor = eduCrm.hero), modifier = Modifier.fillMaxWidth()) {
-                    Column(Modifier.padding(20.dp)) {
-                        Text(stringResource(R.string.can_take), color = Color.White.copy(alpha = 0.8f), fontWeight = FontWeight.SemiBold)
-                        Text(money(data.balance) + " " + stringResource(R.string.sum), color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.ExtraBold)
+                val history = data.history
+                Card(
+                    onClick = { section = if (section == "all") null else "all" },
+                    shape = MaterialTheme.shapes.large,
+                    colors = CardDefaults.cardColors(containerColor = eduCrm.hero),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text(stringResource(R.string.can_take), color = Color.White.copy(alpha = 0.8f), fontWeight = FontWeight.SemiBold)
+                            Text(money(data.balance) + " " + stringResource(R.string.sum), color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.ExtraBold)
+                            Text(stringResource(R.string.tap_for_history), color = Color.White.copy(alpha = 0.7f), style = MaterialTheme.typography.bodySmall)
+                        }
+                        Icon(if (section == "all") Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, contentDescription = null, tint = Color.White)
                     }
                 }
-                HistoryList(data.history, signed = false)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    SummaryCard(stringResource(R.string.month_start), history.opening, MaterialTheme.colorScheme.onSurface, section == "opening", Modifier.weight(1f)) { section = if (section == "opening") null else "opening" }
+                    SummaryCard(stringResource(R.string.income_short), history.income, eduCrm.success, section == "income", Modifier.weight(1f)) { section = if (section == "income") null else "income" }
+                    SummaryCard(stringResource(R.string.paid_out), history.expense, eduCrm.danger, section == "expense", Modifier.weight(1f)) { section = if (section == "expense") null else "expense" }
+                }
+                when (section) {
+                    "all" -> HistoryList(history, signed = false)
+                    "income" -> HistoryList(history.copy(rows = history.rows.filter { it.income > 0 }), signed = false, title = stringResource(R.string.income_short))
+                    "expense" -> HistoryList(history.copy(rows = history.rows.filter { it.expense > 0 }), signed = false, title = stringResource(R.string.paid_out))
+                    "opening" -> EduCrmCard {
+                        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text(stringResource(R.string.month_start), fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.month_start_hint), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            HorizontalDivider(color = eduCrm.border)
+                            FormulaRow(stringResource(R.string.month_start), money(history.opening))
+                            FormulaRow("+ " + stringResource(R.string.income_short), money(history.income), eduCrm.success)
+                            FormulaRow("− " + stringResource(R.string.paid_out), money(history.expense), eduCrm.danger)
+                            HorizontalDivider(color = eduCrm.border)
+                            FormulaRow("= " + stringResource(R.string.can_take), money(history.closing), bold = true)
+                        }
+                    }
+                }
             }
         }
+    }
+}
+
+/** Month start / income / paid out card; tapping it shows the details below. */
+@Composable
+private fun SummaryCard(label: String, value: Long, color: Color, selected: Boolean, modifier: Modifier, onClick: () -> Unit) {
+    Card(
+        onClick = onClick,
+        modifier = modifier,
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = androidx.compose.foundation.BorderStroke(if (selected) 2.dp else 1.dp, if (selected) MaterialTheme.colorScheme.primary else eduCrm.border),
+    ) {
+        Column(Modifier.padding(horizontal = 12.dp, vertical = 12.dp)) {
+            Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+            Text(money(value), color = color, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp, maxLines = 1)
+        }
+    }
+}
+
+@Composable
+private fun FormulaRow(label: String, value: String, color: Color = MaterialTheme.colorScheme.onSurface, bold: Boolean = false) {
+    Row(Modifier.fillMaxWidth()) {
+        Text(label, modifier = Modifier.weight(1f), fontWeight = if (bold) FontWeight.Bold else FontWeight.Normal)
+        Text(value + " " + stringResource(R.string.sum), color = color, fontWeight = if (bold) FontWeight.ExtraBold else FontWeight.SemiBold)
     }
 }
 

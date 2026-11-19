@@ -636,7 +636,7 @@ export const uz: Record<string, string> = {
     'tx.refund': 'Pul qaytarildi',
     'tx.student_payment': "To'lov",
     'tx.teacher_earning': 'Qarz yopildi',
-    'tx.teacher_payout': 'Oylik berildi',
+    'tx.teacher_payout': 'Berildi',
     'until :date': ':date gacha',
     'Hello, :name': 'Xayrli kun, :name',
     Total: 'Jami',

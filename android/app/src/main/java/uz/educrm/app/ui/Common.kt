@@ -207,9 +207,9 @@ fun SectionTitle(text: String) {
 }
 
 @Composable
-fun HistoryList(history: History, signed: Boolean) {
+fun HistoryList(history: History, signed: Boolean, title: String? = null) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        SectionTitle(stringResource(R.string.history))
+        SectionTitle(title ?: stringResource(R.string.history))
         EduCrmCard {
             history.rows.forEachIndexed { index, row ->
                 if (index > 0) HorizontalDivider(Modifier.padding(horizontal = 14.dp), color = eduCrm.border)

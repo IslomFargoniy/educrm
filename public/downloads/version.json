@@ -1,6 +1,6 @@
 {
-    "versionCode": 13,
-    "versionName": "1.4.3",
+    "versionCode": 14,
+    "versionName": "1.4.4",
     "apk": "educrm.apk",
-    "notes": "«Oylik berildi» yozuvi"
+    "notes": "Balansim: Oy boshi, Tushum, Berilgan kartalari; «Berildi» yozuvi"
 }

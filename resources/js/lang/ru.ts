@@ -630,7 +630,7 @@ export const ru: Record<string, string> = {
     'tx.refund': 'Возврат денег',
     'tx.student_payment': 'Оплата',
     'tx.teacher_earning': 'Долг погашен',
-    'tx.teacher_payout': 'Зарплата выдана',
+    'tx.teacher_payout': 'Выдано',
     'until :date': 'по :date',
     'Hello, :name': 'Добрый день, :name',
     Total: 'Итого',

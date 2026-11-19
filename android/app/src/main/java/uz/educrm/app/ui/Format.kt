@@ -31,7 +31,7 @@ private val txLabels = mapOf(
     "teacher_earning" to Triple("Qarz yopildi", "Долг погашен", "Debt covered"),
     "lesson_share" to Triple("Dars ulushi", "Доля за урок", "Lesson share"),
     "earning_reversal" to Triple("Ulush qaytarildi", "Доля возвращена", "Share returned"),
-    "teacher_payout" to Triple("Oylik berildi", "Зарплата выдана", "Salary paid"),
+    "teacher_payout" to Triple("Berildi", "Выдано", "Paid out"),
     "balance_transfer" to Triple("Balans ko'chirildi", "Перенос баланса", "Balance moved"),
     "refund" to Triple("Pul qaytarildi", "Возврат", "Refund"),
     "debt_writeoff" to Triple("Qarz hisobdan chiqarildi", "Долг списан", "Debt written off"),

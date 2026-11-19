@@ -83,4 +83,9 @@
     <string name="came_at">came at %1$s</string>
     <string name="face_arrived_summary">Face ID: %1$d of %2$d came in. Check and save.</string>
     <string name="debts">Debts</string>
+    <string name="tap_for_history">Tap for the balance history</string>
+    <string name="month_start">Month start</string>
+    <string name="income_short">Income</string>
+    <string name="paid_out">Paid out</string>
+    <string name="month_start_hint">Balance at the start of the month: money from earlier months not paid out yet. Month start + income − paid out = can take.</string>
 </resources>
