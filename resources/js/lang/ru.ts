@@ -475,7 +475,7 @@ export const ru: Record<string, string> = {
     'Total for lessons': 'Всего за уроки',
     'Total income': 'Всего приход',
     'Total paid': 'Всего оплачено',
-    'Total taken': 'Всего получено',
+    'Total taken': 'Всего выдано',
     Transfer: 'Перевод',
     'Trial lessons': 'Пробные уроки',
     'Trial: :marked of :total trial lessons marked. Trial lessons are billed only if the student continues.':
@@ -630,7 +630,7 @@ export const ru: Record<string, string> = {
     'tx.refund': 'Возврат денег',
     'tx.student_payment': 'Оплата',
     'tx.teacher_earning': 'Долг погашен',
-    'tx.teacher_payout': 'Выплата зарплаты',
+    'tx.teacher_payout': 'Зарплата выдана',
     'until :date': 'по :date',
     'Hello, :name': 'Добрый день, :name',
     Total: 'Итого',

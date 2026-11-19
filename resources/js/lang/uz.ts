@@ -481,7 +481,7 @@ export const uz: Record<string, string> = {
     'Total for lessons': 'Jami darslar uchun',
     'Total income': 'Jami kirim',
     'Total paid': "Jami to'langan",
-    'Total taken': 'Jami olgan',
+    'Total taken': 'Jami berilgan',
     Transfer: "O'tkazma",
     'Trial lessons': 'Sinov darslari',
     'Trial: :marked of :total trial lessons marked. Trial lessons are billed only if the student continues.':
@@ -636,7 +636,7 @@ export const uz: Record<string, string> = {
     'tx.refund': 'Pul qaytarildi',
     'tx.student_payment': "To'lov",
     'tx.teacher_earning': 'Qarz yopildi',
-    'tx.teacher_payout': 'Oylik oldi',
+    'tx.teacher_payout': 'Oylik berildi',
     'until :date': ':date gacha',
     'Hello, :name': 'Xayrli kun, :name',
     Total: 'Jami',
