@@ -748,4 +748,17 @@ export const ru: Record<string, string> = {
     'Leads by source': 'Лиды по источникам',
     ':count more not shown': 'Ещё :count не показано',
     'Other (:count)': 'Прочие (:count)',
+    'All rooms': 'Все кабинеты',
+    'Any day': 'Любой день',
+    'Odd / even days': 'Нечётные / чётные дни',
+    'Other days': 'Другие дни',
+    'Lesson time': 'Время урока',
+    'Groups that have a lesson at this time':
+        'Группы, у которых в это время урок',
+    Cards: 'Карточки',
+    'Students in total': 'Всего учеников',
+    'Studying (not frozen)': 'Учатся (не заморожены)',
+    Frozen: 'Заморожены',
+    'No groups match the filters.': 'Нет групп по фильтру.',
+    'Group period': 'Срок группы',
 };

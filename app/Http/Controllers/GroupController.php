@@ -36,10 +36,15 @@ class GroupController extends Controller
             ->when($request->user()->hasRole(Role::Teacher->value) && ! $request->user()->can('groups.view'), fn ($q) => $q->where('teacher_id', $request->user()->id))
             ->with('teacher:id,name', 'room:id,name', 'branch:id,name')
             ->withCount(['enrollments as students_count' => fn ($q) => $q->whereIn('status', [EnrollmentStatus::Active, EnrollmentStatus::Trial])])
-            ->orderBy('name')
+            ->withCount(['enrollments as frozen_count' => fn ($q) => $q->whereIn('status', [EnrollmentStatus::Active, EnrollmentStatus::Trial])
+                ->whereHas('freezes', fn ($f) => $f->whereDate('from_date', '<=', today())->whereDate('to_date', '>=', today()))])
+            ->orderBy('start_time')->orderBy('name')
             ->get()
             ->map(fn (Group $group) => [
-                ...$group->only(['id', 'name', 'subject', 'days', 'teacher_percent', 'status']),
+                ...$group->only(['id', 'name', 'subject', 'days', 'teacher_percent', 'status', 'course_id', 'teacher_id', 'room_id']),
+                'start_date' => $group->start_date?->toDateString(),
+                'end_date' => $group->end_date?->toDateString(),
+                'frozen_count' => $group->frozen_count,
                 'start_time' => substr($group->start_time, 0, 5),
                 'end_time' => substr($group->end_time, 0, 5),
                 'teacher' => $group->teacher?->name,
