@@ -19,43 +19,103 @@ use Inertia\Response;
 
 class LeadController extends Controller
 {
+    /**
+     * Leads in two lists: orders (asked for a course at the reception, no first lesson yet)
+     * and the ones signed up for a first lesson (course, date and time known).
+     */
     public function index(Request $request): Response
     {
         $branchIds = $this->branchIds();
-        $filters = $request->only(['status', 'source', 'assigned_to', 'q']);
-
-        $leads = Lead::query()
+        $filters = $request->only(['list', 'status', 'source', 'assigned_to', 'q', 'course_id', 'teacher_id', 'from', 'to', 'day', 'parity']);
+        $list = in_array($filters['list'] ?? null, ['orders', 'trial'], true) ? $filters['list'] : null;
+        $base = fn () => Lead::query()
             ->whereIn('branch_id', $branchIds)
+            ->when($list === 'orders', fn ($q) => $q->whereNull('trial_at')->where('status', '!=', LeadStatus::Converted))
+            ->when($list === 'trial', fn ($q) => $q->whereNotNull('trial_at'));
+        $dateColumn = $list === 'trial' ? 'trial_at' : 'created_at';
+        $day = isset($filters['day']) ? (int) $filters['day'] : null;
+
+        $leads = $base()
             ->when($filters['status'] ?? null, fn ($q, $status) => $q->where('status', $status))
             ->when($filters['source'] ?? null, fn ($q, $source) => $q->where('source', $source))
             ->when($filters['assigned_to'] ?? null, fn ($q, $user) => $q->where('assigned_to', $user))
-            ->when($filters['q'] ?? null, fn ($q, $term) => $q->where(fn ($w) => $w->where('full_name', 'like', "%{$term}%")->orWhere('phone', 'like', "%{$term}%")))
-            ->with('assignee:id,name', 'branch:id,name')
-            ->orderByRaw("CASE status WHEN 'new' THEN 0 WHEN 'contacted' THEN 1 WHEN 'trial' THEN 2 ELSE 3 END")
-            ->orderBy('next_contact_at')
-            ->latest()
-            ->paginate(30)
+            ->when($filters['course_id'] ?? null, fn ($q, $id) => $q->where('course_id', $id))
+            ->when($filters['teacher_id'] ?? null, fn ($q, $id) => $q->whereHas('trialGroup', fn ($g) => $g->where('teacher_id', $id)))
+            ->when($filters['from'] ?? null, fn ($q, $from) => $q->whereDate($dateColumn, '>=', $from))
+            ->when($filters['to'] ?? null, fn ($q, $to) => $q->whereDate($dateColumn, '<=', $to))
+            ->when($day, fn ($q, $d) => $q->whereHas('trialGroup', fn ($g) => $g->whereJsonContains('days', $d)))
+            ->when(in_array($filters['parity'] ?? null, ['odd', 'even'], true), fn ($q) => $q->whereHas('trialGroup', fn ($g) => $g->whereJsonContains('days', $filters['parity'] === 'odd' ? 1 : 2)))
+            ->when($filters['q'] ?? null, fn ($q, $term) => $q->where(fn ($w) => $w->where('full_name', 'like', "%{$term}%")->orWhere('phone', 'like', '%'.preg_replace('/\D+/', '', (string) $term).'%')))
+            ->with('assignee:id,name', 'branch:id,name', 'trialGroup:id,name,teacher_id', 'trialGroup.teacher:id,name')
+            ->when($list === 'trial', fn ($q) => $q->orderByDesc('trial_at'), fn ($q) => $q
+                ->orderByRaw("CASE status WHEN 'new' THEN 0 WHEN 'contacted' THEN 1 WHEN 'trial' THEN 2 ELSE 3 END")
+                ->orderBy('next_contact_at')
+                ->latest())
+            ->paginate(50)
             ->withQueryString()
             ->through(fn (Lead $lead) => [
-                ...$lead->only(['id', 'full_name', 'first_name', 'last_name', 'phone', 'interested_course', 'note', 'student_id']),
+                ...$lead->only(['id', 'full_name', 'first_name', 'last_name', 'phone', 'interested_course', 'course_id', 'note', 'student_id']),
                 'source' => $lead->source->value,
                 'status' => $lead->status->value,
                 'assigned_to' => $lead->assigned_to,
                 'assignee' => $lead->assignee?->name,
                 'next_contact_at' => $lead->next_contact_at?->toDateString(),
                 'created_at' => $lead->created_at->toIso8601String(),
+                'trial_at' => $lead->trial_at?->toIso8601String(),
+                'trial_group' => $lead->trialGroup?->name,
+                'teacher' => $lead->trialGroup?->teacher?->name,
                 'branch' => $lead->branch->name,
             ]);
 
         return Inertia::render('leads/index', [
             'leads' => $leads,
             'filters' => $filters,
+            'list' => $list,
+            'statusCounts' => $base()->selectRaw('status, COUNT(*) as n')->groupBy('status')->pluck('n', 'status'),
             'courses' => Course::options(),
             'staff' => User::role([Role::Admin->value, Role::Manager->value])
                 ->whereHas('branches', fn ($q) => $q->whereIn('branches.id', $branchIds))->orderBy('name')->get(['id', 'name']),
+            'teachers' => User::role(Role::Teacher->value)
+                ->whereHas('branches', fn ($q) => $q->whereIn('branches.id', $branchIds))->orderBy('name')->get(['id', 'name']),
+            'trialGroups' => Group::query()->whereIn('branch_id', $branchIds)->where('status', 'active')->with('teacher:id,name')->orderBy('name')
+                ->get(['id', 'name', 'course_id', 'teacher_id', 'days', 'start_time', 'end_time', 'branch_id'])
+                ->map(fn (Group $g) => [
+                    'id' => $g->id, 'name' => $g->name, 'course_id' => $g->course_id, 'teacher' => $g->teacher?->name,
+                    'days' => array_values(array_map('intval', $g->days ?? [])), 'start_time' => substr((string) $g->start_time, 0, 5),
+                ]),
             'sources' => array_column(LeadSource::cases(), 'value'),
             'statuses' => array_column(LeadStatus::cases(), 'value'),
         ]);
+    }
+
+    /**
+     * Sign the lead up for a first (trial) lesson in a group at a date and time; null clears it.
+     */
+    public function trial(Request $request, Lead $lead): RedirectResponse
+    {
+        $this->authorizeBranch($lead->branch_id);
+        $validated = $request->validate([
+            'trial_group_id' => ['nullable', 'required_with:trial_at', Rule::exists('groups', 'id')->where('branch_id', $lead->branch_id)],
+            'trial_at' => ['nullable', 'required_with:trial_group_id', 'date'],
+        ]);
+
+        if (empty($validated['trial_group_id'])) {
+            $lead->update(['trial_at' => null, 'trial_group_id' => null, 'status' => $lead->status === LeadStatus::Trial ? LeadStatus::Contacted : $lead->status]);
+            $this->toast(__('First lesson cancelled.'));
+
+            return back();
+        }
+
+        $group = Group::query()->findOrFail((int) $validated['trial_group_id']);
+        $lead->update([
+            'trial_at' => $validated['trial_at'],
+            'trial_group_id' => $group->id,
+            'course_id' => $lead->course_id ?? $group->course_id,
+            'status' => $lead->status === LeadStatus::Converted ? LeadStatus::Converted : LeadStatus::Trial,
+        ]);
+        $this->toast(__('Signed up for the first lesson.'));
+
+        return back();
     }
 
     public function store(Request $request): RedirectResponse

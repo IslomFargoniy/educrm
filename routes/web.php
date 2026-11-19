@@ -119,6 +119,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('leads', [LeadController::class, 'store'])->name('leads.store');
         Route::put('leads/{lead}', [LeadController::class, 'update'])->name('leads.update');
         Route::post('leads/{lead}/notes', [LeadController::class, 'note'])->name('leads.notes.store');
+        Route::put('leads/{lead}/trial', [LeadController::class, 'trial'])->name('leads.trial');
     });
 
     Route::prefix('admin')->name('admin.')->group(function () {

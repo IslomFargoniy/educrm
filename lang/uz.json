@@ -107,5 +107,7 @@
     "Photo saved. It is being sent to the devices.": "Rasm saqlandi va qurilmalarga yuborilmoqda.",
     "Photo deleted. The student is removed from the devices.": "Rasm o'chirildi. O'quvchi qurilmalardan o'chiriladi.",
     "The photo could not be read.": "Rasmni o'qib bo'lmadi.",
-    "The student graduated from the group.": "O'quvchi guruhni bitirdi."
+    "The student graduated from the group.": "O'quvchi guruhni bitirdi.",
+    "First lesson cancelled.": "Birinchi dars bekor qilindi.",
+    "Signed up for the first lesson.": "Birinchi darsga yozildi."
 }

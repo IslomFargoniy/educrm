@@ -92,6 +92,17 @@ export function useNavItems(): { main: NavItem[]; settings: NavItem[] } {
             title: t('Leads'),
             href: leads.index(),
             icon: UserPlus,
+            children: [
+                {
+                    title: t('Requests'),
+                    href: leads.index({ query: { list: 'orders' } }).url,
+                },
+                {
+                    title: t('Signed up for the first lesson'),
+                    href: leads.index({ query: { list: 'trial' } }).url,
+                },
+                { title: t('All leads'), href: leads.index().url },
+            ],
         },
         can('teachers.view') && {
             title: t('Teachers'),

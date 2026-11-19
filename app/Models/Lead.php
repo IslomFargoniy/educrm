@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['branch_id', 'full_name', 'first_name', 'last_name', 'phone', 'source', 'interested_course', 'course_id', 'status', 'assigned_to', 'next_contact_at', 'student_id', 'note'])]
+#[Fillable(['branch_id', 'full_name', 'first_name', 'last_name', 'phone', 'source', 'interested_course', 'course_id', 'status', 'assigned_to', 'next_contact_at', 'trial_at', 'trial_group_id', 'student_id', 'note'])]
 class Lead extends Model
 {
     use HasPersonName;
@@ -24,6 +24,7 @@ class Lead extends Model
             'source' => LeadSource::class,
             'status' => LeadStatus::class,
             'next_contact_at' => 'date',
+            'trial_at' => 'datetime',
         ];
     }
 
@@ -43,6 +44,16 @@ class Lead extends Model
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class);
+    }
+
+    /**
+     * Group of the first (trial) lesson.
+     *
+     * @return BelongsTo<Group, $this>
+     */
+    public function trialGroup(): BelongsTo
+    {
+        return $this->belongsTo(Group::class, 'trial_group_id');
     }
 
     /**
