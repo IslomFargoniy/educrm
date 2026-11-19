@@ -180,6 +180,7 @@ export const uz: Record<string, string> = {
     'Teacher salaries': "O'qituvchilar oyligi",
     'Must be at least :amount': "Kamida :amount bo'lishi kerak",
     'Must be at most :amount': "Ko'pi bilan :amount bo'lishi mumkin",
+    ':p% (group)': ':p% (guruh)',
     Leads: 'Lidlar',
     Lessons: 'Darslar',
     'Leaves the group': 'Guruhdan chiqadi',

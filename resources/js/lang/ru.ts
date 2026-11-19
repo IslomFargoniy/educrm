@@ -176,6 +176,7 @@ export const ru: Record<string, string> = {
     'Teacher salaries': 'Зарплаты преподавателей',
     'Must be at least :amount': 'Не меньше :amount',
     'Must be at most :amount': 'Не больше :amount',
+    ':p% (group)': ':p% (группа)',
     Leads: 'Лиды',
     Lessons: 'Уроки',
     'Leaves the group': 'Уходит из группы',

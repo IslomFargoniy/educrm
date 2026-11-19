@@ -40,6 +40,7 @@ import groups from '@/routes/groups';
 import groupLessons from '@/routes/groups/lessons';
 import groupPrices from '@/routes/groups/prices';
 import lessons from '@/routes/lessons';
+import enrollmentRoutes from '@/routes/enrollments';
 import students from '@/routes/students';
 
 type Props = GroupFormOptions & {
@@ -80,6 +81,8 @@ type Props = GroupFormOptions & {
         balance: number | null;
         is_debtor: boolean | null;
         teacher_percent: number | null;
+        discount_type: string | null;
+        discount_value: number | null;
         frozen: boolean;
         joined_at: string;
         left_at: string | null;
@@ -588,9 +591,31 @@ export default function GroupShow({
                                         </TableCell>
                                         {can('groups.prices') && (
                                             <TableCell>
-                                                {s.teacher_percent !== null
-                                                    ? `${s.teacher_percent}%`
-                                                    : '—'}
+                                                <div className="flex items-center gap-1">
+                                                    {s.teacher_percent !==
+                                                    null ? (
+                                                        <span className="font-semibold">
+                                                            {s.teacher_percent}%
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-muted-foreground">
+                                                            {t(':p% (group)', {
+                                                                p: group.teacher_percent,
+                                                            })}
+                                                        </span>
+                                                    )}
+                                                    {can(
+                                                        'enrollments.manage',
+                                                    ) &&
+                                                        !s.left_at && (
+                                                            <StudentPercentDialog
+                                                                student={s}
+                                                                groupPercent={
+                                                                    group.teacher_percent
+                                                                }
+                                                            />
+                                                        )}
+                                                </div>
                                             </TableCell>
                                         )}
                                         <TableCell className="text-right">
@@ -685,3 +710,72 @@ function Card({
 GroupShow.layout = {
     breadcrumbs: [{ title: 'Groups', href: groups.index() }],
 };
+
+/**
+ * Teacher percent for one student of the group. The student's discount is sent
+ * unchanged, because the endpoint saves discount and percent together.
+ */
+function StudentPercentDialog({
+    student,
+    groupPercent,
+}: {
+    student: {
+        enrollment_id: number;
+        full_name: string;
+        teacher_percent: number | null;
+        discount_type: string | null;
+        discount_value: number | null;
+    };
+    groupPercent: number;
+}) {
+    const t = useT();
+
+    return (
+        <FormDialog
+            title={t('Teacher percent for this student')}
+            description={student.full_name}
+            form={enrollmentRoutes.update.form(student.enrollment_id)}
+            trigger={
+                <Button
+                    size="icon"
+                    variant="ghost"
+                    className="size-7"
+                    aria-label={t('Teacher percent for this student')}
+                >
+                    <Pencil className="size-3.5" />
+                </Button>
+            }
+        >
+            {(errors) => (
+                <>
+                    <input
+                        type="hidden"
+                        name="discount_type"
+                        value={student.discount_type ?? ''}
+                    />
+                    <input
+                        type="hidden"
+                        name="discount_value"
+                        value={student.discount_value ?? 0}
+                    />
+                    <Field
+                        label={t('Teacher percent')}
+                        error={errors.teacher_percent}
+                        hint={t('Empty — group percent (:p%)', {
+                            p: groupPercent,
+                        })}
+                    >
+                        <Input
+                            name="teacher_percent"
+                            type="number"
+                            min={0}
+                            max={100}
+                            defaultValue={student.teacher_percent ?? ''}
+                            autoFocus
+                        />
+                    </Field>
+                </>
+            )}
+        </FormDialog>
+    );
+}

@@ -125,6 +125,8 @@ class GroupController extends Controller
                 'balance' => $user->can('students.view_payments') || $user->can('students.view_debt') ? $e->balance : null,
                 'is_debtor' => $user->can('students.view_debt') ? $e->balance < 0 : null,
                 'teacher_percent' => $user->can('groups.prices') ? $e->teacher_percent : null,
+                'discount_type' => $user->can('groups.prices') ? $e->discount_type?->value : null,
+                'discount_value' => $user->can('groups.prices') ? $e->discount_value : null,
                 'frozen' => $e->isFrozenOn(today()),
                 'joined_at' => $e->joined_at->toDateString(),
                 'left_at' => $e->left_at?->toDateString(),
