@@ -21,7 +21,12 @@ type Props = {
     period: { from: string; to: string };
     freeProfit: number;
     categories: { id: number; name: string }[];
-    cashboxes: { id: number; name: string; branch_id: number }[];
+    cashboxes: {
+        id: number;
+        name: string;
+        branch_id: number;
+        balance: number;
+    }[];
 };
 
 export default function CashboxShow({

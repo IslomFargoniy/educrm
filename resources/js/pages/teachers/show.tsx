@@ -1,5 +1,6 @@
 import { Head } from '@inertiajs/react';
 import { HandCoins } from 'lucide-react';
+import { useState } from 'react';
 import Field from '@/components/field';
 import FormDialog from '@/components/form-dialog';
 import HistoryTable from '@/components/history-table';
@@ -49,6 +50,14 @@ export default function TeacherShow({
     cashboxes,
 }: Props) {
     const t = useT();
+    const [payoutBoxId, setPayoutBoxId] = useState(cashboxes[0]?.id);
+    const payoutBoxBalance =
+        cashboxes.find((c) => c.id === payoutBoxId)?.balance ?? 0;
+    // Suggest the whole salary, but never more than the chosen cashbox holds.
+    const suggestedPayout = Math.max(
+        0,
+        Math.min(teacher.balance, payoutBoxBalance),
+    );
     const { can } = useCan();
 
     return (
@@ -86,38 +95,54 @@ export default function TeacherShow({
                                 {(errors) => (
                                     <>
                                         <Field
-                                            label={t('Amount')}
-                                            error={errors.amount}
-                                        >
-                                            <Input
-                                                name="amount"
-                                                type="number"
-                                                min={1}
-                                                max={teacher.balance}
-                                                defaultValue={
-                                                    teacher.balance > 0
-                                                        ? teacher.balance
-                                                        : undefined
-                                                }
-                                                required
-                                            />
-                                        </Field>
-                                        <Field
                                             label={t('Cashbox')}
                                             error={errors.cashbox_id}
                                         >
-                                            <NativeSelect name="cashbox_id">
+                                            <NativeSelect
+                                                name="cashbox_id"
+                                                value={payoutBoxId}
+                                                onChange={(e) =>
+                                                    setPayoutBoxId(
+                                                        Number(e.target.value),
+                                                    )
+                                                }
+                                            >
                                                 {cashboxes.map((c) => (
                                                     <option
                                                         key={c.id}
                                                         value={c.id}
                                                     >
-                                                        {c.name} (
+                                                        {c.name} —{' '}
                                                         {formatMoney(c.balance)}
-                                                        )
                                                     </option>
                                                 ))}
                                             </NativeSelect>
+                                        </Field>
+                                        <Field
+                                            label={t('Amount')}
+                                            error={errors.amount}
+                                            hint={t('In cashbox: :amount', {
+                                                amount: formatMoney(
+                                                    payoutBoxBalance,
+                                                ),
+                                            })}
+                                        >
+                                            <Input
+                                                key={payoutBoxId}
+                                                name="amount"
+                                                type="number"
+                                                min={1}
+                                                max={Math.min(
+                                                    teacher.balance,
+                                                    payoutBoxBalance,
+                                                )}
+                                                defaultValue={
+                                                    suggestedPayout > 0
+                                                        ? suggestedPayout
+                                                        : undefined
+                                                }
+                                                required
+                                            />
                                         </Field>
                                         <Field
                                             label={t('Note')}

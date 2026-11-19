@@ -14,7 +14,12 @@ import cashboxTransfers from '@/routes/cashbox-transfers';
 import expenses from '@/routes/expenses';
 import withdrawals from '@/routes/withdrawals';
 
-type Cashbox = { id: number; name: string; branch_id?: number };
+type Cashbox = {
+    id: number;
+    name: string;
+    branch_id?: number;
+    balance: number;
+};
 
 /**
  * Expense, profit withdrawal and transfer buttons for cashbox pages.
@@ -33,15 +38,38 @@ export default function CashActions({
     const t = useT();
     const { can } = useCan();
     const [overFree, setOverFree] = useState(false);
-    const cashboxField = (error?: string) =>
+    const firstId = fixedCashboxId ?? cashboxes[0]?.id;
+    const [expenseBoxId, setExpenseBoxId] = useState(firstId);
+    const [transferBoxId, setTransferBoxId] = useState(firstId);
+    const [withdrawBoxId, setWithdrawBoxId] = useState(firstId);
+    const balanceOf = (id?: number) =>
+        cashboxes.find((c) => c.id === id)?.balance ?? 0;
+    const inCashbox = (id?: number) =>
+        t('In cashbox: :amount', { amount: formatMoney(balanceOf(id)) });
+    // Suggest the free profit, but never more than the chosen cashbox holds.
+    const suggestedWithdrawal = Math.max(
+        0,
+        Math.min(freeProfit, balanceOf(withdrawBoxId)),
+    );
+
+    const cashboxField = (
+        error: string | undefined,
+        value: number | undefined,
+        onChange: (id: number) => void,
+    ) =>
         fixedCashboxId ? (
             <input type="hidden" name="cashbox_id" value={fixedCashboxId} />
         ) : (
             <Field label={t('Cashbox')} error={error}>
-                <NativeSelect name="cashbox_id" required>
+                <NativeSelect
+                    name="cashbox_id"
+                    required
+                    value={value}
+                    onChange={(e) => onChange(Number(e.target.value))}
+                >
                     {cashboxes.map((c) => (
                         <option key={c.id} value={c.id}>
-                            {c.name}
+                            {c.name} — {formatMoney(c.balance)}
                         </option>
                     ))}
                 </NativeSelect>
@@ -63,7 +91,11 @@ export default function CashActions({
                 >
                     {(errors) => (
                         <>
-                            {cashboxField(errors.cashbox_id)}
+                            {cashboxField(
+                                errors.cashbox_id,
+                                expenseBoxId,
+                                setExpenseBoxId,
+                            )}
                             <Field
                                 label={t('Category')}
                                 error={errors.expense_category_id}
@@ -79,11 +111,16 @@ export default function CashActions({
                                     ))}
                                 </NativeSelect>
                             </Field>
-                            <Field label={t('Amount')} error={errors.amount}>
+                            <Field
+                                label={t('Amount')}
+                                error={errors.amount}
+                                hint={inCashbox(expenseBoxId)}
+                            >
                                 <Input
                                     name="amount"
                                     type="number"
                                     min={1}
+                                    max={balanceOf(expenseBoxId)}
                                     required
                                 />
                             </Field>
@@ -110,14 +147,23 @@ export default function CashActions({
                 >
                     {(errors) => (
                         <>
-                            {cashboxField(errors.cashbox_id)}
+                            {cashboxField(
+                                errors.cashbox_id,
+                                transferBoxId,
+                                setTransferBoxId,
+                            )}
                             <Field
                                 label={t('To cashbox')}
                                 error={errors.to_cashbox_id}
                             >
                                 <NativeSelect name="to_cashbox_id" required>
                                     {cashboxes
-                                        .filter((c) => c.id !== fixedCashboxId)
+                                        .filter(
+                                            (c) =>
+                                                c.id !==
+                                                (fixedCashboxId ??
+                                                    transferBoxId),
+                                        )
                                         .map((c) => (
                                             <option key={c.id} value={c.id}>
                                                 {c.name}
@@ -125,11 +171,16 @@ export default function CashActions({
                                         ))}
                                 </NativeSelect>
                             </Field>
-                            <Field label={t('Amount')} error={errors.amount}>
+                            <Field
+                                label={t('Amount')}
+                                error={errors.amount}
+                                hint={inCashbox(transferBoxId)}
+                            >
                                 <Input
                                     name="amount"
                                     type="number"
                                     min={1}
+                                    max={balanceOf(transferBoxId)}
                                     required
                                 />
                             </Field>
@@ -158,14 +209,25 @@ export default function CashActions({
                 >
                     {(errors) => (
                         <>
-                            {cashboxField(errors.cashbox_id)}
-                            <Field label={t('Amount')} error={errors.amount}>
+                            {cashboxField(
+                                errors.cashbox_id,
+                                withdrawBoxId,
+                                setWithdrawBoxId,
+                            )}
+                            <Field
+                                label={t('Amount')}
+                                error={errors.amount}
+                                hint={inCashbox(withdrawBoxId)}
+                            >
                                 <Input
+                                    key={withdrawBoxId}
                                     name="amount"
                                     type="number"
                                     min={1}
                                     defaultValue={
-                                        freeProfit > 0 ? freeProfit : undefined
+                                        suggestedWithdrawal > 0
+                                            ? suggestedWithdrawal
+                                            : undefined
                                     }
                                     required
                                 />

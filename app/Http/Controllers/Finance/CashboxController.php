@@ -48,7 +48,7 @@ class CashboxController extends Controller
             'period' => ['from' => $from->toDateString(), 'to' => $to->toDateString()],
             'freeProfit' => $this->finance->freeProfit([$cashbox->branch_id]),
             'categories' => ExpenseCategory::query()->where('is_active', true)->orderBy('name')->get(['id', 'name']),
-            'cashboxes' => Cashbox::query()->whereIn('branch_id', $this->branchIds())->where('is_active', true)->get(['id', 'name', 'branch_id']),
+            'cashboxes' => Cashbox::query()->whereIn('branch_id', $this->branchIds())->where('is_active', true)->get(['id', 'name', 'branch_id', 'balance']),
         ]);
     }
 

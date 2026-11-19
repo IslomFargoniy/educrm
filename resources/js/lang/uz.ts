@@ -174,6 +174,7 @@ export const uz: Record<string, string> = {
     'Last day': 'Oxirgi kun',
     Later: 'Keyinroq',
     'Lead sources': 'Lid manbalari',
+    'In cashbox: :amount': 'Kassada: :amount',
     Leads: 'Lidlar',
     Lessons: 'Darslar',
     'Leaves the group': 'Guruhdan chiqadi',

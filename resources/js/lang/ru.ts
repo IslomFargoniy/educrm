@@ -170,6 +170,7 @@ export const ru: Record<string, string> = {
     'Last day': 'Последний день',
     Later: 'Позже',
     'Lead sources': 'Источники лидов',
+    'In cashbox: :amount': 'В кассе: :amount',
     Leads: 'Лиды',
     Lessons: 'Уроки',
     'Leaves the group': 'Уходит из группы',
