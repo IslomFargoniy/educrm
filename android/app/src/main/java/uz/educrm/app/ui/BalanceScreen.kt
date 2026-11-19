@@ -65,6 +65,13 @@ fun BalanceScreen(api: EduCrmApi) {
         LoadBox(state, { reload++ }) { data ->
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(contentPadding()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 val history = data.history
+                // Income for this month's lessons; debts of earlier months' lessons paid now are shown apart.
+                val thisMonth = java.text.SimpleDateFormat("yyyy-MM", java.util.Locale.US).format(java.util.Date())
+                val isThisMonth = { row: uz.educrm.app.data.HistoryRow -> (row.metaObject.text("lesson_date") ?: row.date).startsWith(thisMonth) }
+                val incomeRows = history.rows.filter { it.income > 0 && isThisMonth(it) }
+                val incomeThisMonth = incomeRows.sumOf { it.income }
+                val incomeEarlier = history.income - incomeThisMonth
+                val expenseRows = history.rows.filter { it.expense > 0 && it.date.startsWith(thisMonth) }
                 Card(
                     onClick = { section = if (section == "all") null else "all" },
                     shape = MaterialTheme.shapes.large,
@@ -82,20 +89,21 @@ fun BalanceScreen(api: EduCrmApi) {
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     SummaryCard(stringResource(R.string.month_start), history.opening, MaterialTheme.colorScheme.onSurface, section == "opening", Modifier.weight(1f)) { section = if (section == "opening") null else "opening" }
-                    SummaryCard(stringResource(R.string.income_short), history.income, eduCrm.success, section == "income", Modifier.weight(1f)) { section = if (section == "income") null else "income" }
-                    SummaryCard(stringResource(R.string.paid_out), history.expense, eduCrm.danger, section == "expense", Modifier.weight(1f)) { section = if (section == "expense") null else "expense" }
+                    SummaryCard(stringResource(R.string.income_short), incomeThisMonth, eduCrm.success, section == "income", Modifier.weight(1f)) { section = if (section == "income") null else "income" }
+                    SummaryCard(stringResource(R.string.paid_out), expenseRows.sumOf { it.expense }, eduCrm.danger, section == "expense", Modifier.weight(1f)) { section = if (section == "expense") null else "expense" }
                 }
                 when (section) {
                     "all" -> HistoryList(history, signed = false)
-                    "income" -> HistoryList(history.copy(rows = history.rows.filter { it.income > 0 }), signed = false, title = stringResource(R.string.income_short))
-                    "expense" -> HistoryList(history.copy(rows = history.rows.filter { it.expense > 0 }), signed = false, title = stringResource(R.string.paid_out))
+                    "income" -> HistoryList(history.copy(rows = incomeRows), signed = false, title = stringResource(R.string.income_this_month))
+                    "expense" -> HistoryList(history.copy(rows = expenseRows), signed = false, title = stringResource(R.string.paid_out_this_month))
                     "opening" -> EduCrmCard {
                         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             Text(stringResource(R.string.month_start), fontWeight = FontWeight.Bold)
                             Text(stringResource(R.string.month_start_hint), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             HorizontalDivider(color = eduCrm.border)
                             FormulaRow(stringResource(R.string.month_start), money(history.opening))
-                            FormulaRow("+ " + stringResource(R.string.income_short), money(history.income), eduCrm.success)
+                            FormulaRow("+ " + stringResource(R.string.income_short), money(incomeThisMonth), eduCrm.success)
+                            if (incomeEarlier != 0L) FormulaRow("+ " + stringResource(R.string.earlier_debts_paid), money(incomeEarlier), eduCrm.success)
                             FormulaRow("− " + stringResource(R.string.paid_out), money(history.expense), eduCrm.danger)
                             HorizontalDivider(color = eduCrm.border)
                             FormulaRow("= " + stringResource(R.string.can_take), money(history.closing), bold = true)

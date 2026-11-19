@@ -89,4 +89,7 @@
     <string name="income_short">Tushum</string>
     <string name="paid_out">Berilgan</string>
     <string name="month_start_hint">Oy boshidagi qoldiq — oldingi oylardan qolgan, hali berilmagan pul. Oy boshi + tushum − berilgan = olish mumkin.</string>
+    <string name="income_this_month">Tushum — shu oy darslari</string>
+    <string name="paid_out_this_month">Berilgan — shu oy</string>
+    <string name="earlier_debts_paid">Oldingi oylar qarzi yopildi</string>
 </resources>

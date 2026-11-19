@@ -88,4 +88,7 @@
     <string name="income_short">Поступления</string>
     <string name="paid_out">Выдано</string>
     <string name="month_start_hint">Остаток на начало месяца — деньги прошлых месяцев, которые ещё не выданы. Начало месяца + поступления − выдано = можно получить.</string>
+    <string name="income_this_month">Поступления — уроки этого месяца</string>
+    <string name="paid_out_this_month">Выдано — этот месяц</string>
+    <string name="earlier_debts_paid">Оплачены долги прошлых месяцев</string>
 </resources>
