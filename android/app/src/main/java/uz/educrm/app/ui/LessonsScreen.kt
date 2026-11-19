@@ -3,6 +3,7 @@ package uz.educrm.app.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -60,7 +61,7 @@ import java.time.format.TextStyle
 import java.util.Locale
 
 @Composable
-fun LessonsScreen(api: EduCrmApi, user: UserProfile, onOpen: (Int) -> Unit) {
+fun LessonsScreen(api: EduCrmApi, user: UserProfile, onOpenGroup: (Int) -> Unit = {}, onOpen: (Int) -> Unit) {
     var day by remember { mutableStateOf(LocalDate.now()) }
     var state by remember { mutableStateOf<Load<LessonsResponse>>(Load.Loading) }
     var reload by remember { mutableStateOf(0) }
@@ -107,7 +108,16 @@ fun LessonsScreen(api: EduCrmApi, user: UserProfile, onOpen: (Int) -> Unit) {
                 EmptyState(stringResource(R.string.no_lessons))
             } else {
                 LazyColumn(contentPadding = contentPadding(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    itemsIndexed(data.lessons, key = { _, it -> it.id }) { index, lesson -> LessonCard(index + 1, lesson) { onOpen(lesson.id) } }
+                    itemsIndexed(data.lessons, key = { _, it -> it.id }) { index, lesson -> LessonCard(index + 1, lesson, onLongClick = { if (lesson.group_id > 0) onOpenGroup(lesson.group_id) }) { onOpen(lesson.id) } }
+                    item {
+                        Text(
+                            stringResource(R.string.long_press_hint),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                        )
+                    }
                 }
             }
         }
@@ -127,9 +137,19 @@ private fun HeaderStat(label: String, value: String, color: Color, modifier: Mod
 }
 
 @Composable
-private fun LessonCard(number: Int, lesson: LessonItem, onClick: () -> Unit) {
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
+private fun LessonCard(number: Int, lesson: LessonItem, onLongClick: () -> Unit, onClick: () -> Unit) {
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     val (statusText, statusColor) = lessonStatus(lesson.status)
-    EduCrmCard(onClick = onClick) {
+    EduCrmCard(
+        Modifier.clip(MaterialTheme.shapes.large).combinedClickable(
+            onClick = onClick,
+            onLongClick = {
+                haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                onLongClick()
+            },
+        ),
+    ) {
         Row(Modifier.height(androidx.compose.foundation.layout.IntrinsicSize.Min).padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
             RowNumber(number)
             Column(Modifier.width(56.dp)) {

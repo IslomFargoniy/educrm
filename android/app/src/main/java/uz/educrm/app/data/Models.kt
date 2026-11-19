@@ -33,6 +33,7 @@ data class MeResponse(val user: UserProfile)
 @Serializable
 data class LessonItem(
     val id: Int,
+    val group_id: Int = 0,
     val group: String,
     val date: String,
     val start_time: String,
@@ -181,3 +182,15 @@ data class MyStudent(val enrollment_id: Int, val student: String, val phone: Str
 
 @Serializable
 data class MyStudentsResponse(val debt: Long = 0, val debtors: Int = 0, val students: List<MyStudent> = emptyList())
+
+@Serializable
+data class GroupInfo(val id: Int, val name: String, val teacher: String? = null, val days: List<Int> = emptyList(), val start_time: String? = null, val end_time: String? = null)
+
+@Serializable
+data class GroupStudent(val enrollment_id: Int, val full_name: String, val phone: String? = null, val balance: Long? = null, val status: String = "active", val frozen: Boolean = false)
+
+@Serializable
+data class GroupLesson(val id: Int, val date: String, val start_time: String, val status: String, val marks: Map<String, String> = emptyMap())
+
+@Serializable
+data class GroupResponse(val group: GroupInfo, val students: List<GroupStudent> = emptyList(), val lessons: List<GroupLesson> = emptyList())

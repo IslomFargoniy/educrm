@@ -103,4 +103,10 @@
     <string name="total_students">Total students</string>
     <string name="frozen_students">Frozen</string>
     <string name="frozen_count">%1$d frozen</string>
+    <string name="attendance_history">Attendance history</string>
+    <string name="group_debt">Group debt: %1$s</string>
+    <string name="frozen">frozen</string>
+    <string name="left_group">left</string>
+    <string name="not_marked">Not marked</string>
+    <string name="long_press_hint">Press and hold a lesson to open its group</string>
 </resources>

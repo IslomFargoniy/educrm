@@ -65,6 +65,7 @@ class MobileController extends Controller
         $lessons = $lessons
             ->map(fn (Lesson $l) => [
                 'id' => $l->id,
+                'group_id' => $l->group_id,
                 'group' => $l->group->name,
                 'date' => $l->date->toDateString(),
                 'start_time' => substr($l->start_time, 0, 5),
@@ -111,6 +112,56 @@ class MobileController extends Controller
                 'arrived_at' => $arrived[$e->student_id] ?? null,
                 'is_trial' => $e->status->value === 'trial',
                 'is_debtor' => $user->can('students.view_debt') ? $e->balance < 0 : null,
+            ])->values(),
+        ]);
+    }
+
+    /**
+     * Group card for the app: students with phone and balance, and the attendance of recent lessons.
+     */
+    public function group(Request $request, Group $group): JsonResponse
+    {
+        $user = $request->user();
+        $this->authorizeBranch($group->branch_id);
+        abort_unless($group->teacher_id === $user->id || $user->can('groups.view'), 403);
+
+        $lessons = $group->lessons()
+            ->whereDate('date', '<=', today())
+            ->orderByDesc('date')->orderByDesc('start_time')
+            ->limit(30)
+            ->with('attendances:id,lesson_id,enrollment_id,status')
+            ->get(['id', 'group_id', 'date', 'start_time', 'status']);
+
+        $enrollments = $group->enrollments()
+            ->with('student:id,full_name,phone', 'freezes')
+            ->get()
+            ->filter(fn (Enrollment $e) => $e->status->isStudying() || $lessons->contains(fn (Lesson $l) => $l->attendances->contains('enrollment_id', $e->id)))
+            ->sortBy('student.full_name')
+            ->values();
+
+        return response()->json([
+            'group' => [
+                'id' => $group->id,
+                'name' => $group->name,
+                'teacher' => $group->teacher?->name,
+                'days' => array_values(array_map('intval', $group->days ?? [])),
+                'start_time' => $group->start_time ? substr($group->start_time, 0, 5) : null,
+                'end_time' => $group->end_time ? substr($group->end_time, 0, 5) : null,
+            ],
+            'students' => $enrollments->map(fn (Enrollment $e) => [
+                'enrollment_id' => $e->id,
+                'full_name' => $e->student->full_name,
+                'phone' => $user->can('students.view_phone') ? $e->student->phone : null,
+                'balance' => $user->can('students.view_debt') || $user->can('students.view_payments') ? $e->balance : null,
+                'status' => $e->status->value,
+                'frozen' => $e->isFrozenOn(today()),
+            ])->values(),
+            'lessons' => $lessons->map(fn (Lesson $l) => [
+                'id' => $l->id,
+                'date' => $l->date->toDateString(),
+                'start_time' => substr($l->start_time, 0, 5),
+                'status' => $l->status->value,
+                'marks' => (object) $l->attendances->mapWithKeys(fn ($a) => [(string) $a->enrollment_id => $a->status->value])->all(),
             ])->values(),
         ]);
     }

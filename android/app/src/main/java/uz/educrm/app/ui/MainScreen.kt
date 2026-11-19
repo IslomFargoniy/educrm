@@ -58,7 +58,10 @@ fun MainScreen(api: EduCrmApi, user: UserProfile, themeMode: ThemeMode, onThemeC
                 startDestination = "lessons",
                 modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).backdropSource(backdrop),
             ) {
-                composable("lessons") { LessonsScreen(api, user) { nav.navigate("lesson/$it") } }
+                composable("lessons") { LessonsScreen(api, user, onOpenGroup = { nav.navigate("group/$it") }) { nav.navigate("lesson/$it") } }
+                composable("group/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) {
+                    GroupScreen(api, it.arguments!!.getInt("id")) { nav.popBackStack() }
+                }
                 composable("lesson/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) {
                     LessonScreen(api, it.arguments!!.getInt("id")) { nav.popBackStack() }
                 }

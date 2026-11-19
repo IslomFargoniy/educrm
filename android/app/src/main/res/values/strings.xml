@@ -104,4 +104,10 @@
     <string name="total_students">Jami o\'quvchilar</string>
     <string name="frozen_students">Muzlaganlar</string>
     <string name="frozen_count">%1$d ta muzlagan</string>
+    <string name="attendance_history">Davomat tarixi</string>
+    <string name="group_debt">Guruh qarzi: %1$s</string>
+    <string name="frozen">muzlatilgan</string>
+    <string name="left_group">ketgan</string>
+    <string name="not_marked">Davomat qilinmagan</string>
+    <string name="long_press_hint">Guruh ma\'lumoti uchun darsni bosib turing</string>
 </resources>

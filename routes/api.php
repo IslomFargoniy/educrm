@@ -17,6 +17,7 @@ Route::prefix('v1')->name('api.')->group(function () {
         Route::post('logout', [AuthController::class, 'logout'])->name('logout');
         Route::get('lessons', [MobileController::class, 'lessons'])->name('lessons');
         Route::get('lessons/{lesson}', [MobileController::class, 'lesson'])->name('lessons.show');
+        Route::get('groups/{group}', [MobileController::class, 'group'])->name('groups.show');
         Route::post('lessons/{lesson}/attendance', [MobileController::class, 'attendance'])->name('lessons.attendance');
         Route::get('students', [MobileController::class, 'students'])->name('students');
         Route::get('students/{student}', [MobileController::class, 'student'])->name('students.show');

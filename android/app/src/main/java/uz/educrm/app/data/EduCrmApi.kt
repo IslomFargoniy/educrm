@@ -24,6 +24,7 @@ interface EduCrmApi {
     @POST("logout") suspend fun logout(): OkResponse
     @GET("lessons") suspend fun lessons(@Query("date") date: String): LessonsResponse
     @GET("lessons/{id}") suspend fun lesson(@Path("id") id: Int): LessonResponse
+    @GET("groups/{id}") suspend fun group(@Path("id") id: Int): GroupResponse
     @POST("lessons/{id}/attendance") suspend fun saveAttendance(@Path("id") id: Int, @Body body: AttendanceRequest): OkResponse
     @GET("students") suspend fun students(@Query("q") query: String): StudentsResponse
     @GET("students/{id}") suspend fun student(@Path("id") id: Int): StudentResponse

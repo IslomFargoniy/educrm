@@ -129,3 +129,19 @@ it('counts the students of the day\'s groups and the frozen ones', function () {
         ->and($response->json('summary.frozen'))->toBeGreaterThanOrEqual(1)
         ->and($response->json('summary.students'))->toBeGreaterThanOrEqual($studying->count());
 });
+
+it('shows the teacher a group card with students, balances, phones and recent attendance', function () {
+    $teacher = User::role(Role::Teacher->value)->first();
+    $group = Group::query()->where('teacher_id', $teacher->id)->where('status', 'active')->firstOrFail();
+    $token = $teacher->createToken('test')->plainTextToken;
+
+    $response = $this->withToken($token)->getJson(route('api.groups.show', $group))->assertOk()
+        ->assertJsonStructure(['group' => ['name', 'days'], 'students' => [['enrollment_id', 'full_name', 'phone', 'balance', 'frozen']], 'lessons']);
+
+    expect($response->json('group.name'))->toBe($group->name);
+
+    $other = Group::query()->where('teacher_id', '!=', $teacher->id)->first();
+    if ($other !== null) {
+        $this->withToken($token)->getJson(route('api.groups.show', $other))->assertForbidden();
+    }
+});
