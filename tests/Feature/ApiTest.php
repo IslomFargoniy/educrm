@@ -145,3 +145,14 @@ it('shows the teacher a group card with students, balances, phones and recent at
         $this->withToken($token)->getJson(route('api.groups.show', $other))->assertForbidden();
     }
 });
+
+it('shows a manager their own salary and KPI in the app', function () {
+    $manager = User::role(Role::Manager->value)->first();
+    $manager->update(['salary_fixed' => 2_000_000, 'kpi_first_payment' => 20_000]);
+    $token = $manager->createToken('test')->plainTextToken;
+
+    expect($this->withToken($token)->getJson(route('api.me'))->json('user.has_salary'))->toBeTrue();
+    $this->withToken($token)->getJson(route('api.me.salary', ['month' => now()->format('Y-m')]))->assertOk()
+        ->assertJson(['id' => $manager->id, 'fixed' => 2_000_000, 'kpi_rate' => 20_000])
+        ->assertJsonStructure(['total', 'paid', 'left', 'first_payments', 'students']);
+});

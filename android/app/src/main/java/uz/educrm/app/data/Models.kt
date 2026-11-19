@@ -20,6 +20,7 @@ data class UserProfile(
     val roles: List<String> = emptyList(),
     val permissions: List<String> = emptyList(),
     val branches: List<Branch> = emptyList(),
+    val has_salary: Boolean = false,
 ) {
     fun can(permission: String) = permissions.contains(permission)
 }
@@ -194,3 +195,20 @@ data class GroupLesson(val id: Int, val date: String, val start_time: String, va
 
 @Serializable
 data class GroupResponse(val group: GroupInfo, val students: List<GroupStudent> = emptyList(), val lessons: List<GroupLesson> = emptyList())
+
+@Serializable
+data class SalaryStudent(val id: Int, val full_name: String, val first_paid_at: String)
+
+@Serializable
+data class SalaryResponse(
+    val month: String,
+    val fixed: Long = 0,
+    val kpi_rate: Long = 0,
+    val registered: Int = 0,
+    val first_payments: Int = 0,
+    val kpi: Long = 0,
+    val total: Long = 0,
+    val paid: Long = 0,
+    val left: Long = 0,
+    val students: List<SalaryStudent> = emptyList(),
+)

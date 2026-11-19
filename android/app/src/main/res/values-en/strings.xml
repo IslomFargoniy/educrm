@@ -116,4 +116,11 @@
     <string name="camera">Camera</string>
     <string name="gallery">Gallery</string>
     <string name="no_face_photo">No Face ID photo — tap the picture</string>
+    <string name="my_salary">My salary</string>
+    <string name="total_salary">Total salary</string>
+    <string name="fixed_salary">Fixed salary</string>
+    <string name="students_taken_in">Students taken in</string>
+    <string name="first_payments">First payments</string>
+    <string name="left_to_pay">Left to pay</string>
+    <string name="kpi_students">Students counted for the KPI</string>
 </resources>

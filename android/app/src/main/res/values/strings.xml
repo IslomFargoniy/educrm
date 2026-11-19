@@ -117,4 +117,11 @@
     <string name="camera">Kamera</string>
     <string name="gallery">Galereya</string>
     <string name="no_face_photo">Face ID rasmi yo\'q — rasmni bosing</string>
+    <string name="my_salary">Oyligim</string>
+    <string name="total_salary">Jami oylik</string>
+    <string name="fixed_salary">Belgilangan oylik</string>
+    <string name="students_taken_in">Qabul qilgan o\'quvchilar</string>
+    <string name="first_payments">Birinchi to\'lovlar</string>
+    <string name="left_to_pay">Berilishi kerak</string>
+    <string name="kpi_students">KPI\'ga hisoblangan o\'quvchilar</string>
 </resources>

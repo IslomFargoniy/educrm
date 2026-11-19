@@ -56,6 +56,7 @@ class AuthController extends Controller
         return [
             ...$user->only(['id', 'name', 'phone', 'locale', 'balance']),
             'roles' => $user->getRoleNames(),
+            'has_salary' => $user->salary_fixed !== null || $user->kpi_first_payment !== null,
             'permissions' => $user->isSuperadmin() ? Permissions::all() : $user->getAllPermissions()->pluck('name'),
             'branches' => $user->branches()->get(['branches.id', 'branches.name']),
         ];

@@ -20,6 +20,7 @@ use App\Services\EnrollmentService;
 use App\Services\FinanceService;
 use App\Services\Isup\Arrivals;
 use App\Services\Isup\FacePhoto;
+use App\Services\Reports\StaffSalary;
 use App\Support\Phone;
 use App\Support\Presenters\History;
 use Illuminate\Http\JsonResponse;
@@ -299,6 +300,20 @@ class MobileController extends Controller
             'debtors' => $rows->where('balance', '<', 0)->count(),
             'students' => $rows,
         ]);
+    }
+
+    /**
+     * The signed-in staff member's salary for a month: fixed + KPI for first payments, paid and left.
+     */
+    public function mySalary(Request $request, StaffSalary $salaries): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+        $month = preg_match('/^\d{4}-\d{2}$/', (string) $request->query('month')) ? (string) $request->query('month') : now()->format('Y-m');
+        $row = $salaries->forMonth($month, $user->accessibleBranchIds(), $user->id)[0] ?? null;
+        abort_if($row === null, 404);
+
+        return response()->json(['month' => $month, ...$row]);
     }
 
     /**

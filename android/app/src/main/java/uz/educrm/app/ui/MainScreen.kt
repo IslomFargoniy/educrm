@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.MoneyOff
+import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
@@ -43,6 +44,7 @@ fun MainScreen(api: EduCrmApi, user: UserProfile, themeMode: ThemeMode, onThemeC
         if (user.can("students.view")) Tab("students", R.string.students, Icons.Filled.People) else null,
         if (isTeacher) Tab("balance", R.string.my_balance, Icons.Filled.AccountBalanceWallet) else null,
         if (isTeacher) Tab("debts", R.string.debts, Icons.Filled.MoneyOff) else null,
+        if (!isTeacher && user.has_salary) Tab("salary", R.string.my_salary, Icons.Filled.Payments) else null,
         Tab("profile", R.string.profile, Icons.Filled.Person),
     )
     val current by nav.currentBackStackEntryAsState()
@@ -71,6 +73,7 @@ fun MainScreen(api: EduCrmApi, user: UserProfile, themeMode: ThemeMode, onThemeC
                 }
                 composable("balance") { BalanceScreen(api) }
                 composable("debts") { DebtsScreen(api) }
+                composable("salary") { SalaryScreen(api) }
                 composable("profile") { ProfileScreen(user, themeMode, onThemeChange, language, onLanguageChange, onLogout) }
             }
         }

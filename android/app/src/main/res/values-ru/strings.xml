@@ -116,4 +116,11 @@
     <string name="camera">Камера</string>
     <string name="gallery">Галерея</string>
     <string name="no_face_photo">Нет фото Face ID — нажмите на фото</string>
+    <string name="my_salary">Моя зарплата</string>
+    <string name="total_salary">Итого зарплата</string>
+    <string name="fixed_salary">Фикс. зарплата</string>
+    <string name="students_taken_in">Принято учеников</string>
+    <string name="first_payments">Первые оплаты</string>
+    <string name="left_to_pay">Осталось выплатить</string>
+    <string name="kpi_students">Ученики в KPI</string>
 </resources>

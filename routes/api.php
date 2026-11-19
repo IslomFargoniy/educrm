@@ -29,6 +29,7 @@ Route::prefix('v1')->name('api.')->group(function () {
         Route::post('students', [MobileController::class, 'storeStudent'])->name('students.store');
         Route::post('leads', [MobileController::class, 'storeLead'])->name('leads.store');
         Route::get('me/balance', [MobileController::class, 'myBalance'])->name('me.balance');
+        Route::get('me/salary', [MobileController::class, 'mySalary'])->name('me.salary');
         Route::get('me/students', [MobileController::class, 'myStudents'])->name('me.students');
     });
 });
