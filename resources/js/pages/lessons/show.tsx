@@ -106,7 +106,7 @@ export default function LessonShow({
     return (
         <>
             <Head title={`${lesson.group.name} · ${formatDate(lesson.date)}`} />
-            <div className="flex flex-col gap-4 p-4 pb-28 md:p-6">
+            <div className="flex flex-col gap-4 p-4 md:p-6">
                 <PageHeader
                     title={
                         <Link
@@ -382,7 +382,7 @@ export default function LessonShow({
             </div>
 
             {canMark && lesson.status !== 'cancelled' && roster.length > 0 && (
-                <div className="fixed inset-x-0 bottom-0 z-20 border-t bg-background/95 p-3 backdrop-blur md:left-auto md:w-[calc(100%-var(--sidebar-width))]">
+                <div className="sticky bottom-[calc(env(safe-area-inset-bottom)+5.25rem)] z-20 mx-4 mb-4 rounded-2xl border bg-card/95 p-3 shadow-lg backdrop-blur md:bottom-4 md:mx-6 md:mb-6">
                     <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
                         <span className="text-sm text-muted-foreground">
                             {unmarked > 0
