@@ -156,3 +156,30 @@ it('shows a manager their own salary and KPI in the app', function () {
         ->assertJson(['id' => $manager->id, 'fixed' => 2_000_000, 'kpi_rate' => 20_000])
         ->assertJsonStructure(['total', 'paid', 'left', 'first_payments', 'students']);
 });
+
+it('pages the student list for the app', function () {
+    $admin = User::role(Role::Admin->value)->first();
+    $token = $admin->createToken('test')->plainTextToken;
+
+    $first = $this->withToken($token)->getJson(route('api.students'))->assertOk();
+    expect($first->json('students'))->toHaveCount(min(30, $first->json('total')));
+
+    if ($first->json('total') > 30) {
+        expect($first->json('next_page'))->toBe(2);
+        $second = $this->withToken($token)->getJson(route('api.students', ['page' => 2]))->assertOk();
+        expect(collect($second->json('students'))->pluck('id')->intersect(collect($first->json('students'))->pluck('id')))->toBeEmpty();
+    }
+});
+
+it('gives the teacher balance cards that add up, and pages the history, income and pending lists', function () {
+    $teacher = User::role(Role::Teacher->value)->first();
+    $token = $teacher->createToken('test')->plainTextToken;
+
+    $summary = $this->withToken($token)->getJson(route('api.me.balance.summary'))->assertOk()->json();
+    expect($summary['opening'] + $summary['income'] + $summary['earlier_debts'] - $summary['paid_out'])->toBe($summary['closing']);
+
+    foreach (['api.me.history', 'api.me.income-students', 'api.me.pending'] as $name) {
+        $this->withToken($token)->getJson(route($name, ['page' => 1]))->assertOk()->assertJsonStructure(['rows', 'next_page', 'total']);
+    }
+    $this->withToken($token)->getJson(route('api.me.history', ['kind' => 'payout']))->assertOk();
+});

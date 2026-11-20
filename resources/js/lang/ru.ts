@@ -860,4 +860,5 @@ export const ru: Record<string, string> = {
     'Taken in by': 'Принял',
     'Taken in by (for the KPI)': 'Принял сотрудник (для KPI)',
     'My salary': 'Моя зарплата',
+    'Show :count more (of :total)': 'Показать ещё :count (из :total)',
 };

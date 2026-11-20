@@ -1,6 +1,6 @@
 {
-    "versionCode": 25,
-    "versionName": "1.5.5",
+    "versionCode": 26,
+    "versionName": "1.5.6",
     "apk": "educrm.apk",
-    "notes": "Qaytarilgan ulush Tushumdan ayiriladi, Berilganda faqat berilgan oyliklar"
+    "notes": "Ro'yxatlar sahifalab yuklanadi: tez ishlaydi"
 }

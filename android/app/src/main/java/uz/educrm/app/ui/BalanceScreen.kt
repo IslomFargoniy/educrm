@@ -16,6 +16,10 @@ import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.foundation.clickable
+import uz.educrm.app.data.IncomeGroup
+import uz.educrm.app.data.BalanceSummary
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.border
 import uz.educrm.app.data.MyStudentsResponse
 import androidx.compose.ui.text.style.TextAlign
@@ -59,65 +63,99 @@ import uz.educrm.app.data.readableMessage
 
 @Composable
 fun BalanceScreen(api: EduCrmApi) {
-    var state by remember { mutableStateOf<Load<BalanceResponse>>(Load.Loading) }
+    var state by remember { mutableStateOf<Load<BalanceSummary>>(Load.Loading) }
     var reload by remember { mutableStateOf(0) }
     var section by remember { mutableStateOf<String?>(null) }
+    var byStudent by rememberSaveable { mutableStateOf(true) }
     val networkError = stringResource(R.string.error_network)
 
     LaunchedEffect(reload) {
-        state = runCatching { api.myBalance() }.fold({ Load.Ready(it) }, { Load.Failed(it.readableMessage(networkError)) })
+        state = runCatching { api.myBalanceSummary() }.fold({ Load.Ready(it) }, { Load.Failed(it.readableMessage(networkError)) })
+    }
+
+    // The list under the cards is loaded page by page, only when a card is opened.
+    val historyKind = when (section) {
+        "all" -> "all"
+        "expense" -> "payout"
+        "income" -> if (byStudent) null else "income"
+        else -> null
+    }
+    val history = rememberPaged(historyKind to reload) { page ->
+        if (historyKind == null) PageResult(emptyList(), null, 0) else api.myHistory(historyKind, page).let { PageResult(it.rows, it.next_page, it.total) }
+    }
+    val incomeByStudent = section == "income" && byStudent
+    val students = rememberPaged(incomeByStudent to reload) { page ->
+        if (!incomeByStudent) PageResult(emptyList(), null, 0) else api.myIncomeStudents(page).let { PageResult(it.rows, it.next_page, it.total) }
     }
 
     Column(Modifier.fillMaxSize()) {
         ScreenHeader(title = stringResource(R.string.my_balance))
         LoadBox(state, { reload++ }) { data ->
-            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(contentPadding()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                val history = data.history
-                // Income for this month's lessons; debts of earlier months' lessons paid now are shown apart.
-                val thisMonth = java.text.SimpleDateFormat("yyyy-MM", java.util.Locale.US).format(java.util.Date())
-                val isThisMonth = { row: uz.educrm.app.data.HistoryRow -> (row.metaObject.text("lesson_date") ?: row.date).startsWith(thisMonth) }
-                // Paid out = salary given only; a share taken back (excused lesson, cancelled payment) lowers the income.
-                val isPayout = { row: uz.educrm.app.data.HistoryRow -> row.type == "teacher_payout" }
-                val incomeRows = history.rows.filter { !isPayout(it) && (it.income > 0 || it.expense > 0) && isThisMonth(it) }
-                val incomeThisMonth = incomeRows.sumOf { it.income - it.expense }
-                val expenseRows = history.rows.filter { isPayout(it) && it.expense > 0 }
-                val paidOut = expenseRows.sumOf { it.expense }
-                val incomeEarlier = history.income - (history.expense - paidOut) - incomeThisMonth
-                Card(
-                    onClick = { section = if (section == "all") null else "all" },
-                    shape = MaterialTheme.shapes.large,
-                    colors = CardDefaults.cardColors(containerColor = eduCrm.hero),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f)) {
-                            Text(stringResource(R.string.can_take), color = Color.White.copy(alpha = 0.8f), fontWeight = FontWeight.SemiBold)
-                            Text(money(data.balance) + " " + stringResource(R.string.sum), color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.ExtraBold)
-                            Text(stringResource(R.string.tap_for_history), color = Color.White.copy(alpha = 0.7f), style = MaterialTheme.typography.bodySmall)
+            LazyColumn(contentPadding = contentPadding(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                item(key = "hero") {
+                    Card(
+                        onClick = { section = if (section == "all") null else "all" },
+                        shape = MaterialTheme.shapes.large,
+                        colors = CardDefaults.cardColors(containerColor = eduCrm.hero),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Column(Modifier.weight(1f)) {
+                                Text(stringResource(R.string.can_take), color = Color.White.copy(alpha = 0.8f), fontWeight = FontWeight.SemiBold)
+                                Text(money(data.balance) + " " + stringResource(R.string.sum), color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.ExtraBold)
+                                Text(stringResource(R.string.tap_for_history), color = Color.White.copy(alpha = 0.7f), style = MaterialTheme.typography.bodySmall)
+                            }
+                            Icon(if (section == "all") Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, contentDescription = null, tint = Color.White)
                         }
-                        Icon(if (section == "all") Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, contentDescription = null, tint = Color.White)
                     }
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SummaryCard(stringResource(R.string.month_start), history.opening, MaterialTheme.colorScheme.onSurface, section == "opening", Modifier.weight(1f)) { section = if (section == "opening") null else "opening" }
-                    SummaryCard(stringResource(R.string.income_short), incomeThisMonth, eduCrm.success, section == "income", Modifier.weight(1f)) { section = if (section == "income") null else "income" }
-                    SummaryCard(stringResource(R.string.paid_out), paidOut, eduCrm.danger, section == "expense", Modifier.weight(1f)) { section = if (section == "expense") null else "expense" }
+                item(key = "cards") {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SummaryCard(stringResource(R.string.month_start), data.opening, MaterialTheme.colorScheme.onSurface, section == "opening", Modifier.weight(1f)) { section = if (section == "opening") null else "opening" }
+                        SummaryCard(stringResource(R.string.income_short), data.income, eduCrm.success, section == "income", Modifier.weight(1f)) { section = if (section == "income") null else "income" }
+                        SummaryCard(stringResource(R.string.paid_out), data.paid_out, eduCrm.danger, section == "expense", Modifier.weight(1f)) { section = if (section == "expense") null else "expense" }
+                    }
                 }
                 when (section) {
-                    "all" -> HistoryList(history, signed = false)
-                    "income" -> IncomeDetails(history.copy(rows = incomeRows))
-                    "expense" -> HistoryList(history.copy(rows = expenseRows), signed = false, title = stringResource(R.string.paid_out_this_month))
-                    "opening" -> EduCrmCard {
-                        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Text(stringResource(R.string.month_start), fontWeight = FontWeight.Bold)
-                            Text(stringResource(R.string.month_start_hint), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            HorizontalDivider(color = eduCrm.border)
-                            FormulaRow(stringResource(R.string.month_start), money(history.opening))
-                            FormulaRow("+ " + stringResource(R.string.income_short), money(incomeThisMonth), eduCrm.success)
-                            if (incomeEarlier != 0L) FormulaRow("+ " + stringResource(R.string.earlier_debts_paid), money(incomeEarlier), eduCrm.success)
-                            FormulaRow("− " + stringResource(R.string.paid_out), money(paidOut), eduCrm.danger)
-                            HorizontalDivider(color = eduCrm.border)
-                            FormulaRow("= " + stringResource(R.string.can_take), money(history.closing), bold = true)
+                    "opening" -> item(key = "opening") {
+                        EduCrmCard {
+                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Text(stringResource(R.string.month_start), fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.month_start_hint), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                HorizontalDivider(color = eduCrm.border)
+                                FormulaRow(stringResource(R.string.month_start), money(data.opening))
+                                FormulaRow("+ " + stringResource(R.string.income_short), money(data.income), eduCrm.success)
+                                if (data.earlier_debts != 0L) FormulaRow("+ " + stringResource(R.string.earlier_debts_paid), money(data.earlier_debts), eduCrm.success)
+                                FormulaRow("− " + stringResource(R.string.paid_out), money(data.paid_out), eduCrm.danger)
+                                HorizontalDivider(color = eduCrm.border)
+                                FormulaRow("= " + stringResource(R.string.can_take), money(data.closing), bold = true)
+                            }
+                        }
+                    }
+                    null -> Unit
+                    else -> {
+                        item(key = "title-$section") {
+                            SectionTitle(
+                                when (section) {
+                                    "income" -> stringResource(R.string.income_this_month)
+                                    "expense" -> stringResource(R.string.paid_out_this_month)
+                                    else -> stringResource(R.string.history)
+                                },
+                            )
+                        }
+                        if (section == "income") {
+                            item(key = "income-tabs") { IncomeTabs(byStudent) { byStudent = it } }
+                        }
+                        if (incomeByStudent) {
+                            itemsIndexed(students.items, key = { index, it -> "s$index-${it.student}-${it.group}" }) { index, group ->
+                                EduCrmCard { Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) { IncomeStudentRow(index + 1, group) } }
+                            }
+                            pagingFooter(students)
+                        } else {
+                            itemsIndexed(history.items, key = { index, it -> "h$index-${it.id}" }) { index, row ->
+                                EduCrmCard { HistoryRowItem(index + 1, row, signed = false) }
+                            }
+                            pagingFooter(history)
                         }
                     }
                 }
@@ -128,82 +166,48 @@ fun BalanceScreen(api: EduCrmApi) {
 
 private fun signedMoney(value: Long): String = if (value < 0) money(value) else "+" + money(value)
 
-/** One payment into the teacher's balance for one student's lesson. */
-private data class IncomeItem(val student: String, val group: String, val lessonDate: String?, val date: String, val amount: Long, val type: String)
-
-/**
- * This month's income: by student (tap a student for each lesson), or as the plain history.
- */
 @Composable
-private fun IncomeDetails(history: uz.educrm.app.data.History) {
-    var byStudent by rememberSaveable { mutableStateOf(true) }
-    val items = history.rows.flatMap { row ->
-        val group = row.metaObject.text("group").orEmpty()
-        val lessonDate = row.metaObject.text("lesson_date")
-        if (row.children.isNotEmpty()) {
-            row.children.map { IncomeItem(it.student, group, lessonDate, row.date, it.share, row.type) }
-        } else {
-            listOf(IncomeItem(row.metaObject.text("student").orEmpty(), group, lessonDate, row.date, row.income - row.expense, row.type))
-        }
-    }
-
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        SectionTitle(stringResource(R.string.income_this_month))
-        Row(
-            Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceVariant).border(1.dp, eduCrm.border, RoundedCornerShape(12.dp)).padding(4.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            listOf(true to R.string.by_student, false to R.string.history).forEach { (value, label) ->
-                val selected = byStudent == value
-                Text(
-                    stringResource(label),
-                    textAlign = TextAlign.Center,
-                    fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
-                    fontSize = 13.sp,
-                    color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.weight(1f).clip(RoundedCornerShape(9.dp))
-                        .background(if (selected) MaterialTheme.colorScheme.surface else Color.Transparent)
-                        .clickable { byStudent = value }
-                        .padding(vertical = 10.dp),
-                )
-            }
-        }
-        if (!byStudent) {
-            HistoryList(history, signed = false, title = null, showTitle = false)
-        } else {
-            EduCrmCard {
-                Column(Modifier.padding(16.dp)) {
-                    val groups = items.groupBy { it.student to it.group }.entries.sortedByDescending { e -> e.value.sumOf { it.amount } }
-                    if (groups.isEmpty()) Text("—", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    groups.forEachIndexed { index, (key, list) ->
-                        if (index > 0) HorizontalDivider(Modifier.padding(vertical = 8.dp), color = eduCrm.border)
-                        IncomeStudentRow(index + 1, key.first, key.second, list)
-                    }
-                }
-            }
+private fun IncomeTabs(byStudent: Boolean, onChange: (Boolean) -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceVariant).border(1.dp, eduCrm.border, RoundedCornerShape(12.dp)).padding(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        listOf(true to R.string.by_student, false to R.string.history).forEach { (value, label) ->
+            val selected = byStudent == value
+            Text(
+                stringResource(label),
+                textAlign = TextAlign.Center,
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+                fontSize = 13.sp,
+                color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.weight(1f).clip(RoundedCornerShape(9.dp))
+                    .background(if (selected) MaterialTheme.colorScheme.surface else Color.Transparent)
+                    .clickable { onChange(value) }
+                    .padding(vertical = 10.dp),
+            )
         }
     }
 }
 
+/** One student's income this month; a tap shows each lesson (a share taken back is shown with a minus). */
 @Composable
-private fun IncomeStudentRow(number: Int, student: String, group: String, items: List<IncomeItem>) {
+private fun IncomeStudentRow(number: Int, group: IncomeGroup) {
     var expanded by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxWidth().clickable { expanded = !expanded }) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             RowNumber(number)
             Column(Modifier.weight(1f)) {
-                Text(student, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
-                Text("$group · ${stringResource(R.string.lessons_count, items.size)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(group.student, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                Text("${group.group} · ${stringResource(R.string.lessons_count, group.items.size)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            val total = items.sumOf { it.amount }
-            Text(signedMoney(total), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium, color = if (total < 0) eduCrm.danger else eduCrm.success)
+            Text(signedMoney(group.total), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium, color = if (group.total < 0) eduCrm.danger else eduCrm.success)
             Icon(if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 4.dp).size(20.dp))
         }
         if (expanded) {
-            items.sortedBy { it.lessonDate ?: it.date }.forEach {
+            group.items.forEach {
                 Row(Modifier.fillMaxWidth().padding(start = 26.dp, end = 24.dp, top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
-                        Text(stringResource(R.string.lesson_on, date(it.lessonDate ?: it.date)), style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(R.string.lesson_on, date(it.lesson_date ?: it.date)), style = MaterialTheme.typography.bodySmall)
                         Text("${txLabel(it.type)} · ${date(it.date)}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Text(signedMoney(it.amount), style = MaterialTheme.typography.bodySmall, color = if (it.amount < 0) eduCrm.danger else eduCrm.success, fontWeight = FontWeight.SemiBold)
@@ -249,34 +253,29 @@ fun DebtsScreen(api: EduCrmApi) {
     }
 }
 
-/** The teacher's share waiting for the students to pay, by student. */
+/** The teacher's share waiting for the students to pay, by student, page by page. */
 @Composable
 private fun ShareWaitingTab(api: EduCrmApi) {
-    var state by remember { mutableStateOf<Load<BalanceResponse>>(Load.Loading) }
-    var reload by remember { mutableStateOf(0) }
-    val networkError = stringResource(R.string.error_network)
-
-    LaunchedEffect(reload) {
-        state = runCatching { api.myBalance() }.fold({ Load.Ready(it) }, { Load.Failed(it.readableMessage(networkError)) })
+    var sum by remember { mutableStateOf<Long?>(null) }
+    val pending = rememberPaged(Unit) { page ->
+        api.myPending(page).also { sum = it.sum }.let { PageResult(it.rows, it.next_page, it.total) }
     }
 
-    LoadBox(state, { reload++ }) { data ->
-        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(contentPadding()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    LazyColumn(contentPadding = contentPadding(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        item(key = "total") {
             EduCrmCard {
                 Column(Modifier.padding(16.dp)) {
                     Text(stringResource(R.string.waiting_payment), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text(money(-data.pending.total) + " " + stringResource(R.string.sum), fontWeight = FontWeight.ExtraBold, fontSize = 22.sp, color = if (data.pending.total > 0) eduCrm.danger else MaterialTheme.colorScheme.onSurface)
+                    val total = sum ?: 0L
+                    Text(money(-total) + " " + stringResource(R.string.sum), fontWeight = FontWeight.ExtraBold, fontSize = 22.sp, color = if (total > 0) eduCrm.danger else MaterialTheme.colorScheme.onSurface)
                     Text(stringResource(R.string.share_waiting_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    if (data.pending.items.isEmpty()) {
-                        Text("—", modifier = Modifier.padding(top = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    data.pending.items.groupBy { it.student to it.group }.entries.forEachIndexed { index, (key, lessons) ->
-                        HorizontalDivider(Modifier.padding(vertical = 8.dp), color = eduCrm.border)
-                        PendingStudentRow(index + 1, key.first, key.second, lessons)
-                    }
                 }
             }
         }
+        itemsIndexed(pending.items, key = { index, it -> "p$index-${it.student}-${it.group}" }) { index, group ->
+            EduCrmCard { Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) { PendingStudentRow(index + 1, group.student, group.group, group.items) } }
+        }
+        pagingFooter(pending)
     }
 }
 

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import RowNumber from '@/components/row-number';
 import Money from '@/components/money';
 import { BarChart, PieChart } from '@/components/report-chart';
+import { useShowMore } from '@/components/show-more';
 import type { ChartItem } from '@/components/report-chart';
 import PageHeader from '@/components/page-header';
 import PeriodFilter from '@/components/period-filter';
@@ -784,6 +785,8 @@ function SimpleTable({
 }) {
     const t = useT();
 
+    const { shown, button: moreButton } = useShowMore(rows);
+
     return (
         <div className="overflow-x-auto rounded-xl border bg-card">
             <Table>
@@ -815,7 +818,7 @@ function SimpleTable({
                             </TableCell>
                         </TableRow>
                     )}
-                    {rows.map((row, i) => (
+                    {shown.map((row, i) => (
                         <TableRow key={i}>
                             <TableCell className="w-12 text-center text-muted-foreground tabular-nums">
                                 {i + 1}
@@ -853,6 +856,7 @@ function SimpleTable({
                     )}
                 </TableBody>
             </Table>
+            {moreButton}
         </div>
     );
 }

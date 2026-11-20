@@ -30,6 +30,10 @@ Route::prefix('v1')->name('api.')->group(function () {
         Route::post('leads', [MobileController::class, 'storeLead'])->name('leads.store');
         Route::get('me/balance', [MobileController::class, 'myBalance'])->name('me.balance');
         Route::get('me/salary', [MobileController::class, 'mySalary'])->name('me.salary');
+        Route::get('me/balance/summary', [MobileController::class, 'myBalanceSummary'])->name('me.balance.summary');
+        Route::get('me/history', [MobileController::class, 'myHistory'])->name('me.history');
+        Route::get('me/income-students', [MobileController::class, 'myIncomeByStudent'])->name('me.income-students');
+        Route::get('me/pending', [MobileController::class, 'myPending'])->name('me.pending');
         Route::get('me/students', [MobileController::class, 'myStudents'])->name('me.students');
     });
 });

@@ -86,7 +86,7 @@ data class StudentGroup(val enrollment_id: Int, val group: String, val branch_id
 data class StudentItem(val id: Int, val full_name: String, val phone: String? = null, val groups: List<StudentGroup> = emptyList())
 
 @Serializable
-data class StudentsResponse(val students: List<StudentItem>)
+data class StudentsResponse(val students: List<StudentItem>, val next_page: Int? = null, val total: Int = 0)
 
 @Serializable
 data class HistoryRow(
@@ -212,3 +212,32 @@ data class SalaryResponse(
     val left: Long = 0,
     val students: List<SalaryStudent> = emptyList(),
 )
+
+@Serializable
+data class BalanceSummary(
+    val balance: Long = 0,
+    val opening: Long = 0,
+    val income: Long = 0,
+    val earlier_debts: Long = 0,
+    val paid_out: Long = 0,
+    val closing: Long = 0,
+    val pending_total: Long = 0,
+)
+
+@Serializable
+data class HistoryPage(val rows: List<HistoryRow> = emptyList(), val next_page: Int? = null, val total: Int = 0)
+
+@Serializable
+data class IncomeEntry(val student: String = "", val group: String = "", val lesson_date: String? = null, val date: String = "", val amount: Long = 0, val type: String = "")
+
+@Serializable
+data class IncomeGroup(val student: String = "", val group: String = "", val total: Long = 0, val items: List<IncomeEntry> = emptyList())
+
+@Serializable
+data class IncomePage(val rows: List<IncomeGroup> = emptyList(), val next_page: Int? = null, val total: Int = 0)
+
+@Serializable
+data class PendingGroup(val student: String = "", val group: String = "", val total: Long = 0, val items: List<PendingItem> = emptyList())
+
+@Serializable
+data class PendingPage(val sum: Long = 0, val rows: List<PendingGroup> = emptyList(), val next_page: Int? = null, val total: Int = 0)

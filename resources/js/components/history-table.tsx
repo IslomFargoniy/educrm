@@ -2,6 +2,7 @@ import { ChevronDown, ChevronRight, Download, Flag } from 'lucide-react';
 import { Fragment, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import Money from '@/components/money';
+import { useShowMore } from '@/components/show-more';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -97,6 +98,8 @@ export default function HistoryTable({
                         .includes(needle)),
         );
     }, [history.rows, type, direction, search, context, t]);
+
+    const { shown, button: moreButton } = useShowMore(rows);
 
     const download = async () => {
         setExporting(true);
@@ -250,7 +253,7 @@ export default function HistoryTable({
                                 </TableCell>
                             </TableRow>
                         )}
-                        {rows.map((row, index) => {
+                        {shown.map((row, index) => {
                             const key = String(row.id);
                             const expandable =
                                 Boolean(row.children?.length) ||
@@ -446,6 +449,7 @@ export default function HistoryTable({
                     </TableBody>
                 </Table>
             </div>
+            {moreButton}
         </div>
     );
 }

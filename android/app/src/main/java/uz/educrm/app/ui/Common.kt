@@ -224,7 +224,7 @@ fun HistoryList(history: History, signed: Boolean, title: String? = null, showTi
  * A history row; a lesson share of several students opens the list of students on tap.
  */
 @Composable
-private fun HistoryRowItem(number: Int, row: uz.educrm.app.data.HistoryRow, signed: Boolean) {
+fun HistoryRowItem(number: Int, row: uz.educrm.app.data.HistoryRow, signed: Boolean) {
     var expanded by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     val expandable = row.children.size > 1
     Column(Modifier.fillMaxWidth().then(if (expandable) Modifier.clickable { expanded = !expanded } else Modifier).padding(horizontal = 14.dp, vertical = 12.dp)) {

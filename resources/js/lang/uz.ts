@@ -865,4 +865,6 @@ export const uz: Record<string, string> = {
     'Taken in by': 'Qabul qilgan',
     'Taken in by (for the KPI)': 'Qabul qilgan xodim (KPI uchun)',
     'My salary': 'Mening oyligim',
+    'Show :count more (of :total)':
+        "Yana :count tasini ko'rsatish (jami :total)",
 };

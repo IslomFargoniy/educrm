@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Enums\LeadSource;
 use App\Enums\LeadStatus;
 use App\Enums\LedgerAccount;
+use App\Enums\TransactionType;
 use App\Http\Controllers\Controller;
 use App\Models\Cashbox;
 use App\Models\Course;
@@ -204,13 +205,13 @@ class MobileController extends Controller
         abort_unless($request->user()->can('students.view'), 403);
         $term = (string) $request->query('q', '');
 
-        $students = Student::query()
+        $page = Student::query()
             ->inBranches($this->scope($request))
             ->when($term !== '', fn ($q) => $q->where(fn ($w) => $w->where('full_name', 'like', "%{$term}%")->orWhere('phone', 'like', "%{$term}%")))
             ->with(['enrollments' => fn ($q) => $q->whereIn('status', ['active', 'trial'])->with('group:id,name,branch_id')])
             ->orderBy('full_name')
-            ->limit(50)
-            ->get()
+            ->paginate(30, ['*'], 'page', max(1, $request->integer('page', 1)));
+        $students = collect($page->items())
             ->map(fn (Student $s) => [
                 'id' => $s->id,
                 'full_name' => $s->full_name,
@@ -218,7 +219,7 @@ class MobileController extends Controller
                 'groups' => $s->enrollments->map(fn (Enrollment $e) => ['enrollment_id' => $e->id, 'group' => $e->group->name, 'branch_id' => $e->group->branch_id, 'balance' => $e->balance]),
             ]);
 
-        return response()->json(['students' => $students]);
+        return response()->json(['students' => $students->values(), 'next_page' => $page->hasMorePages() ? $page->currentPage() + 1 : null, 'total' => $page->total()]);
     }
 
     public function student(Request $request, Student $student, CoverageService $coverage): JsonResponse
@@ -314,6 +315,135 @@ class MobileController extends Controller
         abort_if($row === null, 404);
 
         return response()->json(['month' => $month, ...$row]);
+    }
+
+    /**
+     * Balance cards of the signed-in teacher for this month, worked out on the server:
+     * month start + income for this month's lessons + earlier debts paid now − paid out = can take.
+     */
+    public function myBalanceSummary(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+        $month = $this->teacherMonth($user);
+        $paidOut = (int) collect($month['payout'])->sum('expense');
+        $incomeThisMonth = (int) collect($month['income'])->sum(fn (array $r) => $r['income'] - $r['expense']);
+
+        return response()->json([
+            'balance' => $user->balance,
+            'opening' => $month['history']['opening'],
+            'income' => $incomeThisMonth,
+            'earlier_debts' => $month['history']['income'] - ($month['history']['expense'] - $paidOut) - $incomeThisMonth,
+            'paid_out' => $paidOut,
+            'closing' => $month['history']['closing'],
+            'pending_total' => History::pendingForTeacher($user)['total'],
+        ]);
+    }
+
+    /**
+     * One page of the teacher's month history: all rows, income rows or salary paid out.
+     */
+    public function myHistory(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+        $month = $this->teacherMonth($user);
+        $rows = match ($request->query('kind')) {
+            'income' => $month['income'],
+            'payout' => $month['payout'],
+            default => $month['history']['rows'],
+        };
+
+        return response()->json($this->slice($rows, $request->integer('page', 1)));
+    }
+
+    /**
+     * This month's income grouped by student (largest first), one page; each with its lessons.
+     */
+    public function myIncomeByStudent(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+        $items = [];
+
+        foreach ($this->teacherMonth($user)['income'] as $row) {
+            $group = (string) ($row['meta']['group'] ?? '');
+            $lessonDate = $row['meta']['lesson_date'] ?? null;
+            $children = $row['children'] ?? [];
+            $parts = $children === []
+                ? [['student' => (string) ($row['meta']['student'] ?? ''), 'amount' => $row['income'] - $row['expense']]]
+                : array_map(fn (array $c) => ['student' => (string) $c['student'], 'amount' => (int) $c['share']], $children);
+
+            foreach ($parts as $part) {
+                $items[] = ['student' => $part['student'], 'group' => $group, 'lesson_date' => $lessonDate, 'date' => $row['date'], 'amount' => $part['amount'], 'type' => $row['type']];
+            }
+        }
+
+        $rows = collect($items)->groupBy(fn (array $i) => $i['student'].'|'.$i['group'])
+            ->map(fn ($list) => [
+                'student' => $list->first()['student'],
+                'group' => $list->first()['group'],
+                'total' => (int) $list->sum('amount'),
+                'items' => $list->sortBy(fn (array $i) => $i['lesson_date'] ?? $i['date'])->values()->all(),
+            ])
+            ->sortByDesc('total')->values()->all();
+
+        return response()->json($this->slice($rows, $request->integer('page', 1)));
+    }
+
+    /**
+     * Lessons waiting for the students' payment, grouped by student (largest first), one page.
+     */
+    public function myPending(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+        $pending = History::pendingForTeacher($user);
+        $rows = collect($pending['items'])->groupBy(fn (array $i) => $i['student'].'|'.$i['group'])
+            ->map(fn ($list) => [
+                'student' => $list->first()['student'],
+                'group' => $list->first()['group'],
+                'total' => (int) $list->sum('amount'),
+                'items' => $list->values()->all(),
+            ])
+            ->sortByDesc('total')->values()->all();
+
+        return response()->json(['sum' => $pending['total'], ...$this->slice($rows, $request->integer('page', 1))]);
+    }
+
+    /**
+     * The teacher's history of the current month, split into income rows (this month's lessons) and salary paid out.
+     *
+     * @return array{history: array{opening: int, income: int, expense: int, closing: int, rows: list<array<string, mixed>>}, income: list<array<string, mixed>>, payout: list<array<string, mixed>>}
+     */
+    private function teacherMonth(User $user): array
+    {
+        $history = History::forAccount(LedgerAccount::Teacher, $user->id, now()->startOfMonth(), today());
+        $thisMonth = now()->format('Y-m');
+        $isPayout = fn (array $r) => $r['type'] === TransactionType::TeacherPayout->value;
+
+        return [
+            'history' => $history,
+            'income' => array_values(array_filter($history['rows'], fn (array $r) => ! $isPayout($r)
+                && ($r['income'] > 0 || $r['expense'] > 0)
+                && str_starts_with((string) ($r['meta']['lesson_date'] ?? $r['date']), $thisMonth))),
+            'payout' => array_values(array_filter($history['rows'], fn (array $r) => $isPayout($r) && $r['expense'] > 0)),
+        ];
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $rows
+     * @return array{rows: list<array<string, mixed>>, next_page: int|null, total: int}
+     */
+    private function slice(array $rows, int $page, int $perPage = 30): array
+    {
+        $page = max(1, $page);
+
+        return [
+            'rows' => array_slice($rows, ($page - 1) * $perPage, $perPage),
+            'next_page' => count($rows) > $page * $perPage ? $page + 1 : null,
+            'total' => count($rows),
+        ];
     }
 
     /**

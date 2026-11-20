@@ -65,9 +65,8 @@ import java.util.UUID
 @Composable
 fun StudentsScreen(api: EduCrmApi, user: UserProfile, onOpen: (Int) -> Unit) {
     var query by remember { mutableStateOf("") }
-    var state by remember { mutableStateOf<Load<StudentsResponse>>(Load.Loading) }
+    var search by remember { mutableStateOf("") }
     var reload by remember { mutableStateOf(0) }
-    val networkError = stringResource(R.string.error_network)
     val kinds = listOfNotNull(
         if (user.can("students.create")) NewPersonKind.Student else null,
         if (user.can("leads.manage")) NewPersonKind.Lead else null,
@@ -76,16 +75,20 @@ fun StudentsScreen(api: EduCrmApi, user: UserProfile, onOpen: (Int) -> Unit) {
     var notice by remember { mutableStateOf<String?>(null) }
     val leadAdded = stringResource(R.string.lead_added, "%s")
 
-    LaunchedEffect(query, reload) {
+    // Wait until typing stops, then search from the first page.
+    LaunchedEffect(query) {
         delay(300)
-        state = runCatching { api.students(query) }.fold({ Load.Ready(it) }, { Load.Failed(it.readableMessage(networkError)) })
+        search = query
+    }
+    val students = rememberPaged(search to reload) { page ->
+        api.students(search, page).let { PageResult(it.students, it.next_page, it.total) }
     }
 
     Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize()) {
         ScreenHeader(
             title = stringResource(R.string.students),
-            subtitle = (state as? Load.Ready)?.value?.let { stringResource(R.string.students_count, it.students.size) },
+            subtitle = if (students.started) stringResource(R.string.students_count, students.total) else null,
             bottom = {
                 TextField(
                     query,
@@ -105,25 +108,21 @@ fun StudentsScreen(api: EduCrmApi, user: UserProfile, onOpen: (Int) -> Unit) {
             },
         )
         notice?.let { Text(it, color = eduCrm.success, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 10.dp)) }
-        LoadBox(state, { reload++ }) { data ->
-            if (data.students.isEmpty()) {
-                EmptyState("—")
-            }
-            LazyColumn(contentPadding = contentPadding(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                itemsIndexed(data.students, key = { _, it -> it.id }) { index, student ->
-                    EduCrmCard(onClick = { onOpen(student.id) }) {
-                        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                            RowNumber(index + 1)
-                            Initials(student.full_name)
-                            Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
-                                Text(student.full_name, fontWeight = FontWeight.Bold, maxLines = 1)
-                                Text(student.groups.joinToString { it.group }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
-                            }
-                            MoneyText(student.groups.sumOf { it.balance }, signed = true)
+        LazyColumn(contentPadding = contentPadding(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            itemsIndexed(students.items, key = { _, it -> it.id }) { index, student ->
+                EduCrmCard(onClick = { onOpen(student.id) }) {
+                    Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                        RowNumber(index + 1)
+                        Initials(student.full_name)
+                        Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
+                            Text(student.full_name, fontWeight = FontWeight.Bold, maxLines = 1)
+                            Text(student.groups.joinToString { it.group }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
                         }
+                        MoneyText(student.groups.sumOf { it.balance }, signed = true)
                     }
                 }
             }
+            pagingFooter(students)
         }
     }
 
