@@ -76,10 +76,13 @@ fun BalanceScreen(api: EduCrmApi) {
                 // Income for this month's lessons; debts of earlier months' lessons paid now are shown apart.
                 val thisMonth = java.text.SimpleDateFormat("yyyy-MM", java.util.Locale.US).format(java.util.Date())
                 val isThisMonth = { row: uz.educrm.app.data.HistoryRow -> (row.metaObject.text("lesson_date") ?: row.date).startsWith(thisMonth) }
-                val incomeRows = history.rows.filter { it.income > 0 && isThisMonth(it) }
-                val incomeThisMonth = incomeRows.sumOf { it.income }
-                val incomeEarlier = history.income - incomeThisMonth
-                val expenseRows = history.rows.filter { it.expense > 0 && it.date.startsWith(thisMonth) }
+                // Paid out = salary given only; a share taken back (excused lesson, cancelled payment) lowers the income.
+                val isPayout = { row: uz.educrm.app.data.HistoryRow -> row.type == "teacher_payout" }
+                val incomeRows = history.rows.filter { !isPayout(it) && (it.income > 0 || it.expense > 0) && isThisMonth(it) }
+                val incomeThisMonth = incomeRows.sumOf { it.income - it.expense }
+                val expenseRows = history.rows.filter { isPayout(it) && it.expense > 0 }
+                val paidOut = expenseRows.sumOf { it.expense }
+                val incomeEarlier = history.income - (history.expense - paidOut) - incomeThisMonth
                 Card(
                     onClick = { section = if (section == "all") null else "all" },
                     shape = MaterialTheme.shapes.large,
@@ -98,7 +101,7 @@ fun BalanceScreen(api: EduCrmApi) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     SummaryCard(stringResource(R.string.month_start), history.opening, MaterialTheme.colorScheme.onSurface, section == "opening", Modifier.weight(1f)) { section = if (section == "opening") null else "opening" }
                     SummaryCard(stringResource(R.string.income_short), incomeThisMonth, eduCrm.success, section == "income", Modifier.weight(1f)) { section = if (section == "income") null else "income" }
-                    SummaryCard(stringResource(R.string.paid_out), expenseRows.sumOf { it.expense }, eduCrm.danger, section == "expense", Modifier.weight(1f)) { section = if (section == "expense") null else "expense" }
+                    SummaryCard(stringResource(R.string.paid_out), paidOut, eduCrm.danger, section == "expense", Modifier.weight(1f)) { section = if (section == "expense") null else "expense" }
                 }
                 when (section) {
                     "all" -> HistoryList(history, signed = false)
@@ -112,7 +115,7 @@ fun BalanceScreen(api: EduCrmApi) {
                             FormulaRow(stringResource(R.string.month_start), money(history.opening))
                             FormulaRow("+ " + stringResource(R.string.income_short), money(incomeThisMonth), eduCrm.success)
                             if (incomeEarlier != 0L) FormulaRow("+ " + stringResource(R.string.earlier_debts_paid), money(incomeEarlier), eduCrm.success)
-                            FormulaRow("− " + stringResource(R.string.paid_out), money(history.expense), eduCrm.danger)
+                            FormulaRow("− " + stringResource(R.string.paid_out), money(paidOut), eduCrm.danger)
                             HorizontalDivider(color = eduCrm.border)
                             FormulaRow("= " + stringResource(R.string.can_take), money(history.closing), bold = true)
                         }
@@ -122,6 +125,8 @@ fun BalanceScreen(api: EduCrmApi) {
         }
     }
 }
+
+private fun signedMoney(value: Long): String = if (value < 0) money(value) else "+" + money(value)
 
 /** One payment into the teacher's balance for one student's lesson. */
 private data class IncomeItem(val student: String, val group: String, val lessonDate: String?, val date: String, val amount: Long, val type: String)
@@ -138,7 +143,7 @@ private fun IncomeDetails(history: uz.educrm.app.data.History) {
         if (row.children.isNotEmpty()) {
             row.children.map { IncomeItem(it.student, group, lessonDate, row.date, it.share, row.type) }
         } else {
-            listOf(IncomeItem(row.metaObject.text("student").orEmpty(), group, lessonDate, row.date, row.income, row.type))
+            listOf(IncomeItem(row.metaObject.text("student").orEmpty(), group, lessonDate, row.date, row.income - row.expense, row.type))
         }
     }
 
@@ -190,7 +195,8 @@ private fun IncomeStudentRow(number: Int, student: String, group: String, items:
                 Text(student, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
                 Text("$group · ${stringResource(R.string.lessons_count, items.size)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Text("+" + money(items.sumOf { it.amount }), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium, color = eduCrm.success)
+            val total = items.sumOf { it.amount }
+            Text(signedMoney(total), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium, color = if (total < 0) eduCrm.danger else eduCrm.success)
             Icon(if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 4.dp).size(20.dp))
         }
         if (expanded) {
@@ -200,7 +206,7 @@ private fun IncomeStudentRow(number: Int, student: String, group: String, items:
                         Text(stringResource(R.string.lesson_on, date(it.lessonDate ?: it.date)), style = MaterialTheme.typography.bodySmall)
                         Text("${txLabel(it.type)} · ${date(it.date)}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    Text("+" + money(it.amount), style = MaterialTheme.typography.bodySmall, color = eduCrm.success, fontWeight = FontWeight.SemiBold)
+                    Text(signedMoney(it.amount), style = MaterialTheme.typography.bodySmall, color = if (it.amount < 0) eduCrm.danger else eduCrm.success, fontWeight = FontWeight.SemiBold)
                 }
             }
         }

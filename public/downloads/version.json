@@ -1,6 +1,6 @@
 {
-    "versionCode": 24,
-    "versionName": "1.5.4",
+    "versionCode": 25,
+    "versionName": "1.5.5",
     "apk": "educrm.apk",
-    "notes": "Oyligim: belgilangan oylik va KPI (menejer, kassir)"
+    "notes": "Qaytarilgan ulush Tushumdan ayiriladi, Berilganda faqat berilgan oyliklar"
 }
