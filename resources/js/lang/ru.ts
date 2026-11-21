@@ -866,5 +866,6 @@ export const ru: Record<string, string> = {
     'My salary': 'Моя зарплата',
     'Show :count more (of :total)': 'Показать ещё :count (из :total)',
     'Find the student by name or phone': 'Найдите ученика по имени или телефону',
+    'Which group is the payment for?': 'За какую группу оплата?',
     'No students found': 'Ученики не найдены',
 };

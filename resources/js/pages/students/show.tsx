@@ -23,6 +23,7 @@ import HistoryTable from '@/components/history-table';
 import type { History } from '@/components/history-table';
 import Money from '@/components/money';
 import PageHeader from '@/components/page-header';
+import PaymentGroup from '@/components/payment-group';
 import PeriodFilter from '@/components/period-filter';
 import StatusBadge from '@/components/status-badge';
 import StudentFace from '@/components/student-face';
@@ -68,6 +69,7 @@ type Enrollment = {
         branch: string;
         branch_id: number;
         teacher: string | null;
+        course: string | null;
     };
     status: string;
     joined_at: string;
@@ -691,6 +693,11 @@ function EnrollmentPanel({
                     >
                         {(errors) => (
                             <>
+                                <PaymentGroup
+                                    group={e.group.name}
+                                    course={e.group.course}
+                                    teacher={e.group.teacher}
+                                />
                                 <Field
                                     label={t('Amount')}
                                     error={errors.amount}

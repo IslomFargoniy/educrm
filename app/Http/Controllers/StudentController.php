@@ -234,7 +234,7 @@ class StudentController extends Controller
 
         $enrollments = $student->enrollments()
             ->whereHas('group', fn ($q) => $q->whereIn('branch_id', $branchIds))
-            ->with('group.teacher:id,name', 'group.branch:id,name', 'freezes', 'transferredFrom.group:id,name')
+            ->with('group.teacher:id,name', 'group.branch:id,name', 'group.course:id,name', 'freezes', 'transferredFrom.group:id,name')
             ->orderByRaw("CASE WHEN status IN ('active','trial') THEN 0 ELSE 1 END")
             ->latest('joined_at')
             ->get()
@@ -244,7 +244,7 @@ class StudentController extends Controller
 
                 return [
                     'id' => $enrollment->id,
-                    'group' => ['id' => $enrollment->group->id, 'name' => $enrollment->group->name, 'branch' => $enrollment->group->branch->name, 'branch_id' => $enrollment->group->branch_id, 'teacher' => $enrollment->group->teacher?->name],
+                    'group' => ['id' => $enrollment->group->id, 'name' => $enrollment->group->name, 'branch' => $enrollment->group->branch->name, 'branch_id' => $enrollment->group->branch_id, 'teacher' => $enrollment->group->teacher?->name, 'course' => $enrollment->group->course?->name],
                     'status' => $enrollment->status->value,
                     'joined_at' => $enrollment->joined_at->toDateString(),
                     'left_at' => $enrollment->left_at?->toDateString(),

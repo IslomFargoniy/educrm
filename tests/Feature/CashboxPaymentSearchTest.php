@@ -23,7 +23,9 @@ it('finds students to take a payment from on the cashbox page and the payment go
         ->assertOk()
         ->assertJsonPath('data.0.id', $student->id)
         ->assertJsonPath('data.0.enrollments.0.id', $enrollment->id)
-        ->assertJsonPath('data.0.enrollments.0.balance', -150_000);
+        ->assertJsonPath('data.0.enrollments.0.balance', -150_000)
+        ->assertJsonPath('data.0.enrollments.0.group', $this->group->name)
+        ->assertJsonPath('data.0.enrollments.0.course', $this->group->course?->name);
     $this->getJson(route('payments.students', ['q' => '111 22']))->assertJsonPath('data.0.id', $student->id);
 
     $this->post(route('enrollments.payments.store', $enrollment), ['cashbox_id' => $cashbox->id, 'amount' => 150_000])

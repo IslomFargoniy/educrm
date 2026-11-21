@@ -1,10 +1,11 @@
-import { Form } from "@inertiajs/react";
-import { ArrowLeft, Banknote, Search } from "lucide-react";
-import { useEffect, useState } from "react";
-import Field from "@/components/field";
-import Money from "@/components/money";
-import MoneyInput from "@/components/money-input";
-import { Button } from "@/components/ui/button";
+import { Form } from '@inertiajs/react';
+import { ArrowLeft, Banknote, Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import Field from '@/components/field';
+import Money from '@/components/money';
+import MoneyInput from '@/components/money-input';
+import PaymentGroup from '@/components/payment-group';
+import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogContent,
@@ -13,20 +14,23 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { NativeSelect } from "@/components/ui/native-select";
-import { Spinner } from "@/components/ui/spinner";
-import { formatMoney } from "@/lib/format";
-import { useT } from "@/lib/i18n";
-import enrollmentPayments from "@/routes/enrollments/payments";
-import paymentRoutes from "@/routes/payments";
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { NativeSelect } from '@/components/ui/native-select';
+import { Spinner } from '@/components/ui/spinner';
+import { formatMoney } from '@/lib/format';
+import { useT } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
+import enrollmentPayments from '@/routes/enrollments/payments';
+import paymentRoutes from '@/routes/payments';
 
 type Cashbox = { id: number; name: string; branch_id?: number };
 
 type PayableEnrollment = {
     id: number;
     group: string;
+    course: string | null;
+    teacher: string | null;
     branch_id: number;
     balance: number;
     discounted_price: number | null;
@@ -41,7 +45,7 @@ type PayableStudent = {
 
 /**
  * "Receive payment" from the cashbox page: find the student by name or phone,
- * pick the group, then the same payment form as on the student's page.
+ * pick the group (money is kept per group), then the same payment form as on the student's page.
  */
 export default function ReceivePaymentDialog({
     cashboxes,
@@ -50,7 +54,7 @@ export default function ReceivePaymentDialog({
 }) {
     const t = useT();
     const [open, setOpen] = useState(false);
-    const [query, setQuery] = useState("");
+    const [query, setQuery] = useState('');
     const [results, setResults] = useState<PayableStudent[]>([]);
     const [searching, setSearching] = useState(false);
     const [student, setStudent] = useState<PayableStudent | null>(null);
@@ -69,7 +73,7 @@ export default function ReceivePaymentDialog({
         const timer = setTimeout(() => {
             setSearching(true);
             fetch(paymentRoutes.students.url({ query: { q: term } }), {
-                headers: { Accept: "application/json" },
+                headers: { Accept: 'application/json' },
                 signal: controller.signal,
             })
                 .then((response) => response.json())
@@ -87,7 +91,7 @@ export default function ReceivePaymentDialog({
     }, [query]);
 
     const reset = () => {
-        setQuery("");
+        setQuery('');
         setResults([]);
         setStudent(null);
         setEnrollment(null);
@@ -95,7 +99,19 @@ export default function ReceivePaymentDialog({
 
     const choose = (picked: PayableStudent) => {
         setStudent(picked);
-        setEnrollment(picked.enrollments[0] ?? null);
+        // One group: go straight to the form; several: the cashier picks the group first.
+        setEnrollment(
+            picked.enrollments.length === 1 ? picked.enrollments[0] : null,
+        );
+    };
+
+    const back = () => {
+        if (enrollment && student && student.enrollments.length > 1) {
+            setEnrollment(null);
+        } else {
+            setStudent(null);
+            setEnrollment(null);
+        }
     };
 
     const branchCashboxes = enrollment
@@ -105,6 +121,9 @@ export default function ReceivePaymentDialog({
                   c.branch_id === enrollment.branch_id,
           )
         : [];
+
+    const groupLine = (e: PayableEnrollment) =>
+        [e.course, e.teacher].filter(Boolean).join(' · ');
 
     return (
         <Dialog
@@ -119,27 +138,29 @@ export default function ReceivePaymentDialog({
             <DialogTrigger asChild>
                 <Button className="bg-highlight font-bold text-highlight-foreground hover:bg-highlight/90">
                     <Banknote />
-                    {t("Receive payment")}
+                    {t('Receive payment')}
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>{t("Receive payment")}</DialogTitle>
+                    <DialogTitle>{t('Receive payment')}</DialogTitle>
                     <DialogDescription>
                         {student
-                            ? `${student.name}${enrollment ? ` · ${t("Balance")}: ${formatMoney(enrollment.balance)}` : ""}`
-                            : t("Find the student by name or phone")}
+                            ? enrollment
+                                ? `${student.name} · ${t('Balance')}: ${formatMoney(enrollment.balance)}`
+                                : `${student.name} · ${t('Which group is the payment for?')}`
+                            : t('Find the student by name or phone')}
                     </DialogDescription>
                 </DialogHeader>
 
-                {!student ? (
+                {!student && (
                     <div className="grid gap-3">
                         <div className="relative">
                             <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                             <Input
                                 autoFocus
                                 className="pl-9"
-                                placeholder={t("Name or phone")}
+                                placeholder={t('Name or phone')}
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
                             />
@@ -155,11 +176,11 @@ export default function ReceivePaymentDialog({
                                     onClick={() => choose(s)}
                                     className="flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-left hover:bg-muted"
                                 >
-                                    <span>
+                                    <span className="min-w-0">
                                         <span className="block font-semibold">
                                             {s.name}
                                         </span>
-                                        <span className="block text-xs text-muted-foreground">
+                                        <span className="block truncate text-xs text-muted-foreground">
                                             {[
                                                 s.phone,
                                                 ...s.enrollments.map(
@@ -167,7 +188,7 @@ export default function ReceivePaymentDialog({
                                                 ),
                                             ]
                                                 .filter(Boolean)
-                                                .join(" · ")}
+                                                .join(' · ')}
                                         </span>
                                     </span>
                                     <Money
@@ -183,124 +204,118 @@ export default function ReceivePaymentDialog({
                                 !searching &&
                                 results.length === 0 && (
                                     <p className="px-3 py-6 text-center text-sm text-muted-foreground">
-                                        {t("No students found")}
+                                        {t('No students found')}
                                     </p>
                                 )}
                         </div>
                     </div>
-                ) : (
-                    enrollment && (
-                        <Form
-                            key={enrollment.id}
-                            {...enrollmentPayments.store.form(enrollment.id)}
-                            transform={(data) => ({
-                                ...data,
-                                idempotency_key: crypto.randomUUID(),
-                            })}
-                            options={{ preserveScroll: true }}
-                            onSuccess={() => {
-                                setOpen(false);
-                                reset();
-                            }}
-                            className="grid gap-4"
-                        >
-                            {({ errors, processing }) => (
-                                <>
-                                    {student.enrollments.length > 1 && (
-                                        <Field label={t("Group")}>
-                                            <NativeSelect
-                                                value={enrollment.id}
-                                                onChange={(e) =>
-                                                    setEnrollment(
-                                                        student.enrollments.find(
-                                                            (x) =>
-                                                                x.id ===
-                                                                Number(
-                                                                    e.target
-                                                                        .value,
-                                                                ),
-                                                        ) ?? null,
-                                                    )
-                                                }
-                                            >
-                                                {student.enrollments.map(
-                                                    (e) => (
-                                                        <option
-                                                            key={e.id}
-                                                            value={e.id}
-                                                        >
-                                                            {e.group} —{" "}
-                                                            {formatMoney(
-                                                                e.balance,
-                                                            )}
-                                                        </option>
-                                                    ),
-                                                )}
-                                            </NativeSelect>
-                                        </Field>
+                )}
+
+                {student && !enrollment && (
+                    <div className="grid gap-2">
+                        {student.enrollments.map((e) => (
+                            <button
+                                key={e.id}
+                                type="button"
+                                onClick={() => setEnrollment(e)}
+                                className="flex w-full items-center justify-between gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors hover:border-primary hover:bg-muted/40"
+                            >
+                                <span className="min-w-0">
+                                    <span className="block truncate font-semibold">
+                                        {e.group}
+                                    </span>
+                                    {groupLine(e) && (
+                                        <span className="block truncate text-xs text-muted-foreground">
+                                            {groupLine(e)}
+                                        </span>
                                     )}
-                                    <Field
-                                        label={t("Amount")}
-                                        error={errors.amount}
+                                </span>
+                                <Money
+                                    value={e.balance}
+                                    className={cn(
+                                        'shrink-0 text-sm font-bold',
+                                        e.balance < 0 && 'text-destructive',
+                                    )}
+                                />
+                            </button>
+                        ))}
+                        <DialogFooter>
+                            <Button type="button" variant="ghost" onClick={back}>
+                                <ArrowLeft />
+                                {t('Back')}
+                            </Button>
+                        </DialogFooter>
+                    </div>
+                )}
+
+                {student && enrollment && (
+                    <Form
+                        key={enrollment.id}
+                        {...enrollmentPayments.store.form(enrollment.id)}
+                        transform={(data) => ({
+                            ...data,
+                            idempotency_key: crypto.randomUUID(),
+                        })}
+                        options={{ preserveScroll: true }}
+                        onSuccess={() => {
+                            setOpen(false);
+                            reset();
+                        }}
+                        className="grid gap-4"
+                    >
+                        {({ errors, processing }) => (
+                            <>
+                                <PaymentGroup
+                                    group={enrollment.group}
+                                    course={enrollment.course}
+                                    teacher={enrollment.teacher}
+                                />
+                                <Field label={t('Amount')} error={errors.amount}>
+                                    <MoneyInput
+                                        name="amount"
+                                        min={1}
+                                        required
+                                        autoFocus
+                                        defaultValue={
+                                            enrollment.balance < 0
+                                                ? -enrollment.balance
+                                                : (enrollment.discounted_price ??
+                                                  undefined)
+                                        }
+                                    />
+                                </Field>
+                                <Field
+                                    label={t('Cashbox')}
+                                    error={errors.cashbox_id}
+                                >
+                                    <NativeSelect name="cashbox_id" required>
+                                        {branchCashboxes.map((c) => (
+                                            <option key={c.id} value={c.id}>
+                                                {c.name}
+                                            </option>
+                                        ))}
+                                    </NativeSelect>
+                                </Field>
+                                <Field label={t('Note')} error={errors.note}>
+                                    <Input name="note" />
+                                </Field>
+                                <DialogFooter>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        onClick={back}
                                     >
-                                        <MoneyInput
-                                            name="amount"
-                                            min={1}
-                                            required
-                                            autoFocus
-                                            defaultValue={
-                                                enrollment.balance < 0
-                                                    ? -enrollment.balance
-                                                    : (enrollment.discounted_price ??
-                                                      undefined)
-                                            }
-                                        />
-                                    </Field>
-                                    <Field
-                                        label={t("Cashbox")}
-                                        error={errors.cashbox_id}
-                                    >
-                                        <NativeSelect
-                                            name="cashbox_id"
-                                            required
-                                        >
-                                            {branchCashboxes.map((c) => (
-                                                <option key={c.id} value={c.id}>
-                                                    {c.name}
-                                                </option>
-                                            ))}
-                                        </NativeSelect>
-                                    </Field>
-                                    <Field
-                                        label={t("Note")}
-                                        error={errors.note}
-                                    >
-                                        <Input name="note" />
-                                    </Field>
-                                    <DialogFooter>
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            onClick={() => {
-                                                setStudent(null);
-                                                setEnrollment(null);
-                                            }}
-                                        >
-                                            <ArrowLeft />
-                                            {t("Back")}
-                                        </Button>
-                                        <Button
-                                            type="submit"
-                                            disabled={processing}
-                                        >
-                                            {processing && <Spinner />}
-                                            {t("Receive")}
-                                        </Button>
-                                    </DialogFooter>
-                                </>
-                            )}
-                        </Form>
-                    )
+                                        <ArrowLeft />
+                                        {t('Back')}
+                                    </Button>
+                                    <Button type="submit" disabled={processing}>
+                                        {processing && <Spinner />}
+                                        {t('Receive')}
+                                    </Button>
+                                </DialogFooter>
+                            </>
+                        )}
+                    </Form>
                 )}
             </DialogContent>
         </Dialog>

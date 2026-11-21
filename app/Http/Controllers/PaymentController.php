@@ -35,7 +35,7 @@ class PaymentController extends Controller
             ->where(fn (Builder $w) => $w->where('full_name', 'like', "%{$term}%")
                 ->when(strlen($digits) >= 3, fn (Builder $q) => $q->orWhere('phone', 'like', "%{$digits}%")))
             ->whereHas('enrollments', $payable)
-            ->with(['enrollments' => fn ($q) => $payable($q)->with('group:id,name,branch_id')])
+            ->with(['enrollments' => fn ($q) => $payable($q)->with('group:id,name,branch_id,course_id,teacher_id', 'group.course:id,name', 'group.teacher:id,name')])
             ->orderBy('full_name')
             ->limit(15)
             ->get(['id', 'full_name', 'phone']);
@@ -50,6 +50,8 @@ class PaymentController extends Controller
                 return [
                     'id' => $enrollment->id,
                     'group' => $enrollment->group->name,
+                    'course' => $enrollment->group->course?->name,
+                    'teacher' => $enrollment->group->teacher?->name,
                     'branch_id' => $enrollment->group->branch_id,
                     'balance' => $enrollment->balance,
                     'discounted_price' => $price ? $enrollment->discountedMonthlyPrice($price->monthly_price) : null,

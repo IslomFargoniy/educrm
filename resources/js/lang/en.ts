@@ -113,5 +113,6 @@ export const en: Record<string, string> = {
     'call.cancelled': 'Cancelled',
     'call.initial': 'Initial state',
     'Find the student by name or phone': 'Find the student by name or phone',
+    'Which group is the payment for?': 'Which group is the payment for?',
     'No students found': 'No students found',
 };

@@ -1,15 +1,15 @@
-import { Head, Link } from "@inertiajs/react";
-import RowNumber from "@/components/row-number";
-import CashActions from "@/components/cash-actions";
-import Money from "@/components/money";
-import PageHeader from "@/components/page-header";
-import ReceivePaymentDialog from "@/components/receive-payment-dialog";
-import StatCard from "@/components/stat-card";
-import { useCan } from "@/hooks/use-can";
-import { formatMoney } from "@/lib/format";
-import { useT } from "@/lib/i18n";
-import { cn } from "@/lib/utils";
-import cashboxes from "@/routes/cashboxes";
+import { Head, Link } from '@inertiajs/react';
+import RowNumber from '@/components/row-number';
+import CashActions from '@/components/cash-actions';
+import Money from '@/components/money';
+import PageHeader from '@/components/page-header';
+import ReceivePaymentDialog from '@/components/receive-payment-dialog';
+import StatCard from '@/components/stat-card';
+import { useCan } from '@/hooks/use-can';
+import { formatMoney } from '@/lib/format';
+import { useT } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
+import cashboxes from '@/routes/cashboxes';
 
 type Props = {
     cashboxes: {
@@ -41,13 +41,13 @@ export default function CashboxesIndex({
 
     return (
         <>
-            <Head title={t("Cashboxes")} />
+            <Head title={t('Cashboxes')} />
             <div className="flex flex-col gap-5 p-4 md:p-6">
                 <PageHeader
-                    title={t("Cashboxes")}
+                    title={t('Cashboxes')}
                     actions={
                         <>
-                            {can("payments.create") && (
+                            {can('payments.create') && (
                                 <ReceivePaymentDialog
                                     cashboxes={activeCashboxes}
                                 />
@@ -63,20 +63,20 @@ export default function CashboxesIndex({
                 <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                     <StatCard
                         tone="primary"
-                        label={t("Cash in all cashboxes")}
+                        label={t('Cash in all cashboxes')}
                         value={formatMoney(summary.cash)}
                     />
                     <StatCard
-                        label={t("Owed to teachers")}
+                        label={t('Owed to teachers')}
                         value={formatMoney(summary.teacherLiability)}
                     />
                     <StatCard
-                        label={t("Paid in advance")}
+                        label={t('Paid in advance')}
                         value={formatMoney(summary.prepaid)}
                     />
                     <StatCard
                         tone="success"
-                        label={t("Free profit")}
+                        label={t('Free profit')}
                         value={formatMoney(summary.freeProfit)}
                     />
                 </div>
@@ -86,8 +86,8 @@ export default function CashboxesIndex({
                             key={c.id}
                             href={cashboxes.show(c.id)}
                             className={cn(
-                                "rounded-2xl border bg-card p-4 transition-colors hover:border-primary",
-                                !c.is_active && "opacity-50",
+                                'rounded-2xl border bg-card p-4 transition-colors hover:border-primary',
+                                !c.is_active && 'opacity-50',
                             )}
                         >
                             <div className="text-xs font-semibold text-muted-foreground uppercase">
@@ -113,5 +113,5 @@ export default function CashboxesIndex({
 }
 
 CashboxesIndex.layout = {
-    breadcrumbs: [{ title: "Cashboxes", href: cashboxes.index() }],
+    breadcrumbs: [{ title: 'Cashboxes', href: cashboxes.index() }],
 };
