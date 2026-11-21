@@ -871,4 +871,6 @@ export const uz: Record<string, string> = {
     'My salary': 'Mening oyligim',
     'Show :count more (of :total)':
         "Yana :count tasini ko'rsatish (jami :total)",
+    'Find the student by name or phone': "O'quvchini ism yoki telefon bo'yicha toping",
+    'No students found': "O'quvchi topilmadi",
 };

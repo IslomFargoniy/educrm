@@ -112,4 +112,6 @@ export const en: Record<string, string> = {
     'call.paid': 'Done',
     'call.cancelled': 'Cancelled',
     'call.initial': 'Initial state',
+    'Find the student by name or phone': 'Find the student by name or phone',
+    'No students found': 'No students found',
 };

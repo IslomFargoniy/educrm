@@ -865,4 +865,6 @@ export const ru: Record<string, string> = {
     'Taken in by (for the KPI)': 'Принял сотрудник (для KPI)',
     'My salary': 'Моя зарплата',
     'Show :count more (of :total)': 'Показать ещё :count (из :total)',
+    'Find the student by name or phone': 'Найдите ученика по имени или телефону',
+    'No students found': 'Ученики не найдены',
 };

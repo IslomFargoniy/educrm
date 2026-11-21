@@ -83,6 +83,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('enrollments/{enrollment}/transfer-balance', [EnrollmentController::class, 'transferBalance'])->middleware('permission:balance.transfer')->name('enrollments.transfer-balance');
     Route::post('enrollments/{enrollment}/write-off', [EnrollmentController::class, 'writeOff'])->middleware('permission:debts.writeoff')->name('enrollments.write-off');
 
+    Route::get('payments/students', [PaymentController::class, 'students'])->middleware('permission:payments.create')->name('payments.students');
     Route::post('payments/{payment}/reverse', [PaymentController::class, 'reverse'])->name('payments.reverse');
     Route::get('payments/{payment}/receipt', [PaymentController::class, 'receipt'])->middleware('permission:payments.create')->name('payments.receipt');
 
