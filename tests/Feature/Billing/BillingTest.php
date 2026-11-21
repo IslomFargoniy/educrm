@@ -3,10 +3,12 @@
 use App\Enums\AttendanceStatus;
 use App\Enums\ChargeStatus;
 use App\Enums\Role;
+use App\Enums\TransactionType;
 use App\Models\Cashbox;
 use App\Models\Enrollment;
 use App\Models\Group;
 use App\Models\Lesson;
+use App\Models\Transaction;
 use App\Models\User;
 use App\Services\AttendanceService;
 use App\Services\BillingService;
@@ -110,7 +112,9 @@ it('re-bills when attendance changes from absent to excused', function () {
     mark($lesson, $this->enrollment, AttendanceStatus::Excused);
 
     expect($this->enrollment->fresh()->balance)->toBe(50_000)
-        ->and($this->teacherA->fresh()->balance)->toBe(0);
+        ->and($this->teacherA->fresh()->balance)->toBe(0)
+        ->and(Transaction::query()->where('type', TransactionType::EarningReversal)->sole()->meta['reason'])->toBe('excused')
+        ->and(Transaction::query()->where('type', TransactionType::ChargeReversal)->sole()->meta['reason'])->toBe('excused');
 });
 
 it('takes teacher money back when a payment is cancelled', function () {
@@ -121,7 +125,8 @@ it('takes teacher money back when a payment is cancelled', function () {
 
     expect($this->enrollment->fresh()->balance)->toBe(-50_000)
         ->and($this->teacherA->fresh()->balance)->toBe(0)
-        ->and($this->cashbox->fresh()->balance)->toBe(0);
+        ->and($this->cashbox->fresh()->balance)->toBe(0)
+        ->and(Transaction::query()->where('type', TransactionType::EarningReversal)->sole()->meta['reason'])->toBe('payment_reversed');
 });
 
 it('bills trial lessons only when the student continues', function () {

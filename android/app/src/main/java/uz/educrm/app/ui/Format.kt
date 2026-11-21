@@ -42,6 +42,23 @@ private val txLabels = mapOf(
 
 fun txLabel(type: String): String = txLabels[type]?.localized() ?: type
 
+/** Why a lesson or a share was taken back (meta "reason" of charge_reversal / earning_reversal rows). */
+private val reversalReasons = mapOf(
+    "excused" to Triple("Sababli qilib belgilandi", "Отмечено как уважительная причина", "Marked as excused"),
+    "teacher_changed" to Triple("O'qituvchi almashtirildi", "Преподаватель заменён", "Teacher changed"),
+    "lesson_cancelled" to Triple("Dars bekor qilindi", "Урок отменён", "Lesson cancelled"),
+    "payment_reversed" to Triple("To'lov bekor qilindi", "Оплата отменена", "Payment cancelled"),
+)
+
+/** The row title: for a reversal with a known reason the reason itself, e.g. "Sababli qilib belgilandi". */
+fun txLabel(type: String, meta: JsonObject?): String {
+    val reason = meta.text("reason")
+    if ((type == "earning_reversal" || type == "charge_reversal") && reason != null) {
+        reversalReasons[reason]?.let { return it.localized() }
+    }
+    return txLabel(type)
+}
+
 fun JsonObject?.text(key: String): String? = this?.get(key)?.jsonPrimitive?.content?.takeIf { it != "null" }
 
 /** Short description of a history row. */

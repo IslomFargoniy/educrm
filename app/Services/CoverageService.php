@@ -81,7 +81,7 @@ class CoverageService
                 break;
             }
 
-            $this->releaseCoverage($coverage);
+            $this->releaseCoverage($coverage, 'payment_reversed');
         }
 
         $this->cover($enrollment);
@@ -89,11 +89,13 @@ class CoverageService
 
     /**
      * Release every coverage of a charge (used when the charge itself is reversed).
+     *
+     * @param  string|null  $reason  why the share is taken back (see {@see BillingService::reverseCharge()})
      */
-    public function releaseCharge(LessonCharge $charge): void
+    public function releaseCharge(LessonCharge $charge, ?string $reason = null): void
     {
         $charge->coverages()->whereNull('reversed_at')->get()
-            ->each(fn (ChargeCoverage $coverage) => $this->releaseCoverage($coverage));
+            ->each(fn (ChargeCoverage $coverage) => $this->releaseCoverage($coverage, $reason));
     }
 
     private function coverCharge(Enrollment $enrollment, LessonCharge $charge, int $take): void
@@ -139,7 +141,7 @@ class CoverageService
         $coverage->update(['transaction_id' => $transaction->id]);
     }
 
-    private function releaseCoverage(ChargeCoverage $coverage): void
+    private function releaseCoverage(ChargeCoverage $coverage, ?string $reason = null): void
     {
         $charge = $coverage->charge;
         $coverage->update(['reversed_at' => now()]);
@@ -162,6 +164,7 @@ class CoverageService
                 'group_id' => $charge->enrollment->group_id,
                 'lesson_date' => $charge->lesson_date->toDateString(),
                 'charge_id' => $charge->id,
+                'reason' => $reason,
             ],
         ]);
     }

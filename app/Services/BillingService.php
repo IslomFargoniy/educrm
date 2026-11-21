@@ -50,7 +50,8 @@ class BillingService
 
         if ($existing !== null) {
             $writtenOff = $existing->written_off_amount;
-            $this->reverseCharge($existing, cover: false);
+            $reason = $attendance->status->isBillable() ? 'teacher_changed' : 'excused';
+            $this->reverseCharge($existing, cover: false, reason: $reason);
         }
 
         $this->chargeFor($attendance, $writtenOff);
@@ -67,7 +68,7 @@ class BillingService
 
         foreach ($lesson->charges()->whereIn('status', [ChargeStatus::Active, ChargeStatus::PendingTrial])->get() as $charge) {
             $writtenOff[$charge->enrollment_id] = ($writtenOff[$charge->enrollment_id] ?? 0) + $charge->written_off_amount;
-            $this->reverseCharge($charge, cover: false);
+            $this->reverseCharge($charge, cover: false, reason: 'teacher_changed');
         }
 
         $attendances = $lesson->attendances()->with('enrollment.group', 'enrollment.student', 'lesson')->get();
@@ -87,7 +88,7 @@ class BillingService
     public function reverseLesson(Lesson $lesson): void
     {
         $lesson->charges()->whereIn('status', [ChargeStatus::Active, ChargeStatus::PendingTrial])->get()
-            ->each(fn (LessonCharge $charge) => $this->reverseCharge($charge));
+            ->each(fn (LessonCharge $charge) => $this->reverseCharge($charge, reason: 'lesson_cancelled'));
     }
 
     /**
@@ -146,8 +147,11 @@ class BillingService
 
     /**
      * Cancel a charge and give the money back to the student's balance.
+     *
+     * @param  string|null  $reason  excused | teacher_changed | lesson_cancelled, kept in the meta of the
+     *                               reversal rows so the history says why the lesson / share was taken back
      */
-    public function reverseCharge(LessonCharge $charge, bool $cover = true): void
+    public function reverseCharge(LessonCharge $charge, bool $cover = true, ?string $reason = null): void
     {
         if ($charge->status === ChargeStatus::PendingTrial) {
             $charge->update(['status' => ChargeStatus::Cancelled]);
@@ -156,12 +160,12 @@ class BillingService
         }
 
         $enrollment = $charge->enrollment->loadMissing('group', 'student');
-        $this->coverage->releaseCharge($charge);
+        $this->coverage->releaseCharge($charge, $reason);
         $refund = $charge->amount - $charge->written_off_amount;
 
         $this->ledger->record(TransactionType::ChargeReversal, $refund, [[$enrollment, $refund]], [
             'branch_id' => $enrollment->group->branch_id,
-            'meta' => $this->chargeMeta($charge, $enrollment),
+            'meta' => [...$this->chargeMeta($charge, $enrollment), 'reason' => $reason],
         ]);
 
         $charge->update(['status' => ChargeStatus::Reversed]);

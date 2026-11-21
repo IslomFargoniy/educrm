@@ -122,7 +122,7 @@ export default function HistoryTable({
                     [
                         index + 1,
                         formatDateTime(row.date),
-                        t(`tx.${row.type}`),
+                        txTitle(row, t),
                         describe(row, context, t),
                         row.income || null,
                         row.expense || null,
@@ -289,7 +289,7 @@ export default function HistoryTable({
                                                     ) : (
                                                         <ChevronRight className="size-3.5" />
                                                     ))}
-                                                {t(`tx.${row.type}`)}
+                                                {txTitle(row, t)}
                                                 {row.meta.is_substitute ===
                                                     true && (
                                                     <Badge
@@ -485,6 +485,19 @@ function Summary({
             />
         </div>
     );
+}
+
+/**
+ * Row title: a reversal with a known reason shows the reason itself (e.g. "Sababli qilib belgilandi")
+ * instead of the generic "Ulush qaytarildi" / "Dars qayta hisoblandi".
+ */
+function txTitle(row: HistoryRow, t: (key: string) => string): string {
+    const reason = row.meta?.reason;
+    if ((row.type === 'earning_reversal' || row.type === 'charge_reversal') && typeof reason === 'string' && reason !== '') {
+        return t(`tx_reason.${reason}`);
+    }
+
+    return t(`tx.${row.type}`);
 }
 
 function describe(

@@ -231,7 +231,7 @@ fun HistoryRowItem(number: Int, row: uz.educrm.app.data.HistoryRow, signed: Bool
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             RowNumber(number)
             Column(Modifier.weight(1f)) {
-                Text(txLabel(row.type), fontWeight = FontWeight.SemiBold)
+                Text(txLabel(row.type, row.metaObject), fontWeight = FontWeight.SemiBold)
                 val details = if (expandable) {
                     listOfNotNull(date(row.date), stringResource(R.string.students_count, row.children.size), row.metaObject.text("group")).joinToString(" · ")
                 } else {
