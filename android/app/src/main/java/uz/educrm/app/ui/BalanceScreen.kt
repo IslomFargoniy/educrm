@@ -13,6 +13,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.SystemUpdate
+import androidx.compose.material.icons.outlined.Fingerprint
+import androidx.compose.material3.Switch
+import uz.educrm.app.data.findFragmentActivity
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.foundation.clickable
@@ -307,7 +310,7 @@ private fun PendingStudentRow(number: Int, student: String, group: String, lesso
 }
 
 @Composable
-fun ProfileScreen(user: UserProfile, themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit, language: String, onLanguageChange: (String) -> Unit, onLogout: () -> Unit) {
+fun ProfileScreen(user: UserProfile, themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit, language: String, onLanguageChange: (String) -> Unit, biometricEnabled: Boolean, onBiometricChange: (String?) -> Unit, onLogout: () -> Unit) {
     val uri = LocalUriHandler.current
 
     Column(Modifier.fillMaxSize()) {
@@ -331,6 +334,8 @@ fun ProfileScreen(user: UserProfile, themeMode: ThemeMode, onThemeChange: (Theme
             ThemeSwitcher(themeMode, onThemeChange)
             SectionTitle(stringResource(R.string.language))
             LanguageSwitcher(language, onLanguageChange)
+            SectionTitle(stringResource(R.string.security))
+            BiometricToggle(biometricEnabled, onBiometricChange)
             Spacer(Modifier.height(4.dp))
             OutlinedButton({ uri.openUri("https://crm.mensalc.uz") }, shape = MaterialTheme.shapes.medium, modifier = Modifier.fillMaxWidth().height(50.dp)) {
                 Icon(Icons.AutoMirrored.Filled.OpenInNew, null, modifier = Modifier.size(18.dp))
@@ -353,6 +358,59 @@ fun ProfileScreen(user: UserProfile, themeMode: ThemeMode, onThemeChange: (Theme
                 Icon(Icons.AutoMirrored.Filled.Logout, null, modifier = Modifier.size(18.dp))
                 Text(stringResource(R.string.logout), modifier = Modifier.padding(start = 8.dp), fontWeight = FontWeight.Bold)
             }
+        }
+    }
+}
+
+/**
+ * Fingerprint / face login switch. Turning it on needs a successful fingerprint check and then a PIN;
+ * [onChange] gets that PIN, or null when it is turned off.
+ */
+@Composable
+private fun BiometricToggle(enabled: Boolean, onChange: (String?) -> Unit) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var choosingPin by remember { mutableStateOf(false) }
+    val promptTitle = stringResource(R.string.biometric_enable_title)
+    val promptSubtitle = stringResource(R.string.biometric_enable_subtitle)
+    val cancel = stringResource(R.string.cancel)
+
+    fun toast(message: String) {
+        android.widget.Toast.makeText(context, message, android.widget.Toast.LENGTH_LONG).show()
+    }
+
+    fun change(turnOn: Boolean) {
+        if (!turnOn) {
+            onChange(null)
+            return
+        }
+        val reason = uz.educrm.app.data.Biometric.unavailableReason(context)
+        val activity = context.findFragmentActivity()
+        if (reason != null || activity == null) {
+            toast(reason ?: context.getString(R.string.biometric_unavailable))
+            return
+        }
+        uz.educrm.app.data.Biometric.authenticate(
+            activity = activity,
+            title = promptTitle,
+            subtitle = promptSubtitle,
+            negativeText = cancel,
+            onSuccess = { choosingPin = true },
+            onFailure = { message -> if (message != null) toast(message) },
+        )
+    }
+
+    if (choosingPin) {
+        PinSetupDialog(onDismiss = { choosingPin = false }, onSet = { pin -> choosingPin = false; onChange(pin) })
+    }
+
+    EduCrmCard(onClick = { change(!enabled) }) {
+        Row(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Outlined.Fingerprint, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
+            Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
+                Text(stringResource(R.string.biometric_login), fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.biometric_login_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Switch(checked = enabled, onCheckedChange = { change(it) }, colors = eduCrmSwitchColors())
         }
     }
 }

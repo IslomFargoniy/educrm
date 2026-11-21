@@ -1,6 +1,6 @@
 {
-    "versionCode": 27,
-    "versionName": "1.5.7",
+    "versionCode": 28,
+    "versionName": "1.5.8",
     "apk": "educrm.apk",
-    "notes": "Balans tarixida qaytarilgan ulushning sababi ko'rinadi (Sababli qilib belgilandi, Dars bekor qilindi, O'qituvchi almashtirildi, To'lov bekor qilindi)"
+    "notes": "Barmoq izi yoki yuz bilan kirish"
 }

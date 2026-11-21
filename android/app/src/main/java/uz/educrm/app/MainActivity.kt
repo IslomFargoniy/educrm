@@ -2,7 +2,6 @@ package uz.educrm.app
 
 import android.graphics.Color
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -13,13 +12,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.fragment.app.FragmentActivity
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import uz.educrm.app.data.AppLocale
 import uz.educrm.app.data.EduCrmApi
 import uz.educrm.app.data.LocaleRequest
 import uz.educrm.app.data.Session
 import uz.educrm.app.data.UserProfile
+import uz.educrm.app.ui.BiometricLockScreen
 import uz.educrm.app.ui.LoginScreen
 import uz.educrm.app.ui.MainScreen
 import uz.educrm.app.ui.EduCrmTheme
@@ -28,7 +31,8 @@ import uz.educrm.app.ui.ThemeMode
 import uz.educrm.app.ui.UpdatePrompt
 import uz.educrm.app.ui.isDark
 
-class MainActivity : ComponentActivity() {
+/** FragmentActivity (still a ComponentActivity) because the fingerprint prompt needs one. */
+class MainActivity : FragmentActivity() {
     private lateinit var session: Session
     private lateinit var api: EduCrmApi
 
@@ -77,6 +81,18 @@ class MainActivity : ComponentActivity() {
             EduCrmTheme(mode) {
                 var user by remember { mutableStateOf<UserProfile?>(null) }
                 var checking by remember { mutableStateOf(true) }
+                val biometricEnabled by session.biometricEnabled.collectAsState(initial = null)
+                // "" = no PIN; null = not read yet (the lock must not take "not read" for "none").
+                val pinHash by remember { session.pinHash.map { it ?: "" } }.collectAsState(initial = null)
+                // Locks once per app start; saveable so rotating or changing the language does not lock again.
+                var unlocked by rememberSaveable { mutableStateOf(false) }
+                val logout: () -> Unit = {
+                    scope.launch {
+                        runCatching { api.logout() }
+                        session.clear()
+                        user = null
+                    }
+                }
 
                 LaunchedEffect(Unit) {
                     if (session.load() != null) {
@@ -89,7 +105,13 @@ class MainActivity : ComponentActivity() {
                 }
 
                 when {
-                    checking -> SplashScreen()
+                    checking || biometricEnabled == null || pinHash == null -> SplashScreen()
+                    user != null && biometricEnabled == true && !unlocked -> BiometricLockScreen(
+                        pinHash = pinHash?.ifEmpty { null },
+                        onUnlocked = { unlocked = true },
+                        // Sign out: the login screen opens and the fingerprint setup is cleared with the session.
+                        onUsePassword = logout,
+                    )
                     user == null -> LoginScreen(api) { token, profile ->
                         scope.launch {
                             session.save(token)
@@ -99,21 +121,23 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
-                    else -> MainScreen(
-                        api = api,
-                        user = user!!,
-                        themeMode = mode,
-                        onThemeChange = { scope.launch { session.saveTheme(it.name.lowercase()) } },
-                        language = AppLocale.current(this@MainActivity),
-                        onLanguageChange = { changeLanguage(it, scope) },
-                        onLogout = {
-                            scope.launch {
-                                runCatching { api.logout() }
-                                session.clear()
-                                user = null
-                            }
-                        },
-                    )
+                    else -> {
+                        // Already inside the app: turning fingerprint login on in Profile must not lock it right away.
+                        LaunchedEffect(Unit) { unlocked = true }
+                        MainScreen(
+                            api = api,
+                            user = user!!,
+                            themeMode = mode,
+                            onThemeChange = { scope.launch { session.saveTheme(it.name.lowercase()) } },
+                            language = AppLocale.current(this@MainActivity),
+                            onLanguageChange = { changeLanguage(it, scope) },
+                            biometricEnabled = biometricEnabled == true,
+                            onBiometricChange = { pin ->
+                                scope.launch { if (pin != null) session.enableBiometric(pin) else session.disableBiometric() }
+                            },
+                            onLogout = logout,
+                        )
+                    }
                 }
 
                 if (!checking) UpdatePrompt()
