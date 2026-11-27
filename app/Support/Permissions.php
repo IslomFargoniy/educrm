@@ -51,7 +51,7 @@ final class Permissions
                 'students.view_debt', 'students.view_payments', 'enrollments.manage', 'leads.view', 'leads.manage',
                 'groups.view', 'groups.manage', 'lessons.manage', 'attendance.mark', 'attendance.edit_past',
                 'payments.create', 'payments.reverse_today', 'refunds.create', 'balance.transfer', 'teachers.view',
-                'payouts.create', 'cashboxes.view', 'cashboxes.transfer', 'expenses.create',
+                'payouts.create', 'cashboxes.view', 'cashboxes.transfer', 'expenses.create', 'import.run',
             ],
             Role::Teacher->value => ['attendance.mark', 'students.view_phone', 'students.view_debt', 'students.view_payments', 'students.face'],
             Role::Parent->value => [],
