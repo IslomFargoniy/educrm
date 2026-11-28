@@ -71,6 +71,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware('permission:enrollments.manage')->group(function () {
         Route::post('students/{student}/enrollments', [EnrollmentController::class, 'store'])->name('enrollments.store');
+        Route::get('groups/{group}/student-candidates', [EnrollmentController::class, 'candidates'])->name('groups.student-candidates');
+        Route::post('groups/{group}/enrollments', [EnrollmentController::class, 'storeMany'])->name('groups.enrollments.store');
         Route::patch('enrollments/{enrollment}', [EnrollmentController::class, 'update'])->name('enrollments.update');
         Route::post('enrollments/{enrollment}/transfer', [EnrollmentController::class, 'transfer'])->name('enrollments.transfer');
         Route::post('enrollments/{enrollment}/leave', [EnrollmentController::class, 'leave'])->name('enrollments.leave');

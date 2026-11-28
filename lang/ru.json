@@ -109,5 +109,8 @@
     "The photo could not be read.": "Не удалось прочитать фото.",
     "The student graduated from the group.": "Ученик окончил группу.",
     "First lesson cancelled.": "Первый урок отменён.",
-    "Signed up for the first lesson.": "Записан на первый урок."
+    "Signed up for the first lesson.": "Записан на первый урок.",
+    ":count students added to the group.": "В группу добавлено учеников: :count.",
+    ":count students added to the group, :skipped already studied in it.": "В группу добавлено учеников: :count, :skipped уже учились в ней.",
+    "Some students are not in this branch.": "Некоторые ученики не из этого филиала."
 }

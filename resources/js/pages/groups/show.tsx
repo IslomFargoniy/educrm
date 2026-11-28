@@ -9,6 +9,7 @@ import {
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import Field from '@/components/field';
+import AddStudentsDialog from '@/components/add-students-dialog';
 import FormDialog from '@/components/form-dialog';
 import GroupFormFields from '@/components/group-form-fields';
 import type { GroupFormOptions } from '@/components/group-form-fields';
@@ -188,6 +189,9 @@ export default function GroupShow({
                     }
                     actions={
                         <>
+                            {can('enrollments.manage') && (
+                                <AddStudentsDialog groupId={group.id} />
+                            )}
                             {can('lessons.manage') && (
                                 <FormDialog
                                     title={t('Extra lesson')}

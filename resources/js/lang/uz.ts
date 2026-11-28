@@ -874,4 +874,7 @@ export const uz: Record<string, string> = {
     'Find the student by name or phone': "O'quvchini ism yoki telefon bo'yicha toping",
     'Which group is the payment for?': "Qaysi guruh uchun to'lov?",
     'No students found': "O'quvchi topilmadi",
+    'Add students': "O'quvchi qo'shish",
+    'Tick the students to add to this group': "Guruhga qo'shiladigan o'quvchilarni belgilang",
+    'Add :count': "Qo'shish (:count)",
 };

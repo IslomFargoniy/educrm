@@ -109,5 +109,8 @@
     "The photo could not be read.": "Rasmni o'qib bo'lmadi.",
     "The student graduated from the group.": "O'quvchi guruhni bitirdi.",
     "First lesson cancelled.": "Birinchi dars bekor qilindi.",
-    "Signed up for the first lesson.": "Birinchi darsga yozildi."
+    "Signed up for the first lesson.": "Birinchi darsga yozildi.",
+    ":count students added to the group.": ":count ta o'quvchi guruhga qo'shildi.",
+    ":count students added to the group, :skipped already studied in it.": ":count ta o'quvchi guruhga qo'shildi, :skipped tasi allaqachon shu guruhda o'qiydi.",
+    "Some students are not in this branch.": "Ba'zi o'quvchilar bu filialda emas."
 }

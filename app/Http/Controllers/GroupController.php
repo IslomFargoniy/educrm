@@ -266,7 +266,8 @@ class GroupController extends Controller
             'course_id' => ['nullable', 'exists:courses,id'],
             'teacher_id' => ['nullable', 'exists:users,id'],
             'room_id' => ['nullable', 'exists:rooms,id'],
-            'teacher_percent' => ['required', 'integer', 'min:0', 'max:100'],
+            // Editing: the percent field is shown only with groups.prices, so the others don't send it
+            'teacher_percent' => [$creating || $request->user()->can('groups.prices') ? 'required' : 'nullable', 'integer', 'min:0', 'max:100'],
             'days' => ['required', 'array', 'min:1'],
             'days.*' => ['integer', 'between:1,7'],
             'start_time' => ['required', 'date_format:H:i'],

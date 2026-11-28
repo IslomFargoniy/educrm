@@ -115,4 +115,7 @@ export const en: Record<string, string> = {
     'Find the student by name or phone': 'Find the student by name or phone',
     'Which group is the payment for?': 'Which group is the payment for?',
     'No students found': 'No students found',
+    'Add students': 'Add students',
+    'Tick the students to add to this group': 'Tick the students to add to this group',
+    'Add :count': 'Add (:count)',
 };

@@ -9,10 +9,14 @@ use App\Models\Student;
 use App\Services\BillingService;
 use App\Services\EnrollmentService;
 use App\Services\FinanceService;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class EnrollmentController extends Controller
 {
@@ -34,6 +38,72 @@ class EnrollmentController extends Controller
             ...$this->termsFrom($request, $validated),
         ]);
         $this->toast(__('Student added to the group.'));
+
+        return back();
+    }
+
+    /**
+     * Students of the group's branch who can be added to it (not studying in it now), by name or phone.
+     */
+    public function candidates(Request $request, Group $group): JsonResponse
+    {
+        $this->authorizeBranch($group->branch_id);
+        $term = trim((string) $request->input('q'));
+        $digits = preg_replace('/\D+/', '', $term);
+
+        $students = Student::query()
+            ->inBranches([$group->branch_id])
+            ->whereDoesntHave('enrollments', fn (Builder $e) => $e->where('group_id', $group->id)->whereIn('status', ['active', 'trial']))
+            ->when($term !== '', fn (Builder $q) => $q->where(fn (Builder $w) => $w->where('full_name', 'like', "%{$term}%")
+                ->when(strlen($digits) >= 3, fn (Builder $p) => $p->orWhere('phone', 'like', "%{$digits}%"))))
+            ->orderBy('full_name')
+            ->limit(30)
+            ->get(['id', 'full_name', 'phone']);
+
+        return response()->json(['data' => $students->map(fn (Student $student) => [
+            'id' => $student->id,
+            'name' => $student->full_name,
+            'phone' => $student->phone,
+        ])]);
+    }
+
+    /**
+     * Add several students to a group at once, from the group page.
+     */
+    public function storeMany(Request $request, Group $group): RedirectResponse
+    {
+        $this->authorizeBranch($group->branch_id);
+        $validated = $request->validate([
+            'student_ids' => ['required', 'array', 'min:1', 'max:100'],
+            'student_ids.*' => ['integer', 'distinct'],
+            'joined_at' => ['required', 'date'],
+            'trial_lessons' => ['nullable', 'integer', 'min:0', 'max:30'],
+        ]);
+        $students = Student::query()->inBranches([$group->branch_id])->whereIn('id', $validated['student_ids'])->get();
+        if ($students->count() !== count($validated['student_ids'])) {
+            throw ValidationException::withMessages(['student_ids' => __('Some students are not in this branch.')]);
+        }
+
+        $joinedAt = Carbon::parse($validated['joined_at']);
+        $terms = ['trial_lessons' => (int) ($validated['trial_lessons'] ?? 0)];
+        $added = 0;
+        $skipped = 0;
+        DB::transaction(function () use ($students, $group, $joinedAt, $terms, &$added, &$skipped) {
+            foreach ($students as $student) {
+                $studying = $group->enrollments()->where('student_id', $student->id)->whereIn('status', ['active', 'trial'])->exists();
+                if ($studying) {
+                    $skipped++;
+
+                    continue;
+                }
+                $this->enrollments->enroll($student, $group, $joinedAt, $terms);
+                $added++;
+            }
+        });
+
+        $this->toast($skipped === 0
+            ? __(':count students added to the group.', ['count' => $added])
+            : __(':count students added to the group, :skipped already studied in it.', ['count' => $added, 'skipped' => $skipped]));
 
         return back();
     }

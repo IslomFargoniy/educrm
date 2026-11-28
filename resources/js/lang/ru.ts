@@ -868,4 +868,7 @@ export const ru: Record<string, string> = {
     'Find the student by name or phone': 'Найдите ученика по имени или телефону',
     'Which group is the payment for?': 'За какую группу оплата?',
     'No students found': 'Ученики не найдены',
+    'Add students': 'Добавить учеников',
+    'Tick the students to add to this group': 'Отметьте учеников, которых нужно добавить в группу',
+    'Add :count': 'Добавить (:count)',
 };
